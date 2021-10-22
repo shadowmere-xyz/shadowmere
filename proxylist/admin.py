@@ -13,6 +13,7 @@ class ProxyAdmin(admin.ModelAdmin):
     list_display = ('url', 'location', 'is_active', 'last_checked',)
     fields = ['url']
     actions = [update_status, ]
+    list_filter = ('location', 'is_active',)
 
 
 admin.site.unregister(Group)
