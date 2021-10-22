@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shadowmere</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body class="w3-black">
+<div class="w3-quarter w3-margin w3-center">
+    <h2>Shadowmere</h2>
+    <p>A list Shadowsocks proxies</p>
+    <img class="w3-image w3-round"
+         src="https://images.uesp.net/thumb/b/be/SR-creature-Shadowmere.jpg/600px-SR-creature-Shadowmere.jpg">
+</div>
+{% if proxy_list %}
+    <ul class="w3-ul w3-border w3-margin w3-card-4 w3-animate-zoom w3-twothird">
+        {% for proxy in proxy_list %}
+            <li class="w3-bar w3-display-container" style="word-wrap: break-word">
+                <div class="w3-bar-item w3-right-align w3-button w3-gray"
+                     onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#10697;
+                </div>
+                <div class="w3-bar-item" id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
+                <div class="w3-bar-item w3-display-right">{{ proxy.location }}</div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <h2 class="w3-center">No active proxies found</h2>
+{% endif %}
+</body>
+<script>
+    function copyToClipboard(elementId) {
+        var copyText = document.getElementById(elementId);
+        navigator.clipboard.writeText(copyText.innerText);
+    }
+</script>
+</html>

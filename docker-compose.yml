@@ -1,0 +1,85 @@
+version: "3"
+services:
+  shadowmere:
+    image: guamulo/shadowmere
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8001:8001"
+    build:
+      context: .
+
+  shadowmere_apply_migrations:
+    image: guamulo/shadowmere
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - shadowmere
+    command:
+      - python
+      - manage.py
+      - migrate
+
+  shadowmere_create_superuser:
+    image: guamulo/shadowmere
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - shadowmere_apply_migrations
+    command:
+      - python
+      - manage.py
+      - initadmin
+
+
+  testssproxy:
+    build:
+      context: ./testssproxy
+    image: guamulo/testssproxy
+    entrypoint:
+      - echo
+      - "ok"
+
+  db:
+    image: postgres:14-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - shadowmere_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=shadowmere
+      - POSTGRES_DB=shadowmere
+
+  redis:
+    image: redis:alpine
+    restart: always
+
+  celery:
+    image: guamulo/shadowmere
+    command: celery -A shadowmere worker -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  celery-beat:
+    image: guamulo/shadowmere
+    command: celery -A shadowmere beat -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - shadowmere_apply_migrations
+
+volumes:
+  shadowmere_data:
