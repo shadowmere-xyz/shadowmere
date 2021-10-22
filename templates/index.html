@@ -22,7 +22,7 @@
 {% if proxy_list %}
     <ul class="w3-ul w3-border w3-margin w3-card-4 w3-animate-zoom w3-twothird">
         {% for proxy in proxy_list %}
-            <li class="w3-bar w3-display-container" style="word-wrap: break-word">
+            <li class="w3-bar w3-display-container" style="word-wrap: anywhere">
                 <div class="w3-bar-item w3-button w3-gray w3-display-right w3-margin-right"
                      onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#10697;
                 </div>
