@@ -14,6 +14,7 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from celery.schedules import crontab
+from django.contrib.admin import AdminSite
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -153,3 +154,5 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*/20"),
     },
 }
+
+AdminSite.site_header = 'Shadowmere administration'
