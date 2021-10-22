@@ -10,20 +10,25 @@
 <div class="w3-quarter w3-margin w3-center">
     <h2>Shadowmere</h2>
     <p>A list Shadowsocks proxies</p>
-    <p><b>Disclaimer:</b> This website is only a list of tunnels collected all around internet. We do NOT provide or maintain any of these tunnels. Use them at your own risk.</p>
+    <p><b>Disclaimer:</b> This website is only a list of tunnels collected all around internet. We do NOT provide or
+        maintain any of these tunnels. Use them at your own risk.</p>
     <img class="w3-image w3-round"
          src="https://images.uesp.net/thumb/b/be/SR-creature-Shadowmere.jpg/600px-SR-creature-Shadowmere.jpg">
-    <p><b>How do I use this?:</b> Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for information. <a href="https://shadowsocks.org/en/download/clients.html">Here</a> is a list of clients for several platforms, but my favorite is <a href="https://getoutline.org/">Outline</a></p>
+    <p><b>How do I use this?:</b> Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for
+        information. <a href="https://shadowsocks.org/en/download/clients.html">Here</a> is a list of clients for
+        several platforms, but my favorite is <a href="https://getoutline.org/">Outline</a></p>
 </div>
 {% if proxy_list %}
     <ul class="w3-ul w3-border w3-margin w3-card-4 w3-animate-zoom w3-twothird">
         {% for proxy in proxy_list %}
             <li class="w3-bar w3-display-container" style="word-wrap: break-word">
-                <div class="w3-bar-item w3-right-align w3-button w3-gray"
+                <div class="w3-bar-item w3-button w3-gray w3-display-right w3-margin-right"
                      onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#10697;
                 </div>
-                <div class="w3-bar-item" id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
-                <div class="w3-bar-item w3-display-right">{{ proxy.location }}({{ proxy.last_checked }})</div>
+                <div class="w3-bar-item">
+                    <div id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
+                    <div>{{ proxy.location }}({{ proxy.last_checked }})</div>
+                </div>
             </li>
         {% endfor %}
     </ul>
