@@ -1,3 +1,4 @@
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +22,7 @@
                      onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#10697;
                 </div>
                 <div class="w3-bar-item" id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
-                <div class="w3-bar-item w3-display-right">{{ proxy.location }}</div>
+                <div class="w3-bar-item w3-display-right">{{ proxy.location }}({{ proxy.last_checked|localtime}})</div>
             </li>
         {% endfor %}
     </ul>
