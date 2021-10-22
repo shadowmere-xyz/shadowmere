@@ -10,11 +10,7 @@ CONCURRENT_CHECKS = 10
 @app.task(bind=True)
 def update_status(self):
     print("Updating proxies status")
-    pool = ThreadPool(processes=CONCURRENT_CHECKS)
-
     for proxy in Proxy.objects.all():
         print(f"\t>>>{proxy.url}")
-        pool.apply_async(update_proxy_status, [proxy, ])
-
-    pool.terminate()
+        update_proxy_status(proxy)
     print("Proxy status checked")
