@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 
 /usr/bin/sslocal -v -b "127.0.0.1:1080" --server-url "$1" -d
-curl --proxy socks5://localhost:1080 --fail myip.wtf/json
+curl --proxy socks5://localhost:1080 --retry 1 --retry-delay 0 --retry-all-errors --fail myip.wtf/json
