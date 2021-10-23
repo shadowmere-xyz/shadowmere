@@ -64,6 +64,7 @@ services:
 
   celery:
     image: guamulo/shadowmere
+    restart: always
     command: celery -A shadowmere worker -l info
     env_file:
       - .env
@@ -74,6 +75,7 @@ services:
 
   celery-beat:
     image: guamulo/shadowmere
+    restart: always
     command: celery -A shadowmere beat -l info
     env_file:
       - .env
