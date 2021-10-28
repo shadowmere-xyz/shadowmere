@@ -1,4 +1,4 @@
-from multiprocessing.pool import ThreadPool
+from threading import Thread
 
 from proxylist.models import Proxy
 from proxylist.proxy import update_proxy_status
@@ -12,5 +12,5 @@ def update_status(self):
     print("Updating proxies status")
     for proxy in Proxy.objects.all():
         print(f"\t>>>{proxy.url}")
-        update_proxy_status(proxy)
+        Thread(target=update_proxy_status, args=(proxy,)).start()
     print("Proxy status checked")

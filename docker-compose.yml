@@ -18,6 +18,7 @@ services:
     image: guamulo/shadowmere
     env_file:
       - .env
+    restart: on-failure
     depends_on:
       - db
       - shadowmere
@@ -30,6 +31,7 @@ services:
     image: guamulo/shadowmere
     env_file:
       - .env
+    restart: on-failure
     depends_on:
       - db
       - shadowmere_apply_migrations
@@ -37,15 +39,6 @@ services:
       - python
       - manage.py
       - initadmin
-
-
-  testssproxy:
-    build:
-      context: ./testssproxy
-    image: guamulo/testssproxy
-    entrypoint:
-      - echo
-      - "ok"
 
   db:
     image: postgres:14-alpine
