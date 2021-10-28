@@ -27,6 +27,20 @@ services:
       - manage.py
       - migrate
 
+  shadowmere_collectstatics:
+    image: guamulo/shadowmere
+    env_file:
+      - .env
+    restart: on-failure
+    depends_on:
+      - db
+      - shadowmere
+    command:
+      - python
+      - manage.py
+      - collectstatic
+      - --noinput
+
   shadowmere_create_superuser:
     image: guamulo/shadowmere
     env_file:
