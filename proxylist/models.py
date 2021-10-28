@@ -13,6 +13,9 @@ class Proxy(models.Model):
     is_active = models.BooleanField(default=False)
     last_checked = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.location} ({self.url})"
+
 
 @receiver(post_save, sender=Proxy)
 def convert_to_sip002_uri_scheme(sender, instance, created, **kwargs):
