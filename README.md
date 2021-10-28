@@ -8,7 +8,7 @@ Collecting proxies around the internet is fun, but what if they stop working? Ju
 ### Dependencies
  - [Docker](https://www.docker.com/)
  - [docker-compose](https://docs.docker.com/compose/)
- - [monio](https://min.io/)
+ - [minio](https://min.io/)
 ### Run
  1. Edit the `.env` file and set your desired secrets
  2. Run `docker-compose up -d --build`
