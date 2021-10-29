@@ -7,7 +7,7 @@
     <title>Shadowmere</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
-<body class="w3-blue-grey">
+<body class="w3-blue-grey w3-container">
 <a style="position: absolute;top: 0;left: 0;" href="https://github.com/jadolg/shadowmere"><img loading="lazy" width="149" height="149"
                                                                  src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149"
                                                                  class="attachment-full size-full"
@@ -32,11 +32,11 @@
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
             {% for proxy in proxy_list %}
                 <li class="w3-bar {% if forloop.counter != proxy_list|length %} w3-bottombar {% endif %} w3-display-container w3-row">
-                    <div class="w3-bar-item">
+                    <div class="w3-bar-item w3-left">
                         <div style="word-wrap: anywhere" id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
                         <div>{{ proxy.location }}({{ proxy.last_checked }})</div>
                     </div>
-                    <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-display-right w3-large"
+                    <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
                          onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
                     </div>
                 </li>
