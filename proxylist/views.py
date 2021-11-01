@@ -4,6 +4,7 @@ import re
 
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.utils.text import slugify
 
 from proxylist.models import Proxy
 
@@ -24,7 +25,7 @@ def json_proxy_file(request, proxy_id):
         "method": method_password.decode("ascii").split(":")[0]
     }
     response = HttpResponse(json.dumps(config), content_type='application/json')
-    response['Content-Disposition'] = 'attachment; filename="config.json"'
+    response['Content-Disposition'] = f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
     return response
 
 
