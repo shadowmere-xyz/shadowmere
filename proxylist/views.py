@@ -14,7 +14,7 @@ def list_proxies(request):
 
 def json_proxy_file(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
-    method_password = base64.b64decode(proxy.url.split("@")[0].replace("ss://", "").encode('ascii'))
+    method_password = decode_base64(proxy.url.split("@")[0].replace("ss://", "").encode('ascii'))
     server_and_port = proxy.url.split("@")[1]
     config = {
         "server": re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', server_and_port)[0],
@@ -26,3 +26,17 @@ def json_proxy_file(request, proxy_id):
     response = HttpResponse(json.dumps(config), content_type='application/json')
     response['Content-Disposition'] = 'attachment; filename="config.json"'
     return response
+
+
+def decode_base64(data, altchars=b'+/'):
+    """Decode base64, padding being optional.
+    source: https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
+    :param data: Base64 data as an ASCII byte string
+    :returns: The decoded byte string.
+
+    """
+    data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)  # normalize
+    missing_padding = len(data) % 4
+    if missing_padding:
+        data += b'=' * (4 - missing_padding)
+    return base64.b64decode(data, altchars)
