@@ -2,7 +2,8 @@ import base64
 import json
 import re
 
-from django.http import JsonResponse, HttpResponse
+import qrcode
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 
@@ -26,6 +27,15 @@ def json_proxy_file(request, proxy_id):
     }
     response = HttpResponse(json.dumps(config), content_type='application/json')
     response['Content-Disposition'] = f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
+    return response
+
+
+def qr_code(request, proxy_id):
+    proxy = get_object_or_404(Proxy, id=proxy_id)
+    img = qrcode.make(proxy.url)
+    response = HttpResponse(content_type='image/png')
+    response['Content-Disposition'] = f'attachment; filename="qr_{proxy.id}.png"'
+    img.save(response)
     return response
 
 

@@ -42,9 +42,23 @@
                     <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
                          onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
                     </div>
+                    <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
+                         onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
+                        &#9633;
+                    </div>
                     <a href="/{{ proxy.id }}/config">
                         <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large">&#x2193;</div>
                     </a>
+                    <!-- The Modal -->
+                    <div id="proxyqr{{ forloop.counter }}" class="w3-modal">
+                        <div class="w3-modal-content w3-center">
+                            <div class="w3-container">
+                                <span onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='none'"
+                                      class="w3-button w3-display-topright w3-blue-grey">&times;</span>
+                                <img loading="lazy" src="/{{ proxy.id }}/qr" alt="qr"/>
+                            </div>
+                        </div>
+                    </div>
                 </li>
             {% endfor %}
         </ul>
