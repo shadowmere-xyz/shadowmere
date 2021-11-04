@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'proxylist.apps.ProxylistConfig',
     'storages',
+    'import_export',
 ]
 
 MIDDLEWARE = [
