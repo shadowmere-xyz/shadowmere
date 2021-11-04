@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 
+from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy
 
 
@@ -37,17 +38,3 @@ def qr_code(request, proxy_id):
     response['Content-Disposition'] = f'attachment; filename="qr_{proxy.id}.png"'
     img.save(response)
     return response
-
-
-def decode_base64(data, altchars=b'+/'):
-    """Decode base64, padding being optional.
-    source: https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
-    :param data: Base64 data as an ASCII byte string
-    :returns: The decoded byte string.
-
-    """
-    data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)  # normalize
-    missing_padding = len(data) % 4
-    if missing_padding:
-        data += b'=' * (4 - missing_padding)
-    return base64.b64decode(data, altchars)

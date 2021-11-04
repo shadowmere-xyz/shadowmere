@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from proxylist.base64_decoder import decode_base64
 from proxylist.proxy import update_proxy_status
 
 
@@ -23,7 +24,7 @@ def convert_to_sip002_uri_scheme(sender, instance, created, **kwargs):
         url = instance.url.replace("ss://", "")
         if "#" in url:
             url = url[:url.index("#")]
-        decoded_url = base64.b64decode(url.encode('ascii'))
+        decoded_url = decode_base64(url.encode('ascii'))
         encoded_bits = base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii")
         instance.url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
         instance.save()
