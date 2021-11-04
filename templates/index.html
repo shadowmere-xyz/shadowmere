@@ -36,7 +36,7 @@
             {% for proxy in proxy_list %}
                 <li class="w3-bar {% if forloop.counter != proxy_list|length %} w3-bottombar {% endif %} w3-display-container w3-row">
                     <div class="w3-bar-item w3-left">
-                        <div style="word-wrap: anywhere" id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
+                        <div style="word-wrap: anywhere;max-width: 900px" id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
                         <div>{{ proxy.location }}({{ proxy.last_checked }} UTC)</div>
                     </div>
                     <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
