@@ -1,4 +1,3 @@
-import base64
 import json
 import re
 
@@ -6,11 +5,13 @@ import qrcode
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
+from django.views.decorators.cache import cache_page
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy
 
 
+@cache_page(60 * 15)
 def list_proxies(request):
     return render(request, "index.html", {"proxy_list": Proxy.objects.filter(is_active=True).order_by("location")})
 
