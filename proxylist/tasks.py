@@ -1,4 +1,4 @@
-from multiprocessing.pool import ThreadPool
+from concurrent.futures import ThreadPoolExecutor
 
 from proxylist.models import Proxy
 from proxylist.proxy import update_proxy_status
@@ -10,11 +10,8 @@ CONCURRENT_CHECKS = 10
 @app.task(bind=True)
 def update_status(self):
     print("Updating proxies status")
-    pool = ThreadPool(processes=int(CONCURRENT_CHECKS))
 
-    for proxy in Proxy.objects.all():
-        print(f"\t>>>{proxy.url}")
-        pool.apply_async(update_proxy_status, [proxy, ])
+    with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
+        executor.map(update_proxy_status, Proxy.objects.all())
 
-    pool.terminate()
     print("Proxy status checked")
