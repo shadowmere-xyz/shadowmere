@@ -16,6 +16,10 @@ def list_proxies(request):
     return render(request, "index.html", {"proxy_list": Proxy.objects.filter(is_active=True).order_by('-id')})
 
 
+def healthcheck(request):
+    return HttpResponse(b"OK")
+
+
 def json_proxy_file(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
     method_password = decode_base64(proxy.url.split("@")[0].replace("ss://", "").encode('ascii'))

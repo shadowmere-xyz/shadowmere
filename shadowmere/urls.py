@@ -8,4 +8,5 @@ urlpatterns = [
     path('', proxylist.views.list_proxies),
     path('<int:proxy_id>/config', proxylist.views.json_proxy_file),
     path('<int:proxy_id>/qr', proxylist.views.qr_code),
+    path('health', proxylist.views.healthcheck),
 ]
