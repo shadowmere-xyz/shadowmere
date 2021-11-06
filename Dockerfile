@@ -7,4 +7,4 @@ RUN wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.11
 RUN tar -xf shadowsocks-v1.11.2.x86_64-unknown-linux-gnu.tar.xz && mv ss* /usr/bin
 COPY . /home/
 
-CMD ["gunicorn", "shadowmere.wsgi:application", "--bind", "0.0.0.0:8001", "-k", "gevent"]
+CMD ["gunicorn", "shadowmere.asgi:application", "--bind", "0.0.0.0:8001", "-k", "uvicorn.workers.UvicornWorker"]
