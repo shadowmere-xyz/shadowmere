@@ -89,7 +89,7 @@ if DEBUG:
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'ENGINE': 'django_prometheus.db.backends..postgresql_psycopg2',
             'NAME': 'shadowmere',
             'USER': 'shadowmere',
             'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
