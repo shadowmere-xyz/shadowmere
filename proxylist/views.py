@@ -11,7 +11,7 @@ from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy
 
 
-@cache_page(60 * 15)
+@cache_page(60 * 20)
 def list_proxies(request):
     return render(request, "index.html", {"proxy_list": Proxy.objects.filter(is_active=True).order_by('-id')})
 
