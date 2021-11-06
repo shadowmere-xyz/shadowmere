@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from proxylist.models import Proxy
-from proxylist.proxy import get_proxy_location, update_proxy_status
+from proxylist.proxy import update_proxy_status
 
 
 class Command(BaseCommand):
