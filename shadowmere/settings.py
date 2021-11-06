@@ -27,7 +27,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", False)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'shadowmere.akiel.dev', ]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'shadowmere.akiel.dev',
+                 'eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion', ]
 
 # Application definition
 
