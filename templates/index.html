@@ -20,13 +20,17 @@
         <p><b>Disclaimer:</b> This website is only a list of tunnels collected all around internet. We do NOT
             provide or
             maintain any of these tunnels. Use them at your own risk.</p>
-        <img class="w3-image w3-round"
-             src="https://images.uesp.net/thumb/b/be/SR-creature-Shadowmere.jpg/600px-SR-creature-Shadowmere.jpg">
+        <a href="https://skyrim.fandom.com/wiki/Shadowmere">
+            <img class="w3-image w3-round"
+                 src="https://images.uesp.net/thumb/b/be/SR-creature-Shadowmere.jpg/600px-SR-creature-Shadowmere.jpg">
+        </a>
         <p><b>How do I use this?:</b> Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look
             for
             information. <a href="https://shadowsocks.org/en/download/clients.html">Here</a> is a list of clients
             for
-            several platforms, but my favorite is <a href="https://getoutline.org/">Outline</a> for any platform and <a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks">shadowsocks</a> for Android</p>
+            several platforms, but my favorite is <a href="https://getoutline.org/">Outline</a> for any platform and <a
+                    href="https://play.google.com/store/apps/details?id=com.github.shadowsocks">shadowsocks</a> for
+            Android</p>
 
         <p><b>Online:</b> {{ proxy_list|length }}</p>
     </div>
@@ -35,7 +39,8 @@
             {% for proxy in proxy_list %}
                 <li class="w3-bar {% if forloop.counter != proxy_list|length %} w3-bottombar {% endif %} w3-display-container w3-row">
                     <div class="w3-bar-item w3-left">
-                        <div style="word-wrap: anywhere;max-width: 900px" id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
+                        <div style="word-wrap: anywhere;max-width: 900px"
+                             id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
                         <div>{{ proxy.location }}({{ proxy.last_checked }} UTC)</div>
                     </div>
                     <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
