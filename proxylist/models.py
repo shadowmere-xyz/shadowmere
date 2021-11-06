@@ -3,12 +3,13 @@ import base64
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django_prometheus.models import ExportModelOperationsMixin
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.proxy import update_proxy_status
 
 
-class Proxy(models.Model):
+class Proxy(ExportModelOperationsMixin('proxy'), models.Model):
     url = models.CharField(max_length=1024, unique=True)
     location = models.CharField(max_length=100, default="")
     is_active = models.BooleanField(default=False)
