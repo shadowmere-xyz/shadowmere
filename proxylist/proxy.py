@@ -22,10 +22,11 @@ def get_proxy_location(proxy_url):
     pro = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                            shell=True, preexec_fn=os.setsid)
     sleep(0.3)
+    proxy_url = f"socks5://127.0.0.1:{port}"
     try:
         r = requests.get(
             "https://myip.wtf/json",
-            proxies={"http": f"socks5://127.0.0.1:{port}", "https": f"socks5://127.0.0.1:{port}"},
+            proxies={"http": proxy_url, "https": proxy_url},
             timeout=5,
         )
         output = r.json()
