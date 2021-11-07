@@ -43,11 +43,9 @@ def get_proxy_location(proxy_url):
 def update_proxy_status(proxy):
     location = get_proxy_location(proxy_url=proxy.url)
     if location:
-        if location != proxy.location:
-            proxy.is_active = True
-            proxy.location = location
-            proxy.save()
-    elif proxy.is_active:
+        proxy.is_active = True
+        proxy.location = location
+    else:
         proxy.is_active = False
         proxy.location = "unknown"
-        proxy.save()
+    proxy.save()
