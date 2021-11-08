@@ -32,7 +32,7 @@ def get_proxy_location(proxy_url):
         output = r.json()
         if r.status_code != 200 or "YourFuckingLocation" not in output:
             return None
-        return output.get("YourFuckingLocation")
+        return f'{output.get("YourFuckingIPAddress")} @ {output.get("YourFuckingLocation")}'
     except Exception as e:
         logging.error(f"call to myip.wtf/json failed {e}")
         return None
