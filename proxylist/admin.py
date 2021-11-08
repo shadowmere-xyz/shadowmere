@@ -20,7 +20,7 @@ class ProxyAdmin(ImportExportModelAdmin):
     list_display = ('url', 'location', 'is_active', 'last_checked',)
     fields = ['url']
     actions = [update_status, ]
-    list_filter = ('is_active', 'location',)
+    list_filter = ('is_active',)
     resource_class = ProxyResource
 
 
