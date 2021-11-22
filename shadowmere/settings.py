@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'storages',
     'import_export',
     'django_prometheus',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [
