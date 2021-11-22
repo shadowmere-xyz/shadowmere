@@ -7,6 +7,7 @@ from contextlib import closing
 from time import sleep
 
 import requests
+from django.utils.timezone import now
 
 
 def find_free_port():
@@ -45,6 +46,7 @@ def update_proxy_status(proxy):
     if location:
         proxy.is_active = True
         proxy.location = location
+        proxy.last_active = now()
     else:
         proxy.is_active = False
         proxy.location = "unknown"

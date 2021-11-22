@@ -3,6 +3,7 @@ import base64
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.timezone import now
 from django_prometheus.models import ExportModelOperationsMixin
 
 from proxylist.base64_decoder import decode_base64
@@ -14,6 +15,7 @@ class Proxy(ExportModelOperationsMixin('proxy'), models.Model):
     location = models.CharField(max_length=100, default="")
     is_active = models.BooleanField(default=False)
     last_checked = models.DateTimeField(auto_now=True)
+    last_active = models.DateTimeField(blank=True, default=now)
 
     def __str__(self):
         return f"{self.location} ({self.url})"
