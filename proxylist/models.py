@@ -1,7 +1,7 @@
 import base64
 
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.timezone import now
 from django_prometheus.models import ExportModelOperationsMixin
@@ -20,21 +20,19 @@ class Proxy(ExportModelOperationsMixin('proxy'), models.Model):
     def __str__(self):
         return f"{self.location} ({self.url})"
 
-    def save(self, **kwargs):
-        if "#" in self.url:
-            self.url = self.url.split("#")[0]
-        if "@" not in self.url:
-            url = self.url.replace("ss://", "")
-            if "#" in url:
-                url = url[:url.index("#")]
-            decoded_url = decode_base64(url.encode('ascii'))
-            encoded_bits = base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
-            self.url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
 
-        if Proxy.objects.filter(url=self.url).exists():
-            return
-        else:
-            super(Proxy, self).save()
+@receiver(post_save, sender=Proxy)
+def convert_to_sip002_uri_scheme(sender, instance, created, **kwargs):
+    if "#" in instance.url:
+        instance.url = instance.url.split("#")[0]
+    if "@" not in instance.url:
+        url = instance.url.replace("ss://", "")
+        if "#" in url:
+            url = url[:url.index("#")]
+        decoded_url = decode_base64(url.encode('ascii'))
+        encoded_bits = base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
+        instance.url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
+        instance.save()
 
 
 @receiver(post_save, sender=Proxy)
