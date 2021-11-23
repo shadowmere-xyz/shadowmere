@@ -1,7 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from proxylist.models import Proxy
-from proxylist.proxy import update_proxy_status
 from proxylist.tasks import update_status
 
 
