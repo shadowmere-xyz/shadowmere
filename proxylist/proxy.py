@@ -18,6 +18,7 @@ def find_free_port():
 
 
 def get_proxy_location(proxy_url):
+    proxy_url = proxy_url.replace("(", "").replace(")", "")
     port = find_free_port()
     cmd = f'sslocal -v -b localhost:{port} --server-url {proxy_url}'
     pro = subprocess.Popen(cmd, stdout=subprocess.PIPE,
