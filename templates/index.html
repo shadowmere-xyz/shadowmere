@@ -33,6 +33,9 @@
             Android</p>
 
         <p><b>Online:</b> {{ proxy_list|length }}</p>
+        {% if proxy_list|length > 0 %}
+        <p><b>Last check:</b> {{ proxy_list.0.last_checked }}</p>
+        {% endif %}
     </div>
     {% if proxy_list %}
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
@@ -41,7 +44,7 @@
                     <div class="w3-bar-item w3-left">
                         <div class="w3-hide" style="word-wrap: anywhere;max-width: 900px"
                              id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
-                        <div><b>{{ proxy.location }}</b> ({{ proxy.last_checked }} UTC)</div>
+                        <div><b>{{ proxy.location }}</b></div>
                     </div>
                     <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
                          onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
