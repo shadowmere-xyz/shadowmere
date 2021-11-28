@@ -34,7 +34,7 @@
 
         <p><b>Online:</b> {{ proxy_list|length }}</p>
         {% if proxy_list|length > 0 %}
-        <p><b>Last check:</b> {{ proxy_list.0.last_checked }}</p>
+        <p><b>Last check:</b> {{ proxy_list.0.last_checked }} UTC</p>
         {% endif %}
     </div>
     {% if proxy_list %}
