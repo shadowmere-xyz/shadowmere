@@ -162,3 +162,5 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 AdminSite.site_header = 'Shadowmere administration'
+
+PROMETHEUS_METRICS_EXPORT_PORT_RANGE = range(8002, 8008)

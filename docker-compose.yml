@@ -11,6 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8002-8006:8002-8006"
     build:
       context: .
 
