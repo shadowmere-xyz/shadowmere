@@ -25,6 +25,10 @@ class Proxy(ExportModelOperationsMixin('proxy'), models.Model):
 def convert_to_sip002_uri_scheme(sender, instance, created, **kwargs):
     if "#" in instance.url:
         instance.url = instance.url.split("#")[0]
+        instance.save()
+    if "=" in instance.url:
+        instance.url = instance.url.replace("=", "")
+        instance.save()
     if "@" not in instance.url:
         url = instance.url.replace("ss://", "")
 
