@@ -27,8 +27,7 @@ def convert_to_sip002_uri_scheme(sender, instance, created, **kwargs):
         instance.url = instance.url.split("#")[0]
     if "@" not in instance.url:
         url = instance.url.replace("ss://", "")
-        if "#" in url:
-            url = url[:url.index("#")]
+
         decoded_url = decode_base64(url.encode('ascii'))
         encoded_bits = base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
         instance.url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
