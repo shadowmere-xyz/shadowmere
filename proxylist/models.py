@@ -47,14 +47,11 @@ def get_sip002(instance_url):
 
 
 @receiver(post_save, sender=Proxy)
-def convert_to_sip002_uri_scheme(sender, instance, created, **kwargs):
+def update_url_and_location_after_save(sender, instance, created, **kwargs):
     url = get_sip002(instance.url)
     if url != instance.url:
         instance.url = url
         instance.save()
 
-
-@receiver(post_save, sender=Proxy)
-def save_location(sender, instance, created, **kwargs):
-    if instance.location == "" and not Proxy.objects.filter(url=instance.url).exists():
+    if instance.location == "":
         update_proxy_status(instance)
