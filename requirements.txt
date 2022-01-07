@@ -12,7 +12,7 @@ click-repl==0.2.0
 configparser==5.0.2
 defusedxml==0.7.1
 diff-match-patch==20200713
-Django==3.2.8
+Django==3.2.10
 django-admin-rangefilter==0.8.2
 django-import-export==2.6.1
 django-minio-storage==0.3.10
