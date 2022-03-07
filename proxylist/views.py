@@ -25,7 +25,7 @@ def json_proxy_file(request, proxy_id):
     method_password = decode_base64(proxy.url.split("@")[0].replace("ss://", "").encode('ascii'))
     server_and_port = proxy.url.split("@")[1]
     config = {
-        "server": re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', server_and_port)[0],
+        "server": re.findall(r'^(.*?):\d+', server_and_port)[0],
         "server_port": int(re.findall(r":(\d+)", server_and_port)[0]),
         "local_port": 1080,
         "password": method_password.decode("ascii").split(":")[1],
