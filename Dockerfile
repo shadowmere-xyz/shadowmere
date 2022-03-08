@@ -3,8 +3,8 @@ WORKDIR /home/
 
 COPY requirements.txt /home/
 RUN pip install -r requirements.txt
-RUN wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.11.2/shadowsocks-v1.11.2.x86_64-unknown-linux-gnu.tar.xz
-RUN tar -xf shadowsocks-v1.11.2.x86_64-unknown-linux-gnu.tar.xz && mv ss* /usr/bin
+RUN wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.14.1/shadowsocks-v1.14.1.x86_64-unknown-linux-gnu.tar.xz
+RUN tar -xf shadowsocks-v1.14.1.x86_64-unknown-linux-gnu.tar.xz && mv ss* /usr/bin
 COPY . /home/
 
 CMD ["gunicorn", "shadowmere.wsgi:application", "--bind", "0.0.0.0:8001", "-k", "gevent", "-w", "6"]
