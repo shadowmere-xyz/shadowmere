@@ -20,8 +20,11 @@ def find_free_port():
 def get_proxy_location(proxy_url):
     port = find_free_port()
     cmd = f'sslocal -v -b localhost:{port} --server-url {proxy_url}'
-    pro = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                           shell=True, preexec_fn=os.setsid)
+    pro = subprocess.Popen(cmd,
+                           stdout=subprocess.PIPE,
+                           shell=True,
+                           preexec_fn=os.setsid,
+                           close_fds=True)
     sleep(0.3)
     proxy_url = f"socks5://127.0.0.1:{port}"
     try:
