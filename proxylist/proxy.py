@@ -16,9 +16,14 @@ def find_free_port():
 
 def get_proxy_location(proxy_url):
     r = requests.post(settings.SHADOWTEST_URL, data={'address': proxy_url})
-    output = r.json()
-    if r.status_code != 200 or "YourFuckingLocation" not in output:
+
+    if r.status_code != 200:
         return None
+
+    output = r.json()
+    if "YourFuckingLocation" not in output:
+        return None
+    
     return f'{output.get("YourFuckingIPAddress")} @ {output.get("YourFuckingLocation")}'
 
 
