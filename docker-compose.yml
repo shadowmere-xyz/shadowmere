@@ -91,5 +91,9 @@ services:
       - redis
       - shadowmere_apply_migrations
 
+  shadowtest:
+    image: guamulo/shadowtest:latest
+    restart: always
+
 volumes:
   shadowmere_data:
