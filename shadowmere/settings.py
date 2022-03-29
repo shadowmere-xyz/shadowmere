@@ -139,16 +139,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = './static_files/'
 
-DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
-STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
-MINIO_STORAGE_ENDPOINT = os.getenv('MINIO_ENDPOINT')
-MINIO_STORAGE_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
-MINIO_STORAGE_SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
-MINIO_STORAGE_USE_HTTPS = True
-MINIO_STORAGE_MEDIA_BUCKET_NAME = 'shadowmere-media'
-MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
-MINIO_STORAGE_STATIC_BUCKET_NAME = 'shadowmere-static'
-MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+    STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
+    MINIO_STORAGE_ENDPOINT = os.getenv('MINIO_ENDPOINT')
+    MINIO_STORAGE_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
+    MINIO_STORAGE_SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
+    MINIO_STORAGE_USE_HTTPS = True
+    MINIO_STORAGE_MEDIA_BUCKET_NAME = 'shadowmere-media'
+    MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
+    MINIO_STORAGE_STATIC_BUCKET_NAME = 'shadowmere-static'
+    MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
