@@ -25,6 +25,8 @@ class Proxy(ExportModelOperationsMixin('proxy'), models.Model):
     is_active = models.BooleanField(default=False)
     last_checked = models.DateTimeField(auto_now=True)
     last_active = models.DateTimeField(blank=True, default=now)
+    times_checked = models.IntegerField(default=0)
+    times_check_failed = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.location} ({self.url})"

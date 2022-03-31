@@ -23,7 +23,7 @@ def get_proxy_location(proxy_url):
     output = r.json()
     if "YourFuckingLocation" not in output:
         return None
-    
+
     return f'{output.get("YourFuckingIPAddress")} @ {output.get("YourFuckingLocation")}'
 
 
@@ -36,4 +36,7 @@ def update_proxy_status(proxy):
     else:
         proxy.is_active = False
         proxy.location = "unknown"
+        proxy.times_check_failed = proxy.times_check_failed + 1
+
+    proxy.times_checked = proxy.times_checked + 1
     proxy.save()

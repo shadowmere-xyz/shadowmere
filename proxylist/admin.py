@@ -18,7 +18,13 @@ class ProxyAdmin(ImportExportModelAdmin):
         for proxy in queryset:
             update_proxy_status(proxy)
 
-    list_display = ('url', 'location', 'is_active', 'last_checked', 'last_active')
+    def quality(self, obj):
+        if obj.times_checked > 0:
+            return 100 - (obj.times_check_failed * 100 / obj.times_checked)
+        else:
+            return 0
+
+    list_display = ('url', 'location', 'is_active', 'last_checked', 'last_active', 'quality')
     fields = ['url']
     actions = [update_status, ]
     list_filter = ('is_active', ('last_active', DateRangeFilter),)
