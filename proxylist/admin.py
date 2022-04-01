@@ -20,7 +20,7 @@ class ProxyAdmin(ImportExportModelAdmin):
 
     def quality(self, obj):
         if obj.times_checked > 0:
-            return 100 - (obj.times_check_failed * 100 / obj.times_checked)
+            return obj.times_check_succeeded * 100 / obj.times_checked
         else:
             return 0
 

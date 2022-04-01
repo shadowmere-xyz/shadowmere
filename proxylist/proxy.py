@@ -33,10 +33,10 @@ def update_proxy_status(proxy):
         proxy.is_active = True
         proxy.location = location
         proxy.last_active = now()
+        proxy.times_check_succeeded = proxy.times_check_succeeded + 1
     else:
         proxy.is_active = False
         proxy.location = "unknown"
-        proxy.times_check_failed = proxy.times_check_failed + 1
 
     proxy.times_checked = proxy.times_checked + 1
     proxy.save()
