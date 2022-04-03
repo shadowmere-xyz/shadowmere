@@ -66,7 +66,7 @@
     {% if proxy_list %}
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
             {% for proxy in page_obj %}
-                <li class="w3-bar {% if forloop.counter != proxy_list|length %} w3-bottombar {% endif %} w3-display-container w3-row">
+                <li class="w3-bar {% if forloop.counter != 20 %} w3-bottombar {% endif %} w3-display-container w3-row">
                     <div class="w3-bar-item w3-left">
                         <span class="w3-tag">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
                     </div>
