@@ -2,6 +2,7 @@ import json
 import re
 
 import qrcode
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
@@ -13,7 +14,13 @@ from proxylist.models import Proxy
 
 @cache_page(60 * 20)
 def list_proxies(request):
-    return render(request, "index.html", {"proxy_list": Proxy.objects.filter(is_active=True).order_by('-id')})
+    proxy_list = Proxy.objects.filter(is_active=True).order_by('-id')
+    paginator = Paginator(proxy_list, 20)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "index.html", {"page_obj": page_obj, "proxy_list": proxy_list})
 
 
 def healthcheck(request):

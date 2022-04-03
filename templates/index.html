@@ -65,7 +65,7 @@
     </div>
     {% if proxy_list %}
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
-            {% for proxy in proxy_list %}
+            {% for proxy in page_obj %}
                 <li class="w3-bar {% if forloop.counter != proxy_list|length %} w3-bottombar {% endif %} w3-display-container w3-row">
                     <div class="w3-bar-item w3-left">
                         <span class="w3-tag">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
@@ -98,6 +98,25 @@
                 </li>
             {% endfor %}
         </ul>
+        <div class="w3-center">
+            <div class="pagination w3-bar">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a class="w3-button" href="?page=1">&laquo; first</a>
+                        <a class="w3-button" href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a class="w3-button" href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a class="w3-button" href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
     {% else %}
         <h2 class="w3-center">No active proxies found</h2>
     {% endif %}
