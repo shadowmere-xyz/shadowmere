@@ -4,7 +4,7 @@ from proxylist.models import Proxy
 from proxylist.proxy import update_proxy_status
 from shadowmere.celery import app
 
-CONCURRENT_CHECKS = 100
+CONCURRENT_CHECKS = 80
 
 
 @app.task(bind=True)
