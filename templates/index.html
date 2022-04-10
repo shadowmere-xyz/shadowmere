@@ -73,7 +73,7 @@
                     <div class="w3-bar-item w3-left">
                         <div class="w3-hide" style="word-wrap: anywhere;max-width: 900px"
                              id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
-                        <div><b>{{ proxy.location }}</b></div>
+                        <div><b>{{ proxy.ip_address }} @ {{ proxy.location }}</b></div>
                     </div>
                     <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
                          onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;

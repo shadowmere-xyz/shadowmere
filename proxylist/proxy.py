@@ -24,14 +24,17 @@ def get_proxy_location(proxy_url):
     if "YourFuckingLocation" not in output:
         return None
 
-    return f'{output.get("YourFuckingIPAddress")} @ {output.get("YourFuckingLocation")}'
+    return output
 
 
 def update_proxy_status(proxy):
-    location = get_proxy_location(proxy_url=proxy.url)
-    if location:
+    ip_information = get_proxy_location(proxy_url=proxy.url)
+
+    if ip_information:
         proxy.is_active = True
-        proxy.location = location
+        proxy.location = ip_information.get('YourFuckingLocation')
+        proxy.location_country_code = ip_information.get('YourFuckingCountryCode')
+        proxy.ip_address = ip_information.get('YourFuckingIPAddress')
         proxy.last_active = now()
         proxy.times_check_succeeded = proxy.times_check_succeeded + 1
     else:

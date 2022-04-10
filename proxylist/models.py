@@ -22,6 +22,8 @@ def validate_not_existing(value):
 class Proxy(ExportModelOperationsMixin('proxy'), models.Model):
     url = models.CharField(max_length=1024, unique=True, validators=[validate_not_existing, ])
     location = models.CharField(max_length=100, default="")
+    location_country_code = models.CharField(max_length=3, default="")
+    ip_address = models.CharField(max_length=100, default="")
     is_active = models.BooleanField(default=False)
     last_checked = models.DateTimeField(auto_now=True)
     last_active = models.DateTimeField(blank=True, default=now)
