@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django_prometheus',
     'rangefilter',
     'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
