@@ -60,7 +60,10 @@
                     href="https://play.google.com/store/apps/details?id=com.github.shadowsocks">shadowsocks</a> for
             Android</p>
 
-        <p><b>Online:</b> {{ proxy_list|length }}</p>
+        <p><b>Online:</b> {{ proxy_list|length }} {% if location_country_code != "" %}
+            <img class="w3-margin" title="{{ location_country_code }}" width="30px" height="20px"
+                 src="https://img.geonames.org/flags/x/{{ location_country_code |lower }}.gif">
+        {% endif %}</p>
         {% if proxy_list|length > 0 %}
             <p><b>Last check:</b> {{ proxy_list.0.last_checked }} UTC</p>
         {% endif %}
@@ -123,7 +126,8 @@
             <div class="pagination w3-bar">
                 <span class="step-links">
                     {% if page_obj.has_previous %}
-                        <a class="w3-button" href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}">&#10094;</a>
+                        <a class="w3-button"
+                           href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}">&#10094;</a>
                     {% endif %}
 
                     <span class="w3-button">
@@ -131,7 +135,8 @@
                     </span>
 
                     {% if page_obj.has_next %}
-                        <a class="w3-button" href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}">&#10095;</a>
+                        <a class="w3-button"
+                           href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}">&#10095;</a>
                     {% endif %}
                 </span>
             </div>
