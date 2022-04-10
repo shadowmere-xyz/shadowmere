@@ -41,7 +41,9 @@
                                                                                                data-recalc-dims="1"></a>
 <div class="w3-margin">
     <div class="w3-quarter w3-margin w3-center">
-        <h2>Shadowmere</h2>
+        <a href="/">
+            <h2>Shadowmere</h2>
+        </a>
         <p>A list of Shadowsocks proxies</p>
         <p><b>Disclaimer:</b> This website is only a list of tunnels collected all around internet. We do NOT
             provide or
@@ -62,6 +64,12 @@
         {% if proxy_list|length > 0 %}
             <p><b>Last check:</b> {{ proxy_list.0.last_checked }} UTC</p>
         {% endif %}
+        {% for country_code in country_codes %}
+            <a class="w3-button" href="/?location_country_code={{ country_code.location_country_code }}">
+                <img title="{{ country_code.location_country_code }}" width="30px" height="20px"  src="https://img.geonames.org/flags/x/{{ country_code.location_country_code |lower }}.gif">
+            </a>
+        {% endfor %}
+
     </div>
     {% if proxy_list %}
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">

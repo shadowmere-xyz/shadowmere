@@ -17,13 +17,28 @@ from proxylist.serializers import ProxySerializer
 
 @cache_page(60 * 20)
 def list_proxies(request):
-    proxy_list = Proxy.objects.filter(is_active=True).order_by('-id')
+    location_country_code = request.GET.get('location_country_code', '')
+    country_codes = Proxy.objects.order_by('location_country_code').values('location_country_code').distinct()
+    if location_country_code != '':
+        proxy_list = Proxy.objects.filter(
+            location_country_code=location_country_code,
+            is_active=True
+        ).order_by('-id')
+    else:
+        proxy_list = Proxy.objects.filter(is_active=True).order_by('-id')
+
     paginator = Paginator(proxy_list, 20)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, "index.html", {"page_obj": page_obj, "proxy_list": proxy_list})
+    return render(request,
+                  "index.html", {
+                      "page_obj": page_obj,
+                      "proxy_list": proxy_list,
+                      "country_codes": country_codes
+                  }
+                  )
 
 
 def healthcheck(request):
@@ -63,4 +78,4 @@ class ProxyViewSet(viewsets.ModelViewSet):
     serializer_class = ProxySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = ('is_active', 'location_country_code', 'location', )
+    filterset_fields = ('is_active', 'location_country_code', 'location',)
