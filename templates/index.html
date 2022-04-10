@@ -64,10 +64,17 @@
         {% if proxy_list|length > 0 %}
             <p><b>Last check:</b> {{ proxy_list.0.last_checked }} UTC</p>
         {% endif %}
+        <a class="w3-button" href="/">
+            <img title="world" width="30px" height="20px"
+                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/International_Flag_of_Planet_Earth.svg/1280px-International_Flag_of_Planet_Earth.svg.png">
+        </a>
         {% for country_code in country_codes %}
-            <a class="w3-button" href="/?location_country_code={{ country_code.location_country_code }}">
-                <img title="{{ country_code.location_country_code }}" width="30px" height="20px"  src="https://img.geonames.org/flags/x/{{ country_code.location_country_code |lower }}.gif">
-            </a>
+            {% if country_code.location_country_code != "" %}
+                <a class="w3-button" href="/?location_country_code={{ country_code.location_country_code }}">
+                    <img title="{{ country_code.location_country_code }}" width="30px" height="20px"
+                         src="https://img.geonames.org/flags/x/{{ country_code.location_country_code |lower }}.gif">
+                </a>
+            {% endif %}
         {% endfor %}
 
     </div>
