@@ -123,7 +123,7 @@
             <div class="pagination w3-bar">
                 <span class="step-links">
                     {% if page_obj.has_previous %}
-                        <a class="w3-button" href="?page={{ page_obj.previous_page_number }}">&#10094;</a>
+                        <a class="w3-button" href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}">&#10094;</a>
                     {% endif %}
 
                     <span class="w3-button">
@@ -131,7 +131,7 @@
                     </span>
 
                     {% if page_obj.has_next %}
-                        <a class="w3-button" href="?page={{ page_obj.next_page_number }}">&#10095;</a>
+                        <a class="w3-button" href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}">&#10095;</a>
                     {% endif %}
                 </span>
             </div>

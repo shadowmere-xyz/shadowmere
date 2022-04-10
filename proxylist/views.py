@@ -36,7 +36,8 @@ def list_proxies(request):
                   "index.html", {
                       "page_obj": page_obj,
                       "proxy_list": proxy_list,
-                      "country_codes": country_codes
+                      "country_codes": country_codes,
+                      "location_country_code": location_country_code,
                   }
                   )
 
