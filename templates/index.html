@@ -67,25 +67,30 @@
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
             {% for proxy in page_obj %}
                 <li class="w3-bar {% if forloop.counter != 20 %} w3-bottombar {% endif %} w3-display-container w3-row">
-                    <div class="w3-bar-item w3-left">
-                        <span ><img title="{{ proxy.location }}" width="30px" height="20px" alt="{{ proxy.location }}" src="https://img.geonames.org/flags/x/{{ proxy.location_country_code |lower }}.gif" /></span>
+                    <div class="w3-bar-item s12 m2 l2">
+                        <span><img title="{{ proxy.location }}" width="30px" height="20px" alt="{{ proxy.location }}"
+                                   src="https://img.geonames.org/flags/x/{{ proxy.location_country_code |lower }}.gif"/></span>
                         <span class="w3-tag w3-margin-left">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
                     </div>
-                    <div class="w3-bar-item w3-left w3-margin-left">
+                    <div class="w3-bar-item">
                         <div class="w3-hide" style="word-wrap: anywhere;max-width: 900px"
                              id="proxy{{ forloop.counter }}">{{ proxy.url }}</div>
                         <div><b>{{ proxy.ip_address }}</b></div>
                     </div>
-                    <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
-                         onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
+                    <div class="w3-bar-item w3-right">
+                        <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right  w3-large"
+                             onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
+                        </div>
+                        <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-large"
+                             onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
+                            &#9633;
+                        </div>
+                        <a href="/{{ proxy.id }}/config">
+                            <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-large">&#x2193;
+                            </div>
+                        </a>
                     </div>
-                    <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large"
-                         onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
-                        &#9633;
-                    </div>
-                    <a href="/{{ proxy.id }}/config">
-                        <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-right w3-large">&#x2193;</div>
-                    </a>
+
                     <!-- The Modal -->
                     <div id="proxyqr{{ forloop.counter }}" class="w3-modal">
                         <div class="w3-modal-content w3-center">
