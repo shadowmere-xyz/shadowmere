@@ -57,7 +57,7 @@ def qr_code(request, proxy_id):
 
 class ProxyViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
+    API endpoint that allows proxies to be viewed or edited.
     """
     queryset = Proxy.objects.all().order_by('-id')
     serializer_class = ProxySerializer
