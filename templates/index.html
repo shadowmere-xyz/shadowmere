@@ -78,15 +78,15 @@
                         <div><b>{{ proxy.ip_address }}</b></div>
                     </div>
                     <div class="w3-bar-item w3-right">
-                        <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right  w3-large"
+                        <div class="w3-bar-item w3-button w3-blue-greyt  w3-large"
                              onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
                         </div>
-                        <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-large"
+                        <div class="w3-bar-item w3-button w3-blue-grey w3-margin-left w3-large"
                              onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
                             &#9633;
                         </div>
                         <a href="/{{ proxy.id }}/config">
-                            <div class="w3-bar-item w3-button w3-blue-grey w3-margin-right w3-large">&#x2193;
+                            <div class="w3-bar-item w3-button w3-blue-grey w3-margin-left w3-large">&#x2193;
                             </div>
                         </a>
                     </div>
