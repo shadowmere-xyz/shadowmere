@@ -7,9 +7,11 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
+from rest_framework import viewsets, permissions
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy
+from proxylist.serializers import ProxySerializer
 
 
 @cache_page(60 * 20)
@@ -50,3 +52,12 @@ def qr_code(request, proxy_id):
     response['Content-Disposition'] = f'attachment; filename="qr_{proxy.id}.png"'
     img.save(response)
     return response
+
+
+class ProxyViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = Proxy.objects.all().order_by('-id')
+    serializer_class = ProxySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]

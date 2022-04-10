@@ -32,7 +32,8 @@ SHADOWTEST_URL = os.getenv("SHADOWTEST_URL", "http://shadowtest:8080/v1/test")
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'shadowmere.akiel.dev',
                  'eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion', ]
 
-CSRF_TRUSTED_ORIGINS = ['https://shadowmere.akiel.dev', 'http://eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion', ]
+CSRF_TRUSTED_ORIGINS = ['https://shadowmere.akiel.dev',
+                        'http://eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion', ]
 
 # Application definition
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'import_export',
     'django_prometheus',
     'rangefilter',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
