@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
+from django_filters import rest_framework as filters
 from rest_framework import viewsets, permissions
 
 from proxylist.base64_decoder import decode_base64
@@ -61,3 +62,5 @@ class ProxyViewSet(viewsets.ModelViewSet):
     queryset = Proxy.objects.all().order_by('-id')
     serializer_class = ProxySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ('is_active', 'location_country_code', 'location', )

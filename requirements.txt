@@ -10,6 +10,7 @@ defusedxml==0.7.1
 diff-match-patch==20200713
 Django==4.0.3
 django-admin-rangefilter==0.8.4
+django-filter==21.1
 django-import-export==2.7.1
 django-minio-storage==0.3.10
 django-prometheus==2.2.0
