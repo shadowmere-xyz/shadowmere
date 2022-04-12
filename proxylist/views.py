@@ -15,7 +15,7 @@ from proxylist.models import Proxy
 from proxylist.serializers import ProxySerializer
 
 
-@cache_page(60 * 20)
+# @cache_page(60 * 20)
 def list_proxies(request):
     location_country_code = request.GET.get('location_country_code', '')
     country_codes = Proxy.objects.order_by('location_country_code').values('location_country_code').distinct()
