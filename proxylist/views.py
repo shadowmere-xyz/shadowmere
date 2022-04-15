@@ -12,6 +12,7 @@ from rest_framework import viewsets, permissions
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy
+from proxylist.permissions import GeneralPermission
 from proxylist.serializers import ProxySerializer
 
 
@@ -77,6 +78,6 @@ class ProxyViewSet(viewsets.ModelViewSet):
     """
     queryset = Proxy.objects.all().order_by('-id')
     serializer_class = ProxySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [GeneralPermission, ]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ('is_active', 'location_country_code', 'location',)
