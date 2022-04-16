@@ -95,7 +95,7 @@ services:
     image: guamulo/shadowtest:latest
     restart: always
     ports:
-      - "127.0.0.1:7999:8080"
+      - "7999:8080"
 
 volumes:
   shadowmere_data:
