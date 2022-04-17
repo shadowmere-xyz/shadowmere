@@ -65,7 +65,7 @@ def json_proxy_file(request, proxy_id):
 
 def qr_code(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
-    img = qrcode.make(proxy.url)
+    img = qrcode.make(f'{proxy.url}#{proxy.location}')
     response = HttpResponse(content_type='image/png')
     response['Content-Disposition'] = f'attachment; filename="qr_{proxy.id}.png"'
     img.save(response)
