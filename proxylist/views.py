@@ -5,6 +5,7 @@ import qrcode
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.template.defaultfilters import urlencode
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
@@ -16,7 +17,7 @@ from proxylist.permissions import GeneralPermission
 from proxylist.serializers import ProxySerializer
 
 
-# @cache_page(60 * 20)
+@cache_page(60 * 20)
 def list_proxies(request):
     location_country_code = request.GET.get('location_country_code', '')
     country_codes = Proxy.objects.order_by('location_country_code').values('location_country_code').distinct()
@@ -65,7 +66,7 @@ def json_proxy_file(request, proxy_id):
 
 def qr_code(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
-    img = qrcode.make(f'{proxy.url}#{proxy.location}')
+    img = qrcode.make(f'{proxy.url}#{urlencode(proxy.location)}')
     response = HttpResponse(content_type='image/png')
     response['Content-Disposition'] = f'attachment; filename="qr_{proxy.id}.png"'
     img.save(response)
