@@ -76,7 +76,7 @@
             {% if country_code.location_country_code != "" %}
                 <a class="w3-button" href="/?location_country_code={{ country_code.location_country_code }}">
                     <img title="{{ country_code.location_country_code }}" width="30px" height="20px"
-                         src="https://img.geonames.org/flags/x/{{ country_code.location_country_code |lower }}.gif">
+                         src="http://img.geonames.org/flags/x/{{ country_code.location_country_code |lower }}.gif">
                 </a>
             {% endif %}
         {% endfor %}
@@ -88,7 +88,7 @@
                 <li class="w3-bar {% if forloop.counter != 20 %} w3-bottombar {% endif %} w3-display-container w3-row">
                     <div class="w3-bar-item w3-display-topleft">
                         <span><img title="{{ proxy.location }}" width="30px" height="20px" alt="{{ proxy.location }}"
-                                   src="https://img.geonames.org/flags/x/{{ proxy.location_country_code |lower }}.gif"/></span>
+                                   src="http://img.geonames.org/flags/x/{{ proxy.location_country_code |lower }}.gif"/></span>
                         <span class="w3-tag w3-margin-left">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
                     </div>
                     <div class="w3-bar-item w3-display-bottomleft">
