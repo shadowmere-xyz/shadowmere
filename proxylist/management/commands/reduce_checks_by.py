@@ -4,10 +4,10 @@ from proxylist.models import Proxy
 
 
 class Command(BaseCommand):
-    help = 'Clear all quality statistics'
+    help = "Clear all quality statistics"
 
     def add_arguments(self, parser):
-        parser.add_argument('times', type=int)
+        parser.add_argument("times", type=int)
 
     def handle(self, *args, **options):
         times = int(options["times"])

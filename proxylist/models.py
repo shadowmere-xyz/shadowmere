@@ -14,13 +14,19 @@ from proxylist.proxy import update_proxy_status
 def validate_not_existing(value):
     if Proxy.objects.filter(url=get_sip002(value)):
         raise ValidationError(
-            'This proxy was already imported',
-            params={'value': value},
+            "This proxy was already imported",
+            params={"value": value},
         )
 
 
-class Proxy(ExportModelOperationsMixin('proxy'), models.Model):
-    url = models.CharField(max_length=1024, unique=True, validators=[validate_not_existing, ])
+class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
+    url = models.CharField(
+        max_length=1024,
+        unique=True,
+        validators=[
+            validate_not_existing,
+        ],
+    )
     location = models.CharField(max_length=100, default="")
     location_country_code = models.CharField(max_length=3, default="")
     ip_address = models.CharField(max_length=100, default="")
@@ -43,8 +49,10 @@ def get_sip002(instance_url):
     if "@" not in url:
         url = url.replace("ss://", "")
 
-        decoded_url = decode_base64(url.encode('ascii'))
-        encoded_bits = base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
+        decoded_url = decode_base64(url.encode("ascii"))
+        encoded_bits = (
+            base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
+        )
         url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
 
     return url

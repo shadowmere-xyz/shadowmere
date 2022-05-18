@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proxylist', '0006_proxy_times_check_succeeded'),
+        ("proxylist", "0006_proxy_times_check_succeeded"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='proxy',
-            name='ip_address',
-            field=models.CharField(default='', max_length=100),
+            model_name="proxy",
+            name="ip_address",
+            field=models.CharField(default="", max_length=100),
         ),
         migrations.AddField(
-            model_name='proxy',
-            name='location_country_code',
-            field=models.CharField(default='', max_length=3),
+            model_name="proxy",
+            name="location_country_code",
+            field=models.CharField(default="", max_length=3),
         ),
     ]

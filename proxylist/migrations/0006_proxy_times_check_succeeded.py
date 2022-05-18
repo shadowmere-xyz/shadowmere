@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proxylist', '0005_remove_proxy_times_check_failed'),
+        ("proxylist", "0005_remove_proxy_times_check_failed"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='proxy',
-            name='times_check_succeeded',
+            model_name="proxy",
+            name="times_check_succeeded",
             field=models.IntegerField(default=0),
         ),
     ]

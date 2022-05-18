@@ -7,25 +7,25 @@ class ProxySerializer(serializers.ModelSerializer):
     class Meta:
         model = Proxy
         fields = [
-            'id',
-            'url',
-            'location',
-            'location_country_code',
-            'ip_address',
-            'is_active',
-            'last_checked',
-            'last_active',
-            'times_checked',
-            'times_check_succeeded'
+            "id",
+            "url",
+            "location",
+            "location_country_code",
+            "ip_address",
+            "is_active",
+            "last_checked",
+            "last_active",
+            "times_checked",
+            "times_check_succeeded",
         ]
         read_only_fields = [
-            'id',
-            'location',
-            'location_country_code',
-            'ip_address',
-            'is_active',
-            'last_checked',
-            'last_active',
-            'times_checked',
-            'times_check_succeeded'
+            "id",
+            "location",
+            "location_country_code",
+            "ip_address",
+            "is_active",
+            "last_checked",
+            "last_active",
+            "times_checked",
+            "times_check_succeeded",
         ]

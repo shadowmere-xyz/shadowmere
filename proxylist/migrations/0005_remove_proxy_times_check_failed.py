@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proxylist', '0004_proxy_times_check_failed_proxy_times_checked'),
+        ("proxylist", "0004_proxy_times_check_failed_proxy_times_checked"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='proxy',
-            name='times_check_failed',
+            model_name="proxy",
+            name="times_check_failed",
         ),
     ]

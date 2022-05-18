@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proxylist', '0003_alter_proxy_url'),
+        ("proxylist", "0003_alter_proxy_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='proxy',
-            name='times_check_failed',
+            model_name="proxy",
+            name="times_check_failed",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='proxy',
-            name='times_checked',
+            model_name="proxy",
+            name="times_checked",
             field=models.IntegerField(default=0),
         ),
     ]

@@ -4,7 +4,7 @@ from proxylist.models import Proxy
 
 
 class Command(BaseCommand):
-    help = 'Clear all quality statistics'
+    help = "Clear all quality statistics"
 
     def handle(self, *args, **options):
         for proxy in Proxy.objects.all():

@@ -9,13 +9,13 @@ from shadowmere import settings
 
 def find_free_port():
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(('', 0))
+        s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
 
 
 def get_proxy_location(proxy_url):
-    r = requests.post(settings.SHADOWTEST_URL, data={'address': proxy_url})
+    r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
 
     if r.status_code != 200:
         return None
@@ -32,9 +32,9 @@ def update_proxy_status(proxy):
 
     if ip_information:
         proxy.is_active = True
-        proxy.location = ip_information.get('YourFuckingLocation')
-        proxy.location_country_code = ip_information.get('YourFuckingCountryCode')
-        proxy.ip_address = ip_information.get('YourFuckingIPAddress')
+        proxy.location = ip_information.get("YourFuckingLocation")
+        proxy.location_country_code = ip_information.get("YourFuckingCountryCode")
+        proxy.ip_address = ip_information.get("YourFuckingIPAddress")
         proxy.last_active = now()
         proxy.times_check_succeeded = proxy.times_check_succeeded + 1
     else:
