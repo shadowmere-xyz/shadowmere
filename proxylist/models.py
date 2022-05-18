@@ -8,7 +8,15 @@ from django.utils.timezone import now
 from django_prometheus.models import ExportModelOperationsMixin
 
 from proxylist.base64_decoder import decode_base64
-from proxylist.proxy import update_proxy_status
+from proxylist.proxy import update_proxy_status, get_proxy_location
+
+
+def validate_sip002(value):
+    if get_sip002(value) == "":
+        raise ValidationError(
+            "The value entered is not SIP002 compatible",
+            params={"value": value},
+        )
 
 
 def validate_not_existing(value):
@@ -19,12 +27,23 @@ def validate_not_existing(value):
         )
 
 
+def validate_proxy_can_connect(value):
+    location = get_proxy_location(get_sip002(value))
+    if location is None or location == 'unknown':
+        raise ValidationError(
+            "Can't get the location for this address",
+            params={"value": value},
+        )
+
+
 class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
     url = models.CharField(
         max_length=1024,
         unique=True,
         validators=[
+            validate_sip002,
             validate_not_existing,
+            validate_proxy_can_connect,
         ],
     )
     location = models.CharField(max_length=100, default="")
@@ -41,19 +60,22 @@ class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
 
 
 def get_sip002(instance_url):
-    url = instance_url
-    if "#" in url:
-        url = url.split("#")[0]
-    if "=" in url:
-        url = url.replace("=", "")
-    if "@" not in url:
-        url = url.replace("ss://", "")
+    try:
+        url = instance_url
+        if "#" in url:
+            url = url.split("#")[0]
+        if "=" in url:
+            url = url.replace("=", "")
+        if "@" not in url:
+            url = url.replace("ss://", "")
 
-        decoded_url = decode_base64(url.encode("ascii"))
-        encoded_bits = (
-            base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
-        )
-        url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
+            decoded_url = decode_base64(url.encode("ascii"))
+            encoded_bits = (
+                base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
+            )
+            url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
+    except IndexError:
+        return ""
 
     return url
 
