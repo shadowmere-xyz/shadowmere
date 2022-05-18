@@ -62,8 +62,8 @@
                 Android</p>
             {% endblocktranslate %}
         <p><b>{% translate "Online:" %}</b> {{ proxy_list|length }} {% if location_country_code != "" %}
-            <img class="w3-margin" title="{{ location_country_code }}" width="30px" height="20px"
-                 src="https://img.geonames.org/flags/x/{{ location_country_code |lower }}.gif">
+            <img class="w3-margin" title="{{ country_code.location_country_code }}" width="70px" height="30px"
+                         src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ location_country_code }}.svg">
         {% endif %}</p>
         {% if proxy_list|length > 0 %}
             <p><b>{% translate "Last check:" %}</b> {{ proxy_list.0.last_checked }} UTC</p>
