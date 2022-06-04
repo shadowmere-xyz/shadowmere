@@ -10,6 +10,8 @@ from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
 from rest_framework import viewsets, permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy
@@ -99,3 +101,22 @@ class ProxyViewSet(viewsets.ModelViewSet):
         "location_country_code",
         "location",
     )
+
+
+@api_view(
+    [
+        "GET",
+    ]
+)
+def country_code_list(request):
+    """
+    List all country codes with active proxies
+    """
+    country_codes = [
+        code["location_country_code"]
+        for code in Proxy.objects.filter(is_active=True)
+        .order_by("location_country_code")
+        .values("location_country_code")
+        .distinct()
+    ]
+    return Response(country_codes)
