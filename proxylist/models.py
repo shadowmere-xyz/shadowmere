@@ -1,5 +1,6 @@
 import base64
 
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
@@ -89,3 +90,8 @@ def update_url_and_location_after_save(sender, instance, created, **kwargs):
 
     if instance.location == "":
         update_proxy_status(instance)
+
+
+@receiver(post_save, sender=Proxy)
+def clear_cache(sender, instance, **kwargs):
+    cache.clear()

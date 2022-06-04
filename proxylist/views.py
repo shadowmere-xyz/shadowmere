@@ -19,7 +19,7 @@ from proxylist.permissions import GeneralPermission
 from proxylist.serializers import ProxySerializer
 
 
-@cache_page(60 * 20)
+@cache_page(None)
 def list_proxies(request):
     location_country_code = request.GET.get("location_country_code", "")
     country_codes = (
