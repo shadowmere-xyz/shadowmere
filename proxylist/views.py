@@ -24,9 +24,9 @@ def list_proxies(request):
     location_country_code = request.GET.get("location_country_code", "")
     country_codes = (
         Proxy.objects.filter(is_active=True)
-        .order_by("location_country_code")
-        .values("location_country_code")
-        .distinct()
+            .order_by("location_country_code")
+            .values("location_country_code")
+            .distinct()
     )
     if location_country_code != "":
         proxy_list = Proxy.objects.filter(
@@ -113,10 +113,10 @@ def country_code_list(request):
     List all country codes with active proxies
     """
     country_codes = [
-        code["location_country_code"]
+        {"code": code["location_country_code"], "name": code["location_country"]}
         for code in Proxy.objects.filter(is_active=True)
-        .order_by("location_country_code")
-        .values("location_country_code")
-        .distinct()
+            .order_by("location_country_code")
+            .values("location_country_code", "location_country")
+            .distinct()
     ]
     return Response(country_codes)
