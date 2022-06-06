@@ -99,7 +99,9 @@ class ProxyViewSet(viewsets.ModelViewSet):
     filterset_fields = (
         "is_active",
         "location_country_code",
+        "location_country",
         "location",
+        "ip_address",
     )
 
 
