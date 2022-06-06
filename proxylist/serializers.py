@@ -11,6 +11,7 @@ class ProxySerializer(serializers.ModelSerializer):
             "url",
             "location",
             "location_country_code",
+            "location_country",
             "ip_address",
             "is_active",
             "last_checked",
