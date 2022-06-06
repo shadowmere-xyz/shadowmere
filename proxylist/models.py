@@ -49,6 +49,7 @@ class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
     )
     location = models.CharField(max_length=100, default="")
     location_country_code = models.CharField(max_length=3, default="")
+    location_country = models.CharField(max_length=50, default="")
     ip_address = models.CharField(max_length=100, default="")
     is_active = models.BooleanField(default=False)
     last_checked = models.DateTimeField(auto_now=True)

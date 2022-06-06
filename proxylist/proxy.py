@@ -27,16 +27,28 @@ def get_proxy_location(proxy_url):
     return output
 
 
+def get_location_country_name(country_code: str) -> str:
+    r = requests.get(f"https://restcountries.com/v3.1/alpha/{country_code.lower()}")
+    if r.status_code != 200:
+        return ""
+
+    return r.json()[0].get("name").get("common")
+
+
 def update_proxy_status(proxy):
     ip_information = get_proxy_location(proxy_url=proxy.url)
 
     if ip_information:
         proxy.is_active = True
-        proxy.location = ip_information.get("YourFuckingLocation")
-        proxy.location_country_code = ip_information.get("YourFuckingCountryCode")
         proxy.ip_address = ip_information.get("YourFuckingIPAddress")
         proxy.last_active = now()
         proxy.times_check_succeeded = proxy.times_check_succeeded + 1
+        if proxy.location != ip_information.get("YourFuckingLocation") or proxy.location_country == "":
+            proxy.location = ip_information.get("YourFuckingLocation")
+            proxy.location_country_code = ip_information.get("YourFuckingCountryCode")
+            proxy.location_country = get_location_country_name(
+                country_code=ip_information.get("YourFuckingCountryCode")
+            )
     else:
         proxy.is_active = False
         proxy.location = "unknown"
