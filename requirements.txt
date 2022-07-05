@@ -8,7 +8,7 @@ charset-normalizer==2.0.12
 configparser==5.2.0
 defusedxml==0.7.1
 diff-match-patch==20200713
-Django==4.0.4
+Django==4.0.6
 django-admin-rangefilter==0.8.4
 django-filter==21.1
 django-import-export==2.8.0
