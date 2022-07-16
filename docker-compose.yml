@@ -1,5 +1,11 @@
 version: "3"
 services:
+  shadowmere-frontend:
+    image: guamulo/shadowmere-frontend
+    restart: always
+    ports:
+      - "8000:80"
+
   shadowmere:
     image: guamulo/shadowmere
     restart: always
