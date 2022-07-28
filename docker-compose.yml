@@ -53,7 +53,7 @@ services:
     restart: on-failure
     depends_on:
       - db
-      - shadowmere_apply_migrations
+      - apply_migrations
     command:
       - python
       - manage.py
@@ -93,7 +93,7 @@ services:
       - .env
     depends_on:
       - redis
-      - shadowmere_apply_migrations
+      - apply_migrations
 
   shadowtest:
     image: guamulo/shadowtest:latest
