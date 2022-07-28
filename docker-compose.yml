@@ -1,6 +1,6 @@
 version: "3"
 services:
-  shadowmere-frontend:
+  frontend:
     image: guamulo/shadowmere-frontend
     restart: always
     ports:
@@ -19,7 +19,7 @@ services:
     build:
       context: .
 
-  shadowmere_apply_migrations:
+  apply-migrations:
     image: guamulo/shadowmere
     env_file:
       - .env
@@ -32,7 +32,7 @@ services:
       - manage.py
       - migrate
 
-  shadowmere_collectstatics:
+  collectstatics:
     image: guamulo/shadowmere
     env_file:
       - .env
@@ -46,7 +46,7 @@ services:
       - collectstatic
       - --noinput
 
-  shadowmere_create_superuser:
+  create-superuser:
     image: guamulo/shadowmere
     env_file:
       - .env
