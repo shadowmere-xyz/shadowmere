@@ -133,6 +133,55 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'formatters': {
+        'django.server': {
+            '()': 'django.utils.log.ServerFormatter',
+            'format': '[%(server_time)s] %(message)s',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+        },
+        # Custom handler which we will use with logger 'django'.
+        # We want errors/warnings to be logged when DEBUG=False
+        'console_on_not_debug': {
+            'level': 'WARNING',
+            'filters': ['require_debug_false'],
+            'class': 'logging.StreamHandler',
+        },
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'console_on_not_debug'],
+            'level': 'INFO',
+        },
+        'django.server': {
+            'handlers': ['django.server'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    }
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -195,4 +244,4 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
 }
 
-DATA_UPLOAD_MAX_NUMBER_FIELDS=10000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
