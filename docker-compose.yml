@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - pgbouncer
+      - db
     ports:
       - "8001:8001"
       - "8002-8007:8002-8007"
@@ -25,7 +25,7 @@ services:
       - .env
     restart: on-failure
     depends_on:
-      - pgbouncer
+      - db
       - shadowmere
     command:
       - python
@@ -38,7 +38,7 @@ services:
       - .env
     restart: on-failure
     depends_on:
-      - pgbouncer
+      - db
       - shadowmere
     command:
       - python
@@ -52,7 +52,7 @@ services:
       - .env
     restart: on-failure
     depends_on:
-      - pgbouncer
+      - db
       - apply_migrations
     command:
       - python
@@ -69,19 +69,6 @@ services:
     environment:
       - POSTGRES_USER=shadowmere
       - POSTGRES_DB=shadowmere
-
-  pgbouncer:
-    image: edoburu/pgbouncer
-    depends_on:
-      - db
-    environment:
-      - DB_HOST=db
-      - DB_NAME=shadowmere
-      - DB_USER=shadowmere
-      - AUTH_TYPE=plain
-      - MAX_CLIENT_CONN=300
-    env_file:
-      - .env
 
   redis:
     image: redis:alpine
