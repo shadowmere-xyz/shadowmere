@@ -111,7 +111,7 @@ else:
             "NAME": "shadowmere",
             "USER": "shadowmere",
             "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-            "HOST": "db",
+            "HOST": "pgbouncer",
         }
     }
 
