@@ -79,6 +79,7 @@ services:
       - DB_NAME=shadowmere
       - DB_USER=shadowmere
       - AUTH_TYPE=plain
+      - MAX_CLIENT_CONN=300
     env_file:
       - .env
 
