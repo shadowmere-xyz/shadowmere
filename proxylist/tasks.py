@@ -15,8 +15,17 @@ def update_status(self):
 
     req = requests.get("https://clients3.google.com/generate_204")
     if req.status_code == 204:
+        proxies = Proxy.objects.all()
         with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
-            executor.map(update_proxy_status, Proxy.objects.all())
+            executor.map(update_proxy_status, proxies)
+            executor.shutdown(wait=True)
+
         print("Proxy status checked")
+
+        print("Saving new status")
+        for proxy in proxies:
+            proxy.save()
+
+        print("Update completed")
     else:
         print("This host is having connection issues. Skipping test cycle.")

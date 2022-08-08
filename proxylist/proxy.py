@@ -54,4 +54,3 @@ def update_proxy_status(proxy):
         proxy.location = "unknown"
 
     proxy.times_checked = proxy.times_checked + 1
-    proxy.save()

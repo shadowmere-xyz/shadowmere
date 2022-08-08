@@ -17,6 +17,7 @@ class ProxyAdmin(ImportExportModelAdmin):
     def update_status(modeladmin, request, queryset):
         for proxy in queryset:
             update_proxy_status(proxy)
+            proxy.save()
 
     def quality(self, obj):
         if obj.times_checked > 0:

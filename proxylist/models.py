@@ -91,6 +91,7 @@ def update_url_and_location_after_save(sender, instance, created, **kwargs):
 
     if instance.location == "":
         update_proxy_status(instance)
+        instance.save()
 
 
 @receiver(post_save, sender=Proxy)
