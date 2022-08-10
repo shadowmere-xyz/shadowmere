@@ -13,7 +13,7 @@ django-filter==22.1
 django-import-export==2.8.0
 django-minio-storage==0.3.10
 django-prometheus==2.2.0
-django-storages==1.13
+django-storages==1.13.1
 djangorestframework==3.13.1
 et-xmlfile==1.1.0
 gevent==21.12.0
