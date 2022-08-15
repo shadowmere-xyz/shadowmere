@@ -8,7 +8,7 @@ configparser==5.2.0
 defusedxml==0.7.1
 diff-match-patch==20200713
 Django==4.1
-django-admin-rangefilter==0.8.6
+django-admin-rangefilter==0.8.7
 django-filter==22.1
 django-import-export==2.8.0
 django-minio-storage==0.3.10
