@@ -99,8 +99,6 @@ services:
   shadowtest:
     image: guamulo/shadowtest:latest
     restart: always
-    ports:
-      - "7999:8080"
     environment:
       - IPV4_ONLY=true
 
