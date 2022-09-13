@@ -1,6 +1,6 @@
 amqp==5.1.1
 asgiref==3.5.2
-botocore==1.27.70
+botocore==1.27.71
 celery==5.2.7
 certifi==2022.6.15.1
 charset-normalizer==2.1.1
