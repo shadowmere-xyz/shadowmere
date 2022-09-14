@@ -2,7 +2,7 @@ import base64
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.timezone import now
@@ -91,7 +91,11 @@ def update_url_and_location_after_save(sender, instance, created, **kwargs):
 
     if instance.location == "":
         update_proxy_status(instance)
-        instance.save()
+        try:
+            instance.save()
+        except IntegrityError:
+            # This means the proxy is either a duplicate or no longer valid
+            instance.delete()
 
 
 @receiver(post_save, sender=Proxy)

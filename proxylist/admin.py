@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.db import IntegrityError
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from rangefilter.filters import DateRangeFilter
@@ -17,7 +18,11 @@ class ProxyAdmin(ImportExportModelAdmin):
     def update_status(modeladmin, request, queryset):
         for proxy in queryset:
             update_proxy_status(proxy)
-            proxy.save()
+            try:
+                proxy.save()
+            except IntegrityError:
+                # This means the proxy is either a duplicate or no longer valid
+                proxy.delete()
 
     def quality(self, obj):
         if obj.times_checked > 0:

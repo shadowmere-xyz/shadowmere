@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
+from django.db import IntegrityError
 
 from proxylist.models import Proxy
 from proxylist.proxy import update_proxy_status
@@ -24,7 +25,11 @@ def update_status(self):
 
         print("Saving new status")
         for proxy in proxies:
-            proxy.save()
+            try:
+                proxy.save()
+            except IntegrityError:
+                # This means the proxy is either a duplicate or no longer valid
+                proxy.delete()
 
         print("Update completed")
     else:
