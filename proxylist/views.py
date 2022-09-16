@@ -110,6 +110,7 @@ class ProxyViewSet(viewsets.ModelViewSet):
         return super().dispatch(request, *args, **kwargs)
 
 
+@cache_page(None)
 @api_view(
     [
         "GET",
