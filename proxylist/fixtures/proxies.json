@@ -52,23 +52,6 @@
   },
   {
     "model": "proxylist.proxy",
-    "pk": 42,
-    "fields": {
-      "url": "ss://YWVzLTI1Ni1nY206ZTRGQ1dyZ3BramkzUVk@172.105.170.229:9102",
-      "location": "unknown",
-      "location_country_code": "AU",
-      "location_country": "",
-      "ip_address": "172.105.170.229",
-      "port": 9102,
-      "is_active": false,
-      "last_checked": "2022-09-17T12:59:14.638Z",
-      "last_active": "2022-04-10T12:06:55.582Z",
-      "times_checked": 0,
-      "times_check_succeeded": 1
-    }
-  },
-  {
-    "model": "proxylist.proxy",
     "pk": 43,
     "fields": {
       "url": "ss://YWVzLTI1Ni1nY206ZmFCQW9ENTRrODdVSkc3@169.197.142.39:2375",
@@ -77,7 +60,7 @@
       "location_country": "",
       "ip_address": "169.197.142.39",
       "port": 2375,
-      "is_active": false,
+      "is_active": true,
       "last_checked": "2022-09-17T12:59:14.653Z",
       "last_active": "2022-04-10T12:07:15.340Z",
       "times_checked": 0,

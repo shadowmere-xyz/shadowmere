@@ -10,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -144,6 +144,12 @@ def ports_list(request):
     """
     List all ports
     """
-    ports = [port for port in Proxy.objects.values_list('port', flat=True).distinct() if port != 0]
+    ports = [
+        port
+        for port in Proxy.objects.filter(is_active=True)
+        .values_list("port", flat=True)
+        .distinct()
+        if port != 0
+    ]
     ports.sort()
     return Response(ports)
