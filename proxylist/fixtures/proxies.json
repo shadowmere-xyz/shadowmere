@@ -1,0 +1,104 @@
+[
+  {
+    "model": "proxylist.proxy",
+    "pk": 6,
+    "fields": {
+      "url": "ss://YWVzLTI1Ni1nY206UENubkg2U1FTbmZvUzI3@172.105.42.160:8091",
+      "location": "unknown",
+      "location_country_code": "IN",
+      "location_country": "",
+      "ip_address": "172.105.42.160",
+      "port": 8091,
+      "is_active": false,
+      "last_checked": "2022-09-17T12:59:14.595Z",
+      "last_active": "2022-04-10T11:25:20.981Z",
+      "times_checked": 2,
+      "times_check_succeeded": 2
+    }
+  },
+  {
+    "model": "proxylist.proxy",
+    "pk": 7,
+    "fields": {
+      "url": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwcG15SVVQMmV1WU0@37.218.242.73:8091/",
+      "location": "Waalwijk, NB, Netherlands",
+      "location_country_code": "NL",
+      "location_country": "Netherlands",
+      "ip_address": "37.218.242.73",
+      "port": 8091,
+      "is_active": true,
+      "last_checked": "2022-09-17T12:59:14.611Z",
+      "last_active": "2022-06-06T12:33:24.909Z",
+      "times_checked": 2,
+      "times_check_succeeded": 3
+    }
+  },
+  {
+    "model": "proxylist.proxy",
+    "pk": 41,
+    "fields": {
+      "url": "ss://YWVzLTI1Ni1nY206UmV4bkJnVTdFVjVBRHhH@172.99.190.35:7001",
+      "location": "unknown",
+      "location_country_code": "GB",
+      "location_country": "",
+      "ip_address": "172.99.190.35",
+      "port": 0,
+      "is_active": false,
+      "last_checked": "2022-09-17T12:59:14.625Z",
+      "last_active": "2022-04-10T12:06:38.638Z",
+      "times_checked": 0,
+      "times_check_succeeded": 1
+    }
+  },
+  {
+    "model": "proxylist.proxy",
+    "pk": 42,
+    "fields": {
+      "url": "ss://YWVzLTI1Ni1nY206ZTRGQ1dyZ3BramkzUVk@172.105.170.229:9102",
+      "location": "unknown",
+      "location_country_code": "AU",
+      "location_country": "",
+      "ip_address": "172.105.170.229",
+      "port": 9102,
+      "is_active": false,
+      "last_checked": "2022-09-17T12:59:14.638Z",
+      "last_active": "2022-04-10T12:06:55.582Z",
+      "times_checked": 0,
+      "times_check_succeeded": 1
+    }
+  },
+  {
+    "model": "proxylist.proxy",
+    "pk": 43,
+    "fields": {
+      "url": "ss://YWVzLTI1Ni1nY206ZmFCQW9ENTRrODdVSkc3@169.197.142.39:2375",
+      "location": "unknown",
+      "location_country_code": "US",
+      "location_country": "",
+      "ip_address": "169.197.142.39",
+      "port": 2375,
+      "is_active": false,
+      "last_checked": "2022-09-17T12:59:14.653Z",
+      "last_active": "2022-04-10T12:07:15.340Z",
+      "times_checked": 0,
+      "times_check_succeeded": 1
+    }
+  },
+  {
+    "model": "proxylist.proxy",
+    "pk": 74,
+    "fields": {
+      "url": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpHIXlCd1BXSDNWYW8@196.196.156.122:807",
+      "location": "Stockholm, AB, Sweden",
+      "location_country_code": "SE",
+      "location_country": "Sweden",
+      "ip_address": "196.196.156.122",
+      "port": 807,
+      "is_active": true,
+      "last_checked": "2022-09-17T12:59:15.101Z",
+      "last_active": "2022-09-17T12:56:36.268Z",
+      "times_checked": 1,
+      "times_check_succeeded": 1
+    }
+  }
+]

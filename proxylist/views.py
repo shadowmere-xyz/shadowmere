@@ -103,6 +103,7 @@ class ProxyViewSet(viewsets.ModelViewSet):
         "location_country",
         "location",
         "ip_address",
+        "port",
     )
 
     @method_decorator(cache_page(None))
@@ -131,3 +132,18 @@ def country_code_list(request):
     country_codes.insert(0, {"code": "UN", "name": "Worldwide"})
 
     return Response(country_codes)
+
+
+@cache_page(None)
+@api_view(
+    [
+        "GET",
+    ]
+)
+def ports_list(request):
+    """
+    List all ports
+    """
+    ports = [port for port in Proxy.objects.values_list('port', flat=True).distinct() if port != 0]
+    ports.sort()
+    return Response(ports)
