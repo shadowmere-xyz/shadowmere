@@ -1,4 +1,5 @@
 import base64
+import re
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -51,6 +52,7 @@ class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
     location_country_code = models.CharField(max_length=3, default="")
     location_country = models.CharField(max_length=50, default="")
     ip_address = models.CharField(max_length=100, default="")
+    port = models.IntegerField(default=0)
     is_active = models.BooleanField(default=False)
     last_checked = models.DateTimeField(auto_now=True)
     last_active = models.DateTimeField(blank=True, default=now)
@@ -88,6 +90,13 @@ def update_url_and_location_after_save(sender, instance, created, **kwargs):
     if url != instance.url:
         instance.url = url
         instance.save()
+        return
+
+    if instance.port == 0:
+        server_and_port = instance.url.split("@")[1]
+        instance.port = int(re.findall(r":(\d+)", server_and_port)[0])
+        instance.save()
+        return
 
     if instance.location == "":
         update_proxy_status(instance)
