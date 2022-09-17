@@ -129,8 +129,6 @@ def country_code_list(request):
         .distinct()
     ]
 
-    country_codes.insert(0, {"code": "UN", "name": "Worldwide"})
-
     return Response(country_codes)
 
 
@@ -152,5 +150,5 @@ def ports_list(request):
         if port != 0
     ]
     ports.sort()
-    ports.insert(0, "any")
+
     return Response(ports)
