@@ -30,3 +30,4 @@ jobs:
         python manage.py test
       env:
         DEBUG: True
+        SECRET_KEY: whatever
