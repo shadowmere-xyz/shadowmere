@@ -17,6 +17,6 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/", include(router.urls)),
     path("api/country-codes", views.country_code_list),
-    path("api/ports", views.ports_list),
+    path("api/ports", views.ports_list, name="ports"),
     path("", include("django_prometheus.urls")),
 ]
