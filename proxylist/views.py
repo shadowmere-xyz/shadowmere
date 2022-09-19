@@ -150,5 +150,10 @@ def ports_list(request):
         if port != 0
     ]
     ports.sort()
-
+    ports = [
+        {
+            "port": port,
+        }
+        for port in ports
+    ]
     return Response(ports)

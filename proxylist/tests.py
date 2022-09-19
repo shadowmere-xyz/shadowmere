@@ -11,4 +11,4 @@ class MessagesProcessingTests(APITestCase):
         response = self.client.get(reverse('ports'))
         self.assertEqual(response.status_code, 200)
         result = json.loads(response.content)
-        self.assertEqual(result, [807, 2375, 8091])
+        self.assertEqual(result, [{'port': 807}, {'port': 2375}, {'port': 8091}])
