@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 
-class MessagesProcessingTests(APITestCase):
+class PortsEndpointTests(APITestCase):
     fixtures = ["proxies.json"]
 
     def test_empty_ports(self):
