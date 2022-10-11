@@ -18,6 +18,7 @@ class ProxySerializer(serializers.ModelSerializer):
             "last_active",
             "times_checked",
             "times_check_succeeded",
+            "port",
         ]
         read_only_fields = [
             "id",
@@ -29,4 +30,5 @@ class ProxySerializer(serializers.ModelSerializer):
             "last_active",
             "times_checked",
             "times_check_succeeded",
+            "port",
         ]
