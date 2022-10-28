@@ -240,7 +240,7 @@ AdminSite.site_header = "Shadowmere administration"
 PROMETHEUS_METRICS_EXPORT_PORT_RANGE = range(8002, 8008)
 
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "proxylist.pagination.ProxiesPagination",
     "PAGE_SIZE": 10,
 }
 
