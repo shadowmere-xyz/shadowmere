@@ -111,25 +111,20 @@ class ProxyViewSet(viewsets.ModelViewSet):
         return super().dispatch(request, *args, **kwargs)
 
 
-@cache_page(None)
-@api_view(
-    [
-        "GET",
-    ]
-)
-def country_code_list(request):
+class CountryCodeViewSet(viewsets.ViewSet):
     """
-    List all country codes with active proxies
+    List all country codes and countries with active proxies
     """
-    country_codes = [
-        {"code": code["location_country_code"], "name": code["location_country"]}
-        for code in Proxy.objects.filter(is_active=True)
-        .order_by("location_country_code")
-        .values("location_country_code", "location_country")
-        .distinct()
-    ]
+    def list(self, request, format=None):
+        country_codes = [
+            {"code": code["location_country_code"], "name": code["location_country"]}
+            for code in Proxy.objects.filter(is_active=True)
+            .order_by("location_country_code")
+            .values("location_country_code", "location_country")
+            .distinct()
+        ]
 
-    return Response(country_codes)
+        return Response(country_codes)
 
 
 @cache_page(None)
