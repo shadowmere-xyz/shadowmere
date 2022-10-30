@@ -227,11 +227,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
+CHECK_INTERVAL_MINUTES = 20
 
 CELERY_BEAT_SCHEDULE = {
     "update_status": {
         "task": "proxylist.tasks.update_status",
-        "schedule": crontab(minute="*/20"),
+        "schedule": crontab(minute=f"*/{CHECK_INTERVAL_MINUTES}"),
     },
 }
 
@@ -240,6 +241,7 @@ AdminSite.site_header = "Shadowmere administration"
 PROMETHEUS_METRICS_EXPORT_PORT_RANGE = range(8002, 8008)
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     "DEFAULT_PAGINATION_CLASS": "proxylist.pagination.ProxiesPagination",
     "PAGE_SIZE": 10,
 }

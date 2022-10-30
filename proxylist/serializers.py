@@ -23,6 +23,7 @@ class ProxySerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "location",
+            "location_country",
             "location_country_code",
             "ip_address",
             "is_active",

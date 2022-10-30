@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework.documentation import include_docs_urls
 
 import proxylist.views
 from proxylist import views
@@ -19,4 +20,5 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/", include(router.urls)),
     path("", include("django_prometheus.urls")),
+    path('docs/', include_docs_urls(title='Shadowmere API docs'))
 ]

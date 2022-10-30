@@ -11,7 +11,6 @@ from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from proxylist.base64_decoder import decode_base64
@@ -115,6 +114,7 @@ class CountryCodeViewSet(viewsets.ViewSet):
     """
     List all country codes and countries with active proxies
     """
+
     def list(self, request, format=None):
         country_codes = [
             {"code": code["location_country_code"], "name": code["location_country"]}
@@ -131,6 +131,7 @@ class PortViewSet(viewsets.ViewSet):
     """
     List all available ports
     """
+
     def list(self, request, format=None):
         ports = [
             port

@@ -11,6 +11,7 @@ from django_prometheus.models import ExportModelOperationsMixin
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.proxy import update_proxy_status, get_proxy_location
+from shadowmere import settings
 
 
 def validate_sip002(value):
@@ -31,7 +32,7 @@ def validate_not_existing(value):
 
 def validate_proxy_can_connect(value):
     location = get_proxy_location(get_sip002(value))
-    if location is None or location == 'unknown':
+    if location is None or location == "unknown":
         raise ValidationError(
             "Can't get the location for this address",
             params={"value": value},
@@ -47,17 +48,41 @@ class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
             validate_not_existing,
             validate_proxy_can_connect,
         ],
+        help_text="SIP002 compatible URL representing a key",
     )
-    location = models.CharField(max_length=100, default="")
-    location_country_code = models.CharField(max_length=3, default="")
-    location_country = models.CharField(max_length=50, default="")
-    ip_address = models.CharField(max_length=100, default="")
-    port = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=False)
-    last_checked = models.DateTimeField(auto_now=True)
-    last_active = models.DateTimeField(blank=True, default=now)
-    times_checked = models.IntegerField(default=0)
-    times_check_succeeded = models.IntegerField(default=0)
+    location = models.CharField(
+        max_length=100,
+        default="",
+        help_text="Where is this proxy located geographically",
+    )
+    location_country_code = models.CharField(
+        max_length=3, default="", help_text="2 letters country code (e.g.: DE)"
+    )
+    location_country = models.CharField(
+        max_length=50, default="", help_text="Country hosting this proxy"
+    )
+    ip_address = models.CharField(
+        max_length=100, default="", help_text="Proxy IP address"
+    )
+    port = models.IntegerField(default=0, help_text="Port used by this key")
+    is_active = models.BooleanField(
+        default=False,
+        help_text=f"Whether or not this key worked in the past {settings.CHECK_INTERVAL_MINUTES} minutes",
+    )
+    last_checked = models.DateTimeField(
+        auto_now=True, help_text="Last time this key was tested"
+    )
+    last_active = models.DateTimeField(
+        blank=True,
+        default=now,
+        help_text="Last time this key responded positively to a test",
+    )
+    times_checked = models.IntegerField(
+        default=0, help_text="How many times was this key tested so far"
+    )
+    times_check_succeeded = models.IntegerField(
+        default=0, help_text="How many times this key responded positively to a test"
+    )
 
     def __str__(self):
         return f"{self.location} ({self.url})"
