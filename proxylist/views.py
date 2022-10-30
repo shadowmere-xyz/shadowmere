@@ -127,28 +127,23 @@ class CountryCodeViewSet(viewsets.ViewSet):
         return Response(country_codes)
 
 
-@cache_page(None)
-@api_view(
-    [
-        "GET",
-    ]
-)
-def ports_list(request):
+class PortViewSet(viewsets.ViewSet):
     """
-    List all ports
+    List all available ports
     """
-    ports = [
-        port
-        for port in Proxy.objects.filter(is_active=True)
-        .values_list("port", flat=True)
-        .distinct()
-        if port != 0
-    ]
-    ports.sort()
-    ports = [
-        {
-            "port": port,
-        }
-        for port in ports
-    ]
-    return Response(ports)
+    def list(self, request, format=None):
+        ports = [
+            port
+            for port in Proxy.objects.filter(is_active=True)
+            .values_list("port", flat=True)
+            .distinct()
+            if port != 0
+        ]
+        ports.sort()
+        ports = [
+            {
+                "port": port,
+            }
+            for port in ports
+        ]
+        return Response(ports)
