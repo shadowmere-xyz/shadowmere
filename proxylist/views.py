@@ -56,8 +56,7 @@ def healthcheck(request):
     return HttpResponse(b"OK")
 
 
-def json_proxy_file(request, proxy_id):
-    proxy = get_object_or_404(Proxy, id=proxy_id)
+def get_proxy_config(proxy):
     method_password = decode_base64(
         proxy.url.split("@")[0].replace("ss://", "").encode("ascii")
     )
@@ -65,9 +64,25 @@ def json_proxy_file(request, proxy_id):
     config = {
         "server": re.findall(r"^(.*?):\d+", server_and_port)[0],
         "server_port": int(re.findall(r":(\d+)", server_and_port)[0]),
-        "local_port": 1080,
         "password": method_password.decode("ascii").split(":")[1],
         "method": method_password.decode("ascii").split(":")[0],
+        "plugin": "",
+        "plugin_opts": None,
+        "remarks": proxy.location,
+    }
+
+    return config
+
+
+def json_proxy_file(request, proxy_id):
+    proxy = get_object_or_404(Proxy, id=proxy_id)
+    details = get_proxy_config(proxy)
+    config = {
+        "server": details["server"],
+        "server_port": details["server_port"],
+        "local_port": 1080,
+        "password": details["password"],
+        "method": details["method"],
     }
     response = HttpResponse(json.dumps(config), content_type="application/json")
     response[
@@ -148,3 +163,16 @@ class PortViewSet(viewsets.ViewSet):
             for port in ports
         ]
         return Response(ports)
+
+
+class SubViewSet(viewsets.ViewSet):
+    """
+    Subscription endpoint for the shadowsocks APP
+    """
+
+    def list(self, request, format=None):
+        servers = [
+            get_proxy_config(server)
+            for server in Proxy.objects.filter(is_active=True).order_by("-id")
+        ]
+        return Response(servers)
