@@ -69,6 +69,15 @@ class SubEndpointTests(APITestCase):
             [
                 {
                     "method": "chacha20-ietf-poly1305",
+                    "password": "ppmyIUP2euYM",
+                    "plugin": "",
+                    "plugin_opts": None,
+                    "remarks": "Waalwijk, NB, Netherlands",
+                    "server": "37.218.242.73",
+                    "server_port": 8091,
+                },
+                {
+                    "method": "chacha20-ietf-poly1305",
                     "password": "G!yBwPWH3Vao",
                     "plugin": "",
                     "plugin_opts": None,
@@ -84,15 +93,6 @@ class SubEndpointTests(APITestCase):
                     "remarks": "unknown",
                     "server": "169.197.142.39",
                     "server_port": 2375,
-                },
-                {
-                    "method": "chacha20-ietf-poly1305",
-                    "password": "ppmyIUP2euYM",
-                    "plugin": "",
-                    "plugin_opts": None,
-                    "remarks": "Waalwijk, NB, Netherlands",
-                    "server": "37.218.242.73",
-                    "server_port": 8091,
                 },
             ],
         )

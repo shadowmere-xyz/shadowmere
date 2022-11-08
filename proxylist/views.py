@@ -173,6 +173,8 @@ class SubViewSet(viewsets.ViewSet):
     def list(self, request, format=None):
         servers = [
             get_proxy_config(server)
-            for server in Proxy.objects.filter(is_active=True).order_by("-id")
+            for server in Proxy.objects.filter(is_active=True).order_by(
+                "location_country_code"
+            )
         ]
         return Response(servers)
