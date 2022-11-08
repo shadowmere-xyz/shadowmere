@@ -68,6 +68,7 @@ def get_proxy_config(proxy):
         "method": method_password.decode("ascii").split(":")[0],
         "plugin": "",
         "plugin_opts": None,
+        "remarks": proxy.location,
     }
 
     return config
