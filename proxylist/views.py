@@ -120,7 +120,7 @@ class ProxyViewSet(viewsets.ModelViewSet):
         "port",
     )
 
-    @method_decorator(cache_page(None))
+    @method_decorator(cache_page(20 * 60))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -130,6 +130,7 @@ class CountryCodeViewSet(viewsets.ViewSet):
     List all country codes and countries with active proxies
     """
 
+    @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         country_codes = [
             {"code": code["location_country_code"], "name": code["location_country"]}
@@ -147,6 +148,7 @@ class PortViewSet(viewsets.ViewSet):
     List all available ports
     """
 
+    @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         ports = [
             port
@@ -170,6 +172,7 @@ class SubViewSet(viewsets.ViewSet):
     Subscription endpoint for the shadowsocks APP
     """
 
+    @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         servers = [
             get_proxy_config(server)
