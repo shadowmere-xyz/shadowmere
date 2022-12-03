@@ -18,3 +18,4 @@ Pillow==9.3.0
 qrcode==7.3.1
 redis==4.3.5
 requests==2.28.1
+sentry-sdk==1.11.1
