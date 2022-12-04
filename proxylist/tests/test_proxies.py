@@ -69,7 +69,7 @@ class ProxiesTests(APITestCase):
         return_value=fake_proxy_data,
     )
     def test_add_proxy_correctly(
-        self, get_proxy_location_models, get_proxy_location_update
+            self, get_proxy_location_models, get_proxy_location_update
     ):
         root_user = User.objects.create_superuser("root")
         self.client.force_login(root_user)
@@ -94,3 +94,16 @@ class ProxiesTests(APITestCase):
             result.get("url"),
             "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpmYWtlcGFzc3dvcmQ@178.163.164.199:20465",
         )
+
+    def test_add_proxy_with_bad_base64_in_url_fails(self):
+        root_user = User.objects.create_superuser("root")
+        self.client.force_login(root_user)
+        proxy_data = {
+            "url": "ss://eyJhZGQiOiI1Ljc1LjE1Ny4yMTkiLCJ2IjoyLCJwcyI6InQubWUvd2JuZXRf8J HqfCfh6pfREVf5b635Zu9XzUzIiwicG9ydCI6IjgwIiwiaWQiOiIyYWFjNzdkZS1iM2U0LTQwMTctODQ1Yy1jYTEzODBmMmU4ZDAiLCJhaWQiOiIwIiwic2N5IjoiYXV0byIsIm5ldCI6IndzIiwidHlwZSI6IiIsImhvc3QiOiJnb29nbGUuY29tIiwidGxzIjoiIiwicGF0aCI6Ii90ZWxlZ3JhbS1pZC1AcHJpdmF0ZXZwbnMifQ"
+        }
+        response = self.client.post(
+            reverse("proxy-list"),
+            json.dumps(proxy_data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
