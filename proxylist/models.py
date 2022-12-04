@@ -1,4 +1,5 @@
 import base64
+import binascii
 import re
 
 from django.core.cache import cache
@@ -38,14 +39,18 @@ def validate_proxy_can_connect(value):
         )
 
 
+def proxy_validator(value):
+    validate_sip002(value)
+    validate_not_existing(value)
+    validate_proxy_can_connect(value)
+
+
 class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
     url = models.CharField(
         max_length=1024,
         unique=True,
         validators=[
-            validate_sip002,
-            validate_not_existing,
-            validate_proxy_can_connect,
+            proxy_validator,
         ],
     )
     location = models.CharField(max_length=100, default="")
@@ -72,8 +77,11 @@ def get_sip002(instance_url):
             url = url.replace("=", "")
         if "@" not in url:
             url = url.replace("ss://", "")
-
-            decoded_url = decode_base64(url.encode("ascii"))
+            try:
+                decoded_url = decode_base64(url.encode("ascii"))
+            except binascii.Error:
+                # This will trigger on bad base64 text in URLs
+                return ""
             encoded_bits = (
                 base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
             )
