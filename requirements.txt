@@ -12,7 +12,7 @@ gevent==22.10.2
 greenlet==2.0.1
 gunicorn==20.1.0
 prometheus-client==0.15.0
-prompt-toolkit==3.0.33
+prompt-toolkit==3.0.36
 psycopg2-binary==2.9.5
 Pillow==9.3.0
 qrcode==7.3.1
