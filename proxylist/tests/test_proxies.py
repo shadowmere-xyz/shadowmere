@@ -107,3 +107,31 @@ class ProxiesTests(APITestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 400)
+
+    @mock.patch(
+        "proxylist.models.get_proxy_location",
+        return_value=fake_proxy_data,
+    )
+    @mock.patch(
+        "proxylist.proxy.get_proxy_location",
+        return_value=fake_proxy_data,
+    )
+    def test_add_same_proxy_twice(self, get_proxy_location_models, get_proxy_location_update):
+        root_user = User.objects.create_superuser("root")
+        self.client.force_login(root_user)
+        proxy_data = {
+            "url": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpmYWtlcGFzc3dvcmQ@178.163.164.199:20465#aproxy"
+        }
+        response = self.client.post(
+            reverse("proxy-list"),
+            json.dumps(proxy_data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        response = self.client.post(
+            reverse("proxy-list"),
+            json.dumps(proxy_data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data.get("url")[0], "This proxy was already imported")
