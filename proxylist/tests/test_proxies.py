@@ -99,7 +99,7 @@ class ProxiesTests(APITestCase):
         root_user = User.objects.create_superuser("root")
         self.client.force_login(root_user)
         proxy_data = {
-            "url": "ss://eyJhZGQiOiI1Ljc1LjE1Ny4yMTkiLCJ2IjoyLCJwcyI6InQubWUvd2JuZXRf8J HqfCfh6pfREVf5b635Zu9XzUzIiwicG9ydCI6IjgwIiwiaWQiOiIyYWFjNzdkZS1iM2U0LTQwMTctODQ1Yy1jYTEzODBmMmU4ZDAiLCJhaWQiOiIwIiwic2N5IjoiYXV0byIsIm5ldCI6IndzIiwidHlwZSI6IiIsImhvc3QiOiJnb29nbGUuY29tIiwidGxzIjoiIiwicGF0aCI6Ii90ZWxlZ3JhbS1pZC1AcHJpdmF0ZXZwbnMifQ"
+            "url": "ss://eyJhZGQiOiI1LjE2MS4xMTIuMjM2IiwidiI6MiwicHMiOiJ2cG5jbHViX/Cfh7rwn4e4X1VTX e juWbvV8zNCIsInBvcnQiOiI4MDgxIiwiaWQiOiI1ZGZhYTRiYi0zMjgzLTQ5ZDUtOWY1NS03ZTRlNzA3NTMzYWQiLCJhaWQiOiIwIiwic2N5IjoiYXV0byIsIm5ldCI6IndzIiwidHlwZSI6IiIsInRscyI6IiIsInBhdGgiOiIvIn0"
         }
         response = self.client.post(
             reverse("proxy-list"),
