@@ -101,8 +101,8 @@ services:
     restart: always
     ports:
       - "7999:8080"
-    environment:
-      - IPV4_ONLY=true
+    env_file:
+      - .env.shadowtest
 
 volumes:
   shadowmere_data:
