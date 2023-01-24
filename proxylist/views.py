@@ -1,6 +1,7 @@
 import json
 import re
 
+import flag
 import qrcode
 from django.core.paginator import Paginator
 from django.http import HttpResponse
@@ -68,7 +69,7 @@ def get_proxy_config(proxy):
         "method": method_password.decode("ascii").split(":")[0],
         "plugin": "",
         "plugin_opts": None,
-        "remarks": proxy.location,
+        "remarks": f"{flag.flag(proxy.location_country_code)} {proxy.location}",
     }
 
     return config
