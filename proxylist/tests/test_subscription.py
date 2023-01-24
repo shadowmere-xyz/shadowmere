@@ -1,5 +1,6 @@
 import json
 
+import flag
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -19,7 +20,7 @@ class SubEndpointTests(APITestCase):
                     "password": "ppmyIUP2euYM",
                     "plugin": "",
                     "plugin_opts": None,
-                    "remarks": "Waalwijk, NB, Netherlands",
+                    "remarks": "🇳🇱 Waalwijk, NB, Netherlands",
                     "server": "37.218.242.73",
                     "server_port": 8091,
                 },
@@ -28,7 +29,7 @@ class SubEndpointTests(APITestCase):
                     "password": "G!yBwPWH3Vao",
                     "plugin": "",
                     "plugin_opts": None,
-                    "remarks": "Stockholm, AB, Sweden",
+                    "remarks": "🇸🇪 Stockholm, AB, Sweden",
                     "server": "196.196.156.122",
                     "server_port": 807,
                 },
@@ -37,7 +38,7 @@ class SubEndpointTests(APITestCase):
                     "password": "faBAoD54k87UJG7",
                     "plugin": "",
                     "plugin_opts": None,
-                    "remarks": "unknown",
+                    "remarks": "🇺🇸 unknown",
                     "server": "169.197.142.39",
                     "server_port": 2375,
                 },
