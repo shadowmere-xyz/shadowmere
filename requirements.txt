@@ -8,6 +8,7 @@ django-minio-storage==0.3.10
 django-prometheus==2.2.0
 django-storages==1.13.2
 djangorestframework==3.14.0
+emoji-country-flag==1.3.1
 gevent==22.10.2
 greenlet==2.0.1
 gunicorn==20.1.0
