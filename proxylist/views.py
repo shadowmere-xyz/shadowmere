@@ -1,3 +1,4 @@
+import base64
 import json
 import re
 
@@ -182,3 +183,17 @@ class SubViewSet(viewsets.ViewSet):
             )
         ]
         return Response(servers)
+
+
+class Base64SubViewSet(viewsets.ViewSet):
+    """
+    Subscription endpoint for the v2ray and nekoray apps
+    """
+
+    @method_decorator(cache_page(20 * 60))
+    def list(self, request, format=None):
+        server_list = ""
+        for proxy in Proxy.objects.filter(is_active=True).order_by("location_country_code"):
+            server_list += f"\n{proxy.url}#{flag.flag(proxy.location_country_code)} {proxy.location}"
+        b64_servers = base64.b64encode(server_list.encode("utf-8"))
+        return HttpResponse(b64_servers)
