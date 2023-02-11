@@ -10,6 +10,7 @@ router.register(r"proxies", views.ProxyViewSet)
 router.register(r"country-codes", views.CountryCodeViewSet, basename="country-codes")
 router.register(r"ports", views.PortViewSet, basename="ports")
 router.register(r"sub", views.SubViewSet, basename="sub")
+router.register(r"b64sub", views.Base64SubViewSet, basename="b64sub")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
