@@ -230,6 +230,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "proxylist.tasks.update_status",
         "schedule": crontab(minute="*/20"),
     },
+    "poll_subscriptions": {
+        "task": "proxylist.tasks.poll_subscriptions",
+        "schedule": crontab(hour="*/6"),
+    },
 }
 
 AdminSite.site_header = "Shadowmere administration"
