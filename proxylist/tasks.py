@@ -40,40 +40,55 @@ def update_status(self):
 @app.task(bind=True)
 def poll_subscriptions(self):
     print("Started polling subscriptions")
-    for subscription in Subscription.objects.all():
-        print(f"Testing subscription {subscription.url}")
-        r = requests.get(subscription.url)
-        if r.status_code != 200:
-            print(f"We are facing issues getting this subscription {subscription.url}")
-            continue
-        for line in r.iter_lines():
-            if line:
-                if subscription.kind == Subscription.SubscriptionKind.PLAIN:
-                    line = line.decode("utf-8")
-                    process_line(line)
-                elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                    data = decode_base64(line).decode("utf-8")
-                    for proxy_line in data.split("\n"):
-                        process_line(proxy_line)
+    proxies_lists = []
+    with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
+        for subscription in Subscription.objects.all():
+            print(f"Testing subscription {subscription.url}")
+            r = requests.get(subscription.url)
+            if r.status_code != 200:
+                print(f"We are facing issues getting this subscription {subscription.url}")
+                continue
+            if subscription.kind == Subscription.SubscriptionKind.PLAIN:
+                proxies_lists.append(executor.map(process_line, [line.decode("utf-8") for line in r.iter_lines()]))
+            elif subscription.kind == Subscription.SubscriptionKind.BASE64:
+                decoded = [decode_base64(line).decode("utf-8").split("\n") for line in r.iter_lines()]
+                proxies_lists.append(
+                    executor.map(process_line, list(flatten(decoded)))
+                )
 
+    print("Saving proxies")
+    for proxy_list in proxies_lists:
+        for proxy in proxy_list:
+            if proxy is not None:
+                print(f"saving {proxy}")
+                proxy.save()
+
+    executor.shutdown(wait=True)
     print("Finished polling subscriptions")
 
 
 def process_line(line):
     if not str(line).startswith("ss://"):
-        return False
+        return None
     try:
         url = get_sip002(line)
     except UnicodeDecodeError:
         # False positives fall in here
-        return False
+        return None
     if url:
         print(f"Testing {url}")
         if Proxy.objects.filter(url=get_sip002(url)):
-            return False
+            return None
         location = get_proxy_location(url)
         if location is None or location == "unknown":
-            return False
+            return None
         proxy = Proxy(url=url)
-        proxy.save()
-        return True
+        return proxy
+
+
+def flatten(something):
+    if isinstance(something, (list, tuple, set, range)):
+        for sub in something:
+            yield from flatten(sub)
+    else:
+        yield something
