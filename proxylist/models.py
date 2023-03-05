@@ -1,5 +1,4 @@
 import base64
-import binascii
 import re
 
 from django.core.cache import cache
@@ -117,3 +116,15 @@ def update_url_and_location_after_save(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Proxy)
 def clear_cache(sender, instance, **kwargs):
     cache.clear()
+
+
+class Subscription(models.Model):
+    class SubscriptionKind(models.TextChoices):
+        PLAIN = "PLAIN", "plain"
+        BASE64 = "BASE64", "base64"
+
+    url = models.URLField(null=False, unique=True)
+    kind = models.CharField(choices=SubscriptionKind.choices, default=SubscriptionKind.PLAIN, max_length=10)
+
+    def __str__(self):
+        return f"{self.url} - {self.kind}"

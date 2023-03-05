@@ -5,7 +5,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from rangefilter.filters import DateRangeFilter
 
-from proxylist.models import Proxy
+from proxylist.models import Proxy, Subscription
 from proxylist.proxy import update_proxy_status
 
 
@@ -51,5 +51,20 @@ class ProxyAdmin(ImportExportModelAdmin):
     resource_class = ProxyResource
 
 
+class SubscriptionResource(resources.ModelResource):
+    class Meta:
+        model = Subscription
+
+
+class SubscriptionAdmin(ImportExportModelAdmin):
+    resource_class = ProxyResource
+
+    list_display = (
+        "url",
+        "kind",
+    )
+
+
 admin.site.unregister(Group)
 admin.site.register(Proxy, ProxyAdmin)
+admin.site.register(Subscription, SubscriptionAdmin)
