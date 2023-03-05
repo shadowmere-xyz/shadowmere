@@ -40,6 +40,12 @@ def update_status(self):
 @app.task(bind=True)
 def poll_subscriptions(self):
     print("Started polling subscriptions")
+
+    all_urls = [
+        proxy.url
+        for proxy in Proxy.objects.all()
+    ]
+
     proxies_lists = []
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
         for subscription in Subscription.objects.all():
@@ -49,11 +55,14 @@ def poll_subscriptions(self):
                 print(f"We are facing issues getting this subscription {subscription.url}")
                 continue
             if subscription.kind == Subscription.SubscriptionKind.PLAIN:
-                proxies_lists.append(executor.map(process_line, [line.decode("utf-8") for line in r.iter_lines()]))
+                decoded_lines = [line.decode("utf-8") for line in r.iter_lines()]
+                proxies_lists.append(
+                    executor.map(process_line, decoded_lines, [all_urls] * len(decoded_lines)))
             elif subscription.kind == Subscription.SubscriptionKind.BASE64:
                 decoded = [decode_base64(line).decode("utf-8").split("\n") for line in r.iter_lines()]
+                flatten_decoded = list(flatten(decoded))
                 proxies_lists.append(
-                    executor.map(process_line, list(flatten(decoded)))
+                    executor.map(process_line, flatten_decoded, [all_urls] * len(flatten_decoded))
                 )
 
     print("Saving proxies")
@@ -61,13 +70,16 @@ def poll_subscriptions(self):
         for proxy in proxy_list:
             if proxy is not None:
                 print(f"saving {proxy}")
-                proxy.save()
+                try:
+                    proxy.save()
+                except Exception as e:
+                    print(f"Failed to save proxy{proxy}, {e}")
 
     executor.shutdown(wait=True)
     print("Finished polling subscriptions")
 
 
-def process_line(line):
+def process_line(line, all_urls):
     if not str(line).startswith("ss://"):
         return None
     try:
@@ -75,10 +87,8 @@ def process_line(line):
     except UnicodeDecodeError:
         # False positives fall in here
         return None
-    if url:
+    if url and url not in all_urls:
         print(f"Testing {url}")
-        if Proxy.objects.filter(url=get_sip002(url)):
-            return None
         location = get_proxy_location(url)
         if location is None or location == "unknown":
             return None
