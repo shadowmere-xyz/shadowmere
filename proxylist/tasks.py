@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 from django.db import IntegrityError
 
+from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy, Subscription, get_sip002
 from proxylist.proxy import update_proxy_status, get_proxy_location
 from shadowmere.celery import app
@@ -45,25 +46,34 @@ def poll_subscriptions(self):
         if r.status_code != 200:
             print(f"We are facing issues getting this subscription {subscription.url}")
             continue
-        if subscription.kind == Subscription.SubscriptionKind.PLAIN:
-            for line in r.iter_lines():
-                if line:
-                    try:
-                        line = line.decode("utf-8")
-                        if not str(line).startswith("ss://"):
-                            continue
-                        url = get_sip002(line)
-                        if url:
-                            print(f"Testing {url}")
-                            if Proxy.objects.filter(url=get_sip002(url)):
-                                continue
-                            location = get_proxy_location(url)
-                            if location is None or location == "unknown":
-                                continue
-                            proxy = Proxy(url=url)
-                            proxy.save()
-                    except UnicodeDecodeError:
-                        # False positives fall in here
-                        pass
+        for line in r.iter_lines():
+            if line:
+                if subscription.kind == Subscription.SubscriptionKind.PLAIN:
+                    line = line.decode("utf-8")
+                    process_line(line)
+                elif subscription.kind == Subscription.SubscriptionKind.BASE64:
+                    data = decode_base64(line).decode("utf-8")
+                    for proxy_line in data.split("\n"):
+                        process_line(proxy_line)
 
     print("Finished polling subscriptions")
+
+
+def process_line(line):
+    if not str(line).startswith("ss://"):
+        return False
+    try:
+        url = get_sip002(line)
+    except UnicodeDecodeError:
+        # False positives fall in here
+        return False
+    if url:
+        print(f"Testing {url}")
+        if Proxy.objects.filter(url=get_sip002(url)):
+            return False
+        location = get_proxy_location(url)
+        if location is None or location == "unknown":
+            return False
+        proxy = Proxy(url=url)
+        proxy.save()
+        return True
