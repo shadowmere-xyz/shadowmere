@@ -17,4 +17,4 @@ I have started an instance at https://shadowmere.akiel.dev/. Feel free to go cli
  2. Run `docker-compose up -d --build`
  3. The website should be accessible in http://127.0.0.1:8001 (old interface), http://127.0.0.1:8000 (new interface), and administration in http://127.0.0.1:8001/admin 
 ### Frontend
-The new interface is powered by https://github.com/swordfest/shadowmere
+The new interface is powered by https://github.com/swordfest/shadowmere-njs
