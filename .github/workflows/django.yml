@@ -31,3 +31,7 @@ jobs:
         env:
           DEBUG: True
           SECRET_KEY: whatever
+      - name: Deploy
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          curl --fail -H "Authorization: ${{ secrets.DEPLOY_TOKEN }}" "https://smd.akiel.dev/deploy?script=deploy_shadowmere.sh"
