@@ -1,4 +1,4 @@
-botocore==1.29.99
+botocore==1.29.104
 celery==5.2.7
 Django==4.1.7
 django-admin-rangefilter==0.9.0
