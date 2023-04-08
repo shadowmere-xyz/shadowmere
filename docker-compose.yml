@@ -96,13 +96,5 @@ services:
       - shadowtest
       - apply_migrations
 
-  shadowtest:
-    image: guamulo/shadowtest:latest
-    restart: always
-    ports:
-      - "7999:8080"
-    env_file:
-      - .env.shadowtest
-
 volumes:
   shadowmere_data:
