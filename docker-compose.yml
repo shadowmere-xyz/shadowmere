@@ -93,7 +93,6 @@ services:
       - .env
     depends_on:
       - redis
-      - shadowtest
       - apply_migrations
 
 volumes:
