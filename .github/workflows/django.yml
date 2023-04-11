@@ -35,3 +35,11 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           curl --fail -H "Authorization: ${{ secrets.DEPLOY_TOKEN }}" "https://smd.akiel.dev/deploy?script=deploy_shadowmere.sh"
+      - name: Send slack notification
+        uses: Gamesight/slack-workflow-status@master
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
+          channel: 'shadowmere'
+          name: 'Deployment'
