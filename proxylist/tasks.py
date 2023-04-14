@@ -91,7 +91,7 @@ def save_proxies(proxies_lists):
                 try:
                     proxy.save()
                 except Exception as e:
-                    logging.error(f"Failed to save proxy {proxy}, {e}")
+                    logging.warning(f"Failed to save proxy {proxy}, {e}")
 
 
 def process_line(line, all_urls):
