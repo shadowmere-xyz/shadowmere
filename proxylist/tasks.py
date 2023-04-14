@@ -49,12 +49,14 @@ def poll_subscriptions(self):
 
     proxies_lists = []
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
-        for subscription in Subscription.objects.all():
+        for subscription in Subscription.objects.filter(enabled=True):
             logging.info(f"Testing subscription {subscription.url}")
             try:
                 r = requests.get(subscription.url)
                 if r.status_code != 200:
                     logging.error(f"We are facing issues getting this subscription {subscription.url}")
+                    subscription.alive = False
+                    subscription.save()
                     continue
                 if subscription.kind == Subscription.SubscriptionKind.PLAIN:
                     decoded_lines = [line.decode("utf-8") for line in r.iter_lines()]
@@ -66,8 +68,13 @@ def poll_subscriptions(self):
                     proxies_lists.append(
                         executor.map(process_line, flatten_decoded, [all_urls] * len(flatten_decoded))
                     )
-            except ConnectionError as e:
+                if subscription.alive is False:
+                    subscription.alive = True
+                    subscription.save()
+            except requests.exceptions.ConnectionError as e:
                 logging.error(f"Failed to get subscription {subscription.url}, {e}")
+                subscription.alive = False
+                subscription.save()
 
     save_proxies(proxies_lists)
 
@@ -84,7 +91,7 @@ def save_proxies(proxies_lists):
                 try:
                     proxy.save()
                 except Exception as e:
-                    logging.error(f"Failed to save proxy{proxy}, {e}")
+                    logging.error(f"Failed to save proxy {proxy}, {e}")
 
 
 def process_line(line, all_urls):

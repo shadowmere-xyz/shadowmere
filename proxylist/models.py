@@ -125,6 +125,8 @@ class Subscription(models.Model):
 
     url = models.URLField(null=False, unique=True)
     kind = models.CharField(choices=SubscriptionKind.choices, default=SubscriptionKind.PLAIN, max_length=10)
+    alive = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.url} - {self.kind}"
