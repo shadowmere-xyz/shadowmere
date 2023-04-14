@@ -62,7 +62,10 @@ class SubscriptionAdmin(ImportExportModelAdmin):
     list_display = (
         "url",
         "kind",
+        "enabled",
+        "alive",
     )
+    fields = ["url", "kind", "enabled"]
 
 
 admin.site.unregister(Group)
