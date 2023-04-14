@@ -1,3 +1,4 @@
+import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
@@ -39,7 +40,7 @@ def update_status(self):
 
 @app.task(bind=True)
 def poll_subscriptions(self):
-    print("Started polling subscriptions")
+    logging.info("Started polling subscriptions")
 
     all_urls = [
         proxy.url
@@ -49,34 +50,41 @@ def poll_subscriptions(self):
     proxies_lists = []
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
         for subscription in Subscription.objects.all():
-            print(f"Testing subscription {subscription.url}")
-            r = requests.get(subscription.url)
-            if r.status_code != 200:
-                print(f"We are facing issues getting this subscription {subscription.url}")
-                continue
-            if subscription.kind == Subscription.SubscriptionKind.PLAIN:
-                decoded_lines = [line.decode("utf-8") for line in r.iter_lines()]
-                proxies_lists.append(
-                    executor.map(process_line, decoded_lines, [all_urls] * len(decoded_lines)))
-            elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                decoded = [decode_base64(line).decode("utf-8").split("\n") for line in r.iter_lines()]
-                flatten_decoded = list(flatten(decoded))
-                proxies_lists.append(
-                    executor.map(process_line, flatten_decoded, [all_urls] * len(flatten_decoded))
-                )
+            logging.info(f"Testing subscription {subscription.url}")
+            try:
+                r = requests.get(subscription.url)
+                if r.status_code != 200:
+                    logging.error(f"We are facing issues getting this subscription {subscription.url}")
+                    continue
+                if subscription.kind == Subscription.SubscriptionKind.PLAIN:
+                    decoded_lines = [line.decode("utf-8") for line in r.iter_lines()]
+                    proxies_lists.append(
+                        executor.map(process_line, decoded_lines, [all_urls] * len(decoded_lines)))
+                elif subscription.kind == Subscription.SubscriptionKind.BASE64:
+                    decoded = [decode_base64(line).decode("utf-8").split("\n") for line in r.iter_lines()]
+                    flatten_decoded = list(flatten(decoded))
+                    proxies_lists.append(
+                        executor.map(process_line, flatten_decoded, [all_urls] * len(flatten_decoded))
+                    )
+            except ConnectionError as e:
+                logging.error(f"Failed to get subscription {subscription.url}, {e}")
 
-    print("Saving proxies")
-    for proxy_list in proxies_lists:
-        for proxy in proxy_list:
-            if proxy is not None:
-                print(f"saving {proxy}")
-                try:
-                    proxy.save()
-                except Exception as e:
-                    print(f"Failed to save proxy{proxy}, {e}")
+    save_proxies(proxies_lists)
 
     executor.shutdown(wait=True)
     print("Finished polling subscriptions")
+
+
+def save_proxies(proxies_lists):
+    logging.info("Saving proxies")
+    for proxy_list in proxies_lists:
+        for proxy in proxy_list:
+            if proxy is not None:
+                logging.info(f"saving {proxy}")
+                try:
+                    proxy.save()
+                except Exception as e:
+                    logging.error(f"Failed to save proxy{proxy}, {e}")
 
 
 def process_line(line, all_urls):
