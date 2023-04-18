@@ -1,8 +1,7 @@
-import logging
-
 import requests
 from django.utils.timezone import now
 
+import countries
 from shadowmere import settings
 
 
@@ -20,15 +19,7 @@ def get_proxy_location(proxy_url):
 
 
 def get_location_country_name(country_code: str) -> str:
-    try:
-        r = requests.get(f"https://restcountries.akiel.dev/v3.1/alpha/{country_code.lower()}")
-        if r.status_code != 200:
-            return ""
-
-        return r.json()[0].get("name").get("common")
-    except requests.exceptions.ConnectionError as e:
-        logging.error(f"Failed to connect to restcountries {e}")
-        return "Unknown"
+    return countries.countries.get(country_code.upper(), "")
 
 
 def update_proxy_status(proxy):
