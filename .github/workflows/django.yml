@@ -34,7 +34,7 @@ jobs:
       - name: Deploy
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          curl --fail -H "Authorization: ${{ secrets.DEPLOY_TOKEN }}" "https://smd.akiel.dev/deploy?script=${{ secrets.DEPLOY_SCRIPT }}"
+          curl --fail -H "Authorization: ${{ secrets.DEPLOY_TOKEN }}" "https://smd.akiel.dev/hook?script=${{ secrets.DEPLOY_SCRIPT }}"
       - name: Send slack notification
         uses: Gamesight/slack-workflow-status@master
         if: ${{ github.ref == 'refs/heads/main' }}
