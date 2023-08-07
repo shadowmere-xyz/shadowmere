@@ -14,7 +14,7 @@ greenlet==2.0.2
 gunicorn==21.2.0
 prometheus-client==0.17.1
 prompt-toolkit==3.0.39
-psycopg2-binary==2.9.6
+psycopg2-binary==2.9.7
 Pillow==10.0.0
 qrcode==7.4.2
 redis==4.6.0
