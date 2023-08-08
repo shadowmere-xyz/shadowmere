@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from django.db import IntegrityError
+from requests.exceptions import SSLError
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy, Subscription, get_sip002
@@ -42,10 +43,7 @@ def update_status(self):
 def poll_subscriptions(self):
     logging.info("Started polling subscriptions")
 
-    all_urls = [
-        proxy.url
-        for proxy in Proxy.objects.all()
-    ]
+    all_urls = [proxy.url for proxy in Proxy.objects.all()]
 
     proxies_lists = []
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
@@ -54,23 +52,38 @@ def poll_subscriptions(self):
             try:
                 r = requests.get(subscription.url)
                 if r.status_code != 200:
-                    logging.error(f"We are facing issues getting this subscription {subscription.url}")
+                    logging.error(
+                        f"We are facing issues getting this subscription {subscription.url}"
+                    )
                     subscription.alive = False
                     subscription.save()
                     continue
                 if subscription.kind == Subscription.SubscriptionKind.PLAIN:
                     decoded_lines = [line.decode("utf-8") for line in r.iter_lines()]
                     proxies_lists.append(
-                        executor.map(process_line, decoded_lines, [all_urls] * len(decoded_lines)))
+                        executor.map(
+                            process_line, decoded_lines, [all_urls] * len(decoded_lines)
+                        )
+                    )
                 elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                    decoded = [decode_base64(line).decode("utf-8").split("\n") for line in r.iter_lines()]
+                    decoded = [
+                        decode_base64(line).decode("utf-8").split("\n")
+                        for line in r.iter_lines()
+                    ]
                     flatten_decoded = list(flatten(decoded))
                     proxies_lists.append(
-                        executor.map(process_line, flatten_decoded, [all_urls] * len(flatten_decoded))
+                        executor.map(
+                            process_line,
+                            flatten_decoded,
+                            [all_urls] * len(flatten_decoded),
+                        )
                     )
                 if subscription.alive is False:
                     subscription.alive = True
-            except requests.exceptions.ConnectionError as e:
+            except (
+                requests.exceptions.ConnectionError,
+                requests.exceptions.SSLError,
+            ) as e:
                 logging.error(f"Failed to get subscription {subscription.url}, {e}")
                 subscription.alive = False
             except AttributeError as e:
