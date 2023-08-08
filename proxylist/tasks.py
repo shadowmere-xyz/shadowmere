@@ -70,11 +70,14 @@ def poll_subscriptions(self):
                     )
                 if subscription.alive is False:
                     subscription.alive = True
-                    subscription.save()
             except requests.exceptions.ConnectionError as e:
                 logging.error(f"Failed to get subscription {subscription.url}, {e}")
                 subscription.alive = False
-                subscription.save()
+            except AttributeError as e:
+                logging.error(f"Error decoding subscription {subscription.url}, {e}")
+                subscription.alive = False
+
+            subscription.save()
 
     save_proxies(proxies_lists)
 
