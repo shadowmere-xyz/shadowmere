@@ -84,10 +84,10 @@ def poll_subscriptions(self):
                 requests.exceptions.ConnectionError,
                 requests.exceptions.SSLError,
             ) as e:
-                logging.error(f"Failed to get subscription {subscription.url}, {e}")
+                logging.warning(f"Failed to get subscription {subscription.url}, {e}")
                 subscription.alive = False
             except AttributeError as e:
-                logging.error(f"Error decoding subscription {subscription.url}, {e}")
+                logging.warning(f"Error decoding subscription {subscription.url}, {e}")
                 subscription.alive = False
 
             subscription.save()
