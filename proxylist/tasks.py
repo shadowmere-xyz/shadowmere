@@ -39,6 +39,13 @@ def update_status(self):
         print("This host is having connection issues. Skipping test cycle.")
 
 
+def decode_line(line):
+    try:
+        return decode_base64(line).decode("utf-8").split("\n")
+    except UnicodeDecodeError:
+        logging.warning(f"Failed decoding line: {line}")
+
+
 @app.task(bind=True)
 def poll_subscriptions(self):
     logging.info("Started polling subscriptions")
@@ -66,10 +73,7 @@ def poll_subscriptions(self):
                         )
                     )
                 elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                    decoded = [
-                        decode_base64(line).decode("utf-8").split("\n")
-                        for line in r.iter_lines()
-                    ]
+                    decoded = [decode_line(line) for line in r.iter_lines()]
                     flatten_decoded = list(flatten(decoded))
                     proxies_lists.append(
                         executor.map(
