@@ -47,7 +47,9 @@ class ProxyAdmin(ImportExportModelAdmin):
         "location_country",
         ("last_active", DateRangeFilter),
     )
-    search_fields = ['url', ]
+    search_fields = [
+        "url",
+    ]
     resource_class = ProxyResource
 
 
@@ -64,6 +66,8 @@ class SubscriptionAdmin(ImportExportModelAdmin):
         "kind",
         "enabled",
         "alive",
+        "alive_timestamp",
+        "error_message",
     )
     fields = ["url", "kind", "enabled"]
 

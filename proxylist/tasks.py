@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from django.db import IntegrityError
-from requests.exceptions import SSLError
+from django.utils.timezone import now
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy, Subscription, get_sip002
@@ -11,6 +11,8 @@ from proxylist.proxy import update_proxy_status, get_proxy_location
 from shadowmere.celery import app
 
 CONCURRENT_CHECKS = 500
+
+SUBSCRIPTION_TIMEOUT_SECONDS = 10
 
 
 @app.task(bind=True)
@@ -57,7 +59,7 @@ def poll_subscriptions(self):
         for subscription in Subscription.objects.filter(enabled=True):
             logging.info(f"Testing subscription {subscription.url}")
             try:
-                r = requests.get(subscription.url)
+                r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
                 if r.status_code != 200:
                     logging.error(
                         f"We are facing issues getting this subscription {subscription.url}"
@@ -82,6 +84,7 @@ def poll_subscriptions(self):
                             [all_urls] * len(flatten_decoded),
                         )
                     )
+                    subscription.alive_timestamp = now()
                 if subscription.alive is False:
                     subscription.alive = True
             except (
@@ -89,9 +92,11 @@ def poll_subscriptions(self):
                 requests.exceptions.SSLError,
             ) as e:
                 logging.warning(f"Failed to get subscription {subscription.url}, {e}")
+                subscription.error_message = f"{e}"
                 subscription.alive = False
             except AttributeError as e:
                 logging.warning(f"Error decoding subscription {subscription.url}, {e}")
+                subscription.error_message = f"{e}"
                 subscription.alive = False
 
             subscription.save()
