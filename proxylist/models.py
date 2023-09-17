@@ -31,7 +31,7 @@ def validate_not_existing(value):
 
 def validate_proxy_can_connect(value):
     location = get_proxy_location(get_sip002(value))
-    if location is None or location == 'unknown':
+    if location is None or location == "unknown":
         raise ValidationError(
             "Can't get the location for this address",
             params={"value": value},
@@ -79,9 +79,13 @@ def get_sip002(instance_url):
             decoded_url = decode_base64(url.encode("ascii"))
             if decoded_url:
                 encoded_bits = (
-                    base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
+                    base64.b64encode(decoded_url.split(b"@")[0])
+                    .decode("ascii")
+                    .rstrip("=")
                 )
-                url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
+                url = (
+                    f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
+                )
             else:
                 return ""
     except IndexError:
@@ -124,9 +128,13 @@ class Subscription(models.Model):
         BASE64 = "BASE64", "base64"
 
     url = models.URLField(null=False, unique=True)
-    kind = models.CharField(choices=SubscriptionKind.choices, default=SubscriptionKind.PLAIN, max_length=10)
+    kind = models.CharField(
+        choices=SubscriptionKind.choices, default=SubscriptionKind.PLAIN, max_length=10
+    )
     alive = models.BooleanField(default=True)
+    alive_timestamp = models.DateTimeField(default=now)
     enabled = models.BooleanField(default=True)
+    error_message = models.CharField(max_length=10000, default="")
 
     def __str__(self):
         return f"{self.url} - {self.kind}"
