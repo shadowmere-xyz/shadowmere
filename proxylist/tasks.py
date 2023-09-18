@@ -90,6 +90,7 @@ def poll_subscriptions(self):
             except (
                 requests.exceptions.ConnectionError,
                 requests.exceptions.SSLError,
+                requests.exceptions.ReadTimeout,
             ) as e:
                 logging.warning(f"Failed to get subscription {subscription.url}, {e}")
                 subscription.error_message = f"{e}"
