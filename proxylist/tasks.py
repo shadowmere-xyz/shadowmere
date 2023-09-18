@@ -61,10 +61,10 @@ def poll_subscriptions(self):
             try:
                 r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
                 if r.status_code != 200:
-                    logging.error(
-                        f"We are facing issues getting this subscription {subscription.url}"
-                    )
+                    error_message = f"We are facing issues getting this subscription {subscription.url} ({r.status_code} {r.text})"
+                    logging.warning(error_message)
                     subscription.alive = False
+                    subscription.error_message = error_message
                     subscription.save()
                     continue
                 if subscription.kind == Subscription.SubscriptionKind.PLAIN:
