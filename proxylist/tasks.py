@@ -84,7 +84,7 @@ def poll_subscriptions(self):
                             [all_urls] * len(flatten_decoded),
                         )
                     )
-                    subscription.alive_timestamp = now()
+                subscription.alive_timestamp = now()
                 if subscription.alive is False:
                     subscription.alive = True
             except (
