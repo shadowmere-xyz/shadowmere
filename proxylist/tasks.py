@@ -87,6 +87,8 @@ def poll_subscriptions(self):
                 subscription.alive_timestamp = now()
                 if subscription.alive is False:
                     subscription.alive = True
+                if subscription.error_message != "":
+                    subscription.error_message = ""
             except (
                 requests.exceptions.ConnectionError,
                 requests.exceptions.SSLError,
