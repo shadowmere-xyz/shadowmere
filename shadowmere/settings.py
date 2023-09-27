@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "shadowmere.akiel.dev",
+    "old.shadowmere.akiel.dev",
     "eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion",
 ]
 
@@ -131,52 +132,52 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
         },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
         },
     },
-    'formatters': {
-        'django.server': {
-            '()': 'django.utils.log.ServerFormatter',
-            'format': '[%(server_time)s] %(message)s',
+    "formatters": {
+        "django.server": {
+            "()": "django.utils.log.ServerFormatter",
+            "format": "[%(server_time)s] %(message)s",
         }
     },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
         },
         # Custom handler which we will use with logger 'django'.
         # We want errors/warnings to be logged when DEBUG=False
-        'console_on_not_debug': {
-            'level': 'WARNING',
-            'filters': ['require_debug_false'],
-            'class': 'logging.StreamHandler',
+        "console_on_not_debug": {
+            "level": "WARNING",
+            "filters": ["require_debug_false"],
+            "class": "logging.StreamHandler",
         },
-        'django.server': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'django.server',
+        "django.server": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "django.server",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'console_on_not_debug'],
-            'level': 'INFO',
+    "loggers": {
+        "django": {
+            "handlers": ["console", "console_on_not_debug"],
+            "level": "INFO",
         },
-        'django.server': {
-            'handlers': ['django.server'],
-            'level': 'INFO',
-            'propagate': False,
+        "django.server": {
+            "handlers": ["django.server"],
+            "level": "INFO",
+            "propagate": False,
         },
-    }
+    },
 }
 
 # Internationalization
@@ -259,13 +260,11 @@ if not DEBUG and os.getenv("SENTRY_DSN") != "":
         integrations=[
             DjangoIntegration(),
         ],
-
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
         traces_sample_rate=0.01,
-
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=True
+        send_default_pii=True,
     )
