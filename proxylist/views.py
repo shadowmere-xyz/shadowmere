@@ -58,6 +58,12 @@ def healthcheck(request):
     return HttpResponse(b"OK")
 
 
+def get_flag_or_empty(country_code):
+    if country_code != "":
+        return flag.flag(country_code)
+    return ""
+
+
 def get_proxy_config(proxy):
     method_password = decode_base64(
         proxy.url.split("@")[0].replace("ss://", "").encode("ascii")
@@ -70,7 +76,7 @@ def get_proxy_config(proxy):
         "method": method_password.decode("ascii").split(":")[0],
         "plugin": "",
         "plugin_opts": None,
-        "remarks": f"{flag.flag(proxy.location_country_code)} {proxy.location}",
+        "remarks": f"{get_flag_or_empty(proxy.location_country_code)} {proxy.location}",
     }
 
     return config
@@ -193,7 +199,9 @@ class Base64SubViewSet(viewsets.ViewSet):
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         server_list = ""
-        for proxy in Proxy.objects.filter(is_active=True).order_by("location_country_code"):
-            server_list += f"\n{proxy.url}#{flag.flag(proxy.location_country_code)} {proxy.location}"
+        for proxy in Proxy.objects.filter(is_active=True).order_by(
+            "location_country_code"
+        ):
+            server_list += f"\n{proxy.url}#{get_flag_or_empty(proxy.location_country_code)} {proxy.location}"
         b64_servers = base64.b64encode(server_list.encode("utf-8"))
         return HttpResponse(b64_servers)
