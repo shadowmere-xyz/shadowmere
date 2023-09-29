@@ -99,7 +99,7 @@
                     <div class="w3-bar-item w3-display-bottomleft">
                         <div class="w3-hide" style="word-wrap: anywhere;max-width: 900px"
                              id="proxy{{ forloop.counter }}">{{ proxy.url }}#{{ proxy.location|urlencode }}</div>
-                        <div><b>{{ proxy.ip_address }}</b></div>
+                        <div><b>{{ proxy.ip_address }}</b> &#9875;{{ proxy.port }}</div>
                     </div>
                     <div class="w3-bar-item w3-right">
                         <div data-umami-event="clipboard button" class="w3-button w3-light-gray  w3-large"
