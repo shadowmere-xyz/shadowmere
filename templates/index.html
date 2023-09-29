@@ -90,7 +90,7 @@
     {% if proxy_list %}
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
             {% for proxy in page_obj %}
-                <li class="w3-bar {% if forloop.counter != 20 %} w3-bottombar {% endif %} w3-display-container w3-row">
+                <li class="w3-bar {% if forloop.counter != 10 %} w3-bottombar {% endif %} w3-display-container w3-row">
                     <div class="w3-bar-item w3-display-topleft">
                         <span><img title="{{ proxy.location }}" width="45px" height="35px" alt="{{ proxy.location }}"
                                    src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ proxy.location_country_code }}.svg"/></span>
@@ -102,16 +102,16 @@
                         <div><b>{{ proxy.ip_address }}</b></div>
                     </div>
                     <div class="w3-bar-item w3-right">
-                        <div data-umami-event="clipboard button" class="w3-bar-item w3-button w3-light-gray  w3-large"
+                        <div data-umami-event="clipboard button" class="w3-button w3-light-gray  w3-large"
                              onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
                         </div>
                         <div data-umami-event="qr button"
-                             class="w3-bar-item w3-button w3-light-gray w3-margin-left w3-large"
+                             class="w3-button w3-light-gray w3-margin-left w3-large"
                              onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
                             &#9633;
                         </div>
                         <a data-umami-event="download button" href="/{{ proxy.id }}/config">
-                            <div class="w3-bar-item w3-button w3-light-gray w3-margin-left w3-large">&#x2193;
+                            <div class="w3-button w3-light-gray w3-margin-left w3-large">&#x2193;
                             </div>
                         </a>
                     </div>

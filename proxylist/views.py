@@ -37,7 +37,7 @@ def list_proxies(request):
     else:
         proxy_list = Proxy.objects.filter(is_active=True).order_by("-id")
 
-    paginator = Paginator(proxy_list, 20)
+    paginator = Paginator(proxy_list, 10)
 
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
