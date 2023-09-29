@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shadowmere</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <script async src="https://umami.akiel.dev/script.js" data-website-id="694ad5dc-d5e9-4bd8-9e42-83321007c1be"></script>
+    <script async src="https://umami.akiel.dev/script.js"
+            data-website-id="694ad5dc-d5e9-4bd8-9e42-83321007c1be"></script>
+    <script src="https://cdn.websitepolicies.io/lib/cookieconsent/1.0.3/cookieconsent.min.js" defer></script>
 </head>
 <body class="w3-blue-grey w3-container">
 <a style="position: absolute;top: 0;left: 0;" href="https://github.com/jadolg/shadowmere"><img loading="lazy"
@@ -31,7 +33,8 @@
                  src="https://images.uesp.net/thumb/b/be/SR-creature-Shadowmere.jpg/600px-SR-creature-Shadowmere.jpg">
         </a>
         <p><b>{% translate "How do I use this?:" %}</b>
-            {% blocktranslate %}Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for information.
+            {% blocktranslate %}Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for
+                information.
                 <a href="https://shadowsocks.org/en/download/clients.html">Here</a> is a list of clients for several
                 platforms, but my favorite is <a href="https://getoutline.org/">Outline</a> for any platform and
                 <a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks">shadowsocks</a> for
@@ -40,7 +43,7 @@
         <p><b>{% translate "Online:" %}</b> {{ proxy_list|length }} {% if location_country_code != "" %}
             <img class="w3-margin" title="{{ country_code.location_country_code }}" width="70px" height="30px"
                  alt="Country flag for {{ location_country_code }}"
-                         src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ location_country_code }}.svg">
+                 src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ location_country_code }}.svg">
         {% endif %}</p>
         {% if proxy_list|length > 0 %}
             <p><b>{% translate "Last check:" %}</b> {{ proxy_list.0.last_checked }} UTC</p>
@@ -79,7 +82,8 @@
                         <div data-umami-event="clipboard button" class="w3-bar-item w3-button w3-blue-greyt  w3-large"
                              onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
                         </div>
-                        <div data-umami-event="qr button" class="w3-bar-item w3-button w3-blue-grey w3-margin-left w3-large"
+                        <div data-umami-event="qr button"
+                             class="w3-bar-item w3-button w3-blue-grey w3-margin-left w3-large"
                              onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
                             &#9633;
                         </div>
