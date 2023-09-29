@@ -34,7 +34,7 @@
     <!-- End Cookie Consent by TermsFeed https://www.TermsFeed.com -->
 
 </head>
-<body class="w3-blue-grey w3-container">
+<body class="w3-light-gray w3-container">
 <a style="position: absolute;top: 0;left: 0;" href="https://github.com/jadolg/shadowmere"><img loading="lazy"
                                                                                                width="149" height="149"
                                                                                                src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149"
@@ -102,16 +102,16 @@
                         <div><b>{{ proxy.ip_address }}</b></div>
                     </div>
                     <div class="w3-bar-item w3-right">
-                        <div data-umami-event="clipboard button" class="w3-bar-item w3-button w3-blue-greyt  w3-large"
+                        <div data-umami-event="clipboard button" class="w3-bar-item w3-button w3-light-gray  w3-large"
                              onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
                         </div>
                         <div data-umami-event="qr button"
-                             class="w3-bar-item w3-button w3-blue-grey w3-margin-left w3-large"
+                             class="w3-bar-item w3-button w3-light-gray w3-margin-left w3-large"
                              onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
                             &#9633;
                         </div>
                         <a data-umami-event="download button" href="/{{ proxy.id }}/config">
-                            <div class="w3-bar-item w3-button w3-blue-grey w3-margin-left w3-large">&#x2193;
+                            <div class="w3-bar-item w3-button w3-light-gray w3-margin-left w3-large">&#x2193;
                             </div>
                         </a>
                     </div>
@@ -121,7 +121,7 @@
                         <div class="w3-modal-content w3-center">
                             <div class="w3-container">
                                 <span onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='none'"
-                                      class="w3-button w3-display-topright w3-blue-grey">&times;</span>
+                                      class="w3-button w3-display-topright w3-light-gray">&times;</span>
                                 <img class="w3-image" loading="lazy" src="/{{ proxy.id }}/qr" alt="qr"/>
                             </div>
                         </div>
