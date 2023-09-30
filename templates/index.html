@@ -50,11 +50,6 @@
         <p>
             <b>{% translate "Disclaimer:" %}</b> {% translate "This website is only a list of tunnels collected all around internet. We do NOT provide or maintain any of these tunnels." %}
             <span class="w3-red">{% translate "Use them at your own risk." %}</span></p>
-        <a href="https://skyrim.fandom.com/wiki/Shadowmere">
-            <img class="w3-image w3-round"
-                 alt="A picture of Skyrim's Shadowmere"
-                 src="https://images.uesp.net/thumb/b/be/SR-creature-Shadowmere.jpg/600px-SR-creature-Shadowmere.jpg">
-        </a>
         <p><b>{% translate "How do I use this?:" %}</b>
             {% blocktranslate %}Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for
                 information.
@@ -85,7 +80,6 @@
                 </a>
             {% endif %}
         {% endfor %}
-
     </div>
     {% if proxy_list %}
         <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
