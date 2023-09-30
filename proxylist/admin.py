@@ -14,6 +14,7 @@ class ProxyResource(resources.ModelResource):
         model = Proxy
 
 
+@admin.register(Proxy)
 class ProxyAdmin(ImportExportModelAdmin):
     def update_status(modeladmin, request, queryset):
         for proxy in queryset:
@@ -58,6 +59,7 @@ class SubscriptionResource(resources.ModelResource):
         model = Subscription
 
 
+@admin.register(Subscription)
 class SubscriptionAdmin(ImportExportModelAdmin):
     resource_class = ProxyResource
 
@@ -73,5 +75,3 @@ class SubscriptionAdmin(ImportExportModelAdmin):
 
 
 admin.site.unregister(Group)
-admin.site.register(Proxy, ProxyAdmin)
-admin.site.register(Subscription, SubscriptionAdmin)
