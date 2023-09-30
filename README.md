@@ -6,6 +6,8 @@ Collecting proxies around the internet is fun, but what if they stop working? Ju
 
 ## See it in action
 I have started an instance at https://shadowmere.akiel.dev/. Feel free to go click around.
+If you want the simpler but uglier interface you can check it at https://old.shadowmere.akiel.dev/.
+And if you are using Tor you can directly use the hidden service at http://eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion
 
 ## How to install
 ### Dependencies
