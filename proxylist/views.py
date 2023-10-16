@@ -27,7 +27,7 @@ def list_proxies(request):
     country_codes = (
         Proxy.objects.filter(is_active=True)
         .order_by("location_country_code")
-        .values("location_country_code")
+        .values("location_country_code", "location_country")
         .distinct()
     )
     if location_country_code != "":
