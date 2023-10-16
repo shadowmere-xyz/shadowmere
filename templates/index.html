@@ -59,7 +59,7 @@
                 Android</p>
             {% endblocktranslate %}
         <p><b>{% translate "Online:" %}</b> {{ proxy_list|length }} {% if location_country_code != "" %}
-            <img class="w3-margin" title="{{ country_code.location_country_code }}" width="70px" height="30px"
+            <img class="w3-margin" title="" width="70px" height="30px"
                  alt="Country flag for {{ location_country_code }}"
                  src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ location_country_code }}.svg">
         {% endif %}</p>
@@ -74,8 +74,8 @@
         {% for country_code in country_codes %}
             {% if country_code.location_country_code != "" %}
                 <a class="w3-button" href="/?location_country_code={{ country_code.location_country_code }}">
-                    <img title="{{ country_code.location_country_code }}" width="45px" height="35px"
-                         alt="Country flag for {{ country_code.location_country_code }}"
+                    <img title="{{ country_code.location_country }}" width="45px" height="35px"
+                         alt="Country flag for {{ country_code.location_country }}"
                          src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ country_code.location_country_code }}.svg">
                 </a>
             {% endif %}
