@@ -14,7 +14,7 @@ gunicorn==21.2.0
 prometheus-client==0.17.1
 prompt-toolkit==3.0.39
 psycopg2-binary==2.9.9
-Pillow==10.0.1
+Pillow==10.1.0
 qrcode==7.4.2
 redis==5.0.1
 requests==2.31.0
