@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 from django.db import IntegrityError
 from django.utils.timezone import now
+from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy, Subscription, get_sip002
@@ -19,7 +20,12 @@ SUBSCRIPTION_TIMEOUT_SECONDS = 10
 def update_status(self):
     print("Updating proxies status")
 
-    req = requests.get("https://clients3.google.com/generate_204")
+    try:
+        req = requests.get("https://clients3.google.com/generate_204")
+    except (SSLError, ConnectionError, ReadTimeout):
+        print("The Shadowmere host is having connection issues. Skipping test cycle.")
+        return
+
     if req.status_code == 204:
         proxies = Proxy.objects.all()
         with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
@@ -38,7 +44,7 @@ def update_status(self):
 
         print("Update completed")
     else:
-        print("This host is having connection issues. Skipping test cycle.")
+        print("The Shadowmere host is having connection issues. Skipping test cycle.")
 
 
 def decode_line(line):
