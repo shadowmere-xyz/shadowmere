@@ -43,3 +43,9 @@ jobs:
           slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
           channel: 'shadowmere'
           name: 'Deployment'
+      - name: Track release in sentry
+        run: |
+          curl https://sentry.io/api/hooks/release/builtin/${{ secrets.SENTRY_RELEASE_TRACKING }}/ \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            -d '{"version": "${{ github.sha }}"}'
