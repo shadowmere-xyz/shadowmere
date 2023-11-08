@@ -13,7 +13,7 @@ from shadowmere.celery import app
 
 CONCURRENT_CHECKS = 500
 
-SUBSCRIPTION_TIMEOUT_SECONDS = 10
+SUBSCRIPTION_TIMEOUT_SECONDS = 60
 
 
 @app.task(bind=True)
