@@ -1,8 +1,8 @@
 import requests
 from django.utils.timezone import now
+from django.conf import settings
 from requests.exceptions import InvalidJSONError
 
-from shadowmere import settings
 
 
 def get_proxy_location(proxy_url):
