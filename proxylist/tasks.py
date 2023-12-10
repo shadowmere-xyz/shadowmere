@@ -14,6 +14,7 @@ from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy, Subscription, get_sip002, TaskLog
 from proxylist.proxy import update_proxy_status, get_proxy_location
+from shadowmere.celery import app
 
 CONCURRENT_CHECKS = 200
 SUBSCRIPTION_TIMEOUT_SECONDS = 60
