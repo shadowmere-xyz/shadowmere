@@ -1,0 +1,53 @@
+version: "3"
+volumes:
+  shadowmere_data:
+  redis_data:
+
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  db:
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - shadowmere_data:/var/lib/postgresql/data
+    env_file: .env
+
+  shadowmere:
+    &shadowmere
+    build:
+      context: .
+    image: guamulo/shadowmere
+    restart: always
+    command: /start
+    env_file: .env
+    depends_on:
+      - db
+    ports:
+      - "8001:8001"
+
+  celery:
+    <<: *shadowmere
+    image: guamulo/shadowmere-celeryworker
+    restart: always
+    command: /wait_for_migration.sh /start-celeryworker
+    env_file: .env
+    depends_on:
+      - redis
+    ports: []
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  celery_beat:
+    <<: *shadowmere
+    image: guamulo/shadowmere-celerybeat
+    restart: always
+    command: /wait_for_migration.sh /start-celerybeat
+    env_file: .env
+    ports: []
+    depends_on:
+      - redis
