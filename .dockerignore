@@ -1,4 +1,7 @@
 venv/
 .env*
 db.sqlite3
-.github
+.github/
+.git/
+.idea/
+.venv/
