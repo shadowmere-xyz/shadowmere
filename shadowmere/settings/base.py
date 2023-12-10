@@ -9,57 +9,52 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
 import os
 import environ
 from pathlib import Path
+from datetime import date
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from celery.schedules import crontab
 from django.contrib.admin import AdminSite
 from django.utils.translation import gettext_lazy as _
-from pythonjsonlogger import jsonlogger
 
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    SHADOWTEST_URL=(str, "https://shadowtest.akiel.dev/v1/test"),
+    ALLOWED_HOSTS=(str, ""),
+    CSRF_TRUSTED_ORIGINS=(str, ""),
+    CORS_ALLOWED_ORIGINS=(str, ""),
+    MINIO_ENDPOINT=(str, ""),
+    MINIO_ACCESS_KEY=(str, ""),
+    MINIO_SECRET_KEY=(str, ""),
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+SECRET_KEY = env("SECRET_KEY")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = env("DEBUG")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", False)
+SHADOWTEST_URL = env("SHADOWTEST_URL")
 
-SHADOWTEST_URL = os.getenv("SHADOWTEST_URL", "https://shadowtest.akiel.dev/v2/test")
+ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(" ")
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "shadowmere.xyz",
-    "shadowmere.akiel.dev",
-    "old.shadowmere.akiel.dev",
-    "eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion",
-]
+CSRF_TRUSTED_ORIGINS: str = env("CSRF_TRUSTED_ORIGINS").split(" ")
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://shadowmere.akiel.dev",
-    "https://shadowmere.xyz",
-]
+CORS_ALLOWED_ORIGINS: str = env("CORS_ALLOWED_ORIGINS").split(" ")
 
-# Application definition
-
-INSTALLED_APPS = [
+DJANGO_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "proxylist.apps.ProxylistConfig",
+]
+
+THIRD_PARTY_APPS = [
     "storages",
     "import_export",
     "django_prometheus",
@@ -69,8 +64,13 @@ INSTALLED_APPS = [
     "django_filters",
 ]
 
+LOCAL_APPS = [
+    "proxylist.apps.ProxylistConfig",
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
 MIDDLEWARE = [
-    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -79,8 +79,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_ratelimit.middleware.RatelimitMiddleware",
-    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "shadowmere.urls"
@@ -103,12 +101,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "shadowmere.wsgi.application"
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 DATABASES = {"default": env.db()}
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -154,13 +147,9 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        # Add other loggers here as needed
     },
 }
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
@@ -179,34 +168,9 @@ LANGUAGES = [
 
 LOCALE_PATHS = ("./locale",)
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = "/static/"
+
 STATIC_ROOT = "./static_files/"
-
-if not DEBUG:
-    DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
-    STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
-    MINIO_STORAGE_ENDPOINT = os.getenv("MINIO_ENDPOINT")
-    MINIO_STORAGE_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
-    MINIO_STORAGE_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
-    MINIO_STORAGE_USE_HTTPS = True
-    MINIO_STORAGE_MEDIA_BUCKET_NAME = (
-        f"{os.getenv('MINIO_BUCKET')}-media"
-        if os.getenv("MINIO_BUCKET") != ""
-        else "shadowmere-media"
-    )
-    MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
-    MINIO_STORAGE_STATIC_BUCKET_NAME = (
-        f"{os.getenv('MINIO_BUCKET')}-static"
-        if os.getenv("MINIO_BUCKET") != ""
-        else "shadowmere-static"
-    )
-    MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -241,10 +205,6 @@ HUEY = {
     },
 }
 
-AdminSite.site_header = "Shadowmere administration"
-
-PROMETHEUS_METRICS_EXPORT_PORT_RANGE = range(8002, 8008)
-
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "proxylist.pagination.ProxiesPagination",
     "PAGE_SIZE": 10,
@@ -253,25 +213,26 @@ REST_FRAMEWORK = {
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 CONN_MAX_AGE = 60
+
 CONN_HEALTH_CHECKS = True
 
-if not DEBUG and os.getenv("SENTRY_DSN") != "":
-    import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
+SECURE_BROWSER_XSS_FILTER = True
 
-    sentry_sdk.init(
-        dsn=os.getenv("SENTRY_DSN"),
-        integrations=[
-            DjangoIntegration(),
-        ],
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production.
-        traces_sample_rate=0.01,
-        # If you wish to associate users to errors (assuming you are using
-        # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=True,
-    )
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+SECURE_HOSTS_INCLUDE_SUBDOMAINS = True
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
+FILTERS_DEFAULT_LOOKUP_EXPR = "icontains"
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Shadowmere Administration",
+    "site_header": "Shadowmere",
+    "site_brand": "Shadowmere",
+    "welcome_sign": "Welcome to Shadowmere Administration",
+    "copyright": f"Shadowmere {date.year}",
+}
 
 RATELIMIT_ENABLE = False
 RATELIMIT_VIEW = "proxylist.views.ratelimited_error"
