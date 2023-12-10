@@ -78,14 +78,8 @@ def get_sip002(instance_url):
             url = url.replace("ss://", "")
             decoded_url = decode_base64(url.encode("ascii"))
             if decoded_url:
-                encoded_bits = (
-                    base64.b64encode(decoded_url.split(b"@")[0])
-                    .decode("ascii")
-                    .rstrip("=")
-                )
-                url = (
-                    f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
-                )
+                encoded_bits = base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
+                url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
             else:
                 return ""
     except IndexError:
@@ -128,9 +122,7 @@ class Subscription(models.Model):
         BASE64 = "BASE64", "base64"
 
     url = models.URLField(null=False, unique=True)
-    kind = models.CharField(
-        choices=SubscriptionKind.choices, default=SubscriptionKind.PLAIN, max_length=10
-    )
+    kind = models.CharField(choices=SubscriptionKind.choices, default=SubscriptionKind.PLAIN, max_length=10)
     alive = models.BooleanField(default=True)
     alive_timestamp = models.DateTimeField(default=now)
     enabled = models.BooleanField(default=True)
