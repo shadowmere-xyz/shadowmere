@@ -17,6 +17,8 @@ class ProxyResource(resources.ModelResource):
 
 @admin.register(Proxy)
 class ProxyAdmin(ImportExportModelAdmin):
+
+    @staticmethod
     def update_status(modeladmin, request, queryset):
         for proxy in queryset:
             update_proxy_status(proxy)
@@ -26,6 +28,7 @@ class ProxyAdmin(ImportExportModelAdmin):
                 # This means the proxy is either a duplicate or no longer valid
                 proxy.delete()
 
+    @staticmethod
     def quality(self, obj):
         if obj.times_checked > 0:
             return obj.times_check_succeeded * 100 / obj.times_checked
