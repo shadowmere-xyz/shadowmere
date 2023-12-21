@@ -16,6 +16,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from proxylist.base64_decoder import decode_base64
+from proxylist.metrics import register_metrics
 from proxylist.models import Proxy
 from proxylist.permissions import GeneralPermission
 from proxylist.serializers import ProxySerializer
@@ -205,3 +206,6 @@ class Base64SubViewSet(viewsets.ViewSet):
             server_list += f"\n{proxy.url}#{get_flag_or_empty(proxy.location_country_code)} {proxy.location}"
         b64_servers = base64.b64encode(server_list.encode("utf-8"))
         return HttpResponse(b64_servers)
+
+
+register_metrics()
