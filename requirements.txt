@@ -1,6 +1,6 @@
 botocore==1.34.11
 celery==5.3.6
-Django==5.0
+Django==5.0.1
 django-admin-rangefilter==0.12.0
 django-filter==23.5
 django-import-export==3.3.5
