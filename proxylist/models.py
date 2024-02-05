@@ -104,7 +104,7 @@ def update_url_and_location_after_save(sender, instance, created, **kwargs):
 
     if instance.port == 0:
         server_and_port = instance.url.split("@")[1]
-        instance.port = int(re.findall(r":(\d+)", server_and_port)[0])
+        instance.port = int(re.findall(r":(\d+)", server_and_port)[-1])
         instance.save()
         return
 
