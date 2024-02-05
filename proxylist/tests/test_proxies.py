@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
+APPLICATION_JSON_CONTENT_TYPE = "application/json"
+
 fake_proxy_data = {
     "YourFuckingIPAddress": "178.163.164.199",
     "YourFuckingLocation": "Amsterdam, NH, Netherlands",
@@ -56,7 +58,7 @@ class ProxiesTests(APITestCase):
         response = self.client.post(
             reverse("proxy-list"),
             json.dumps(proxy_data),
-            content_type="application/json",
+            content_type=APPLICATION_JSON_CONTENT_TYPE,
         )
         self.assertEqual(response.status_code, 403)
 
@@ -69,7 +71,7 @@ class ProxiesTests(APITestCase):
         return_value=fake_proxy_data,
     )
     def test_add_proxy_correctly(
-            self, get_proxy_location_models, get_proxy_location_update
+        self, get_proxy_location_models, get_proxy_location_update
     ):
         root_user = User.objects.create_superuser("root")
         self.client.force_login(root_user)
@@ -79,7 +81,7 @@ class ProxiesTests(APITestCase):
         response = self.client.post(
             reverse("proxy-list"),
             json.dumps(proxy_data),
-            content_type="application/json",
+            content_type=APPLICATION_JSON_CONTENT_TYPE,
         )
         self.assertEqual(response.status_code, 201)
         result = json.loads(response.content)
@@ -104,7 +106,7 @@ class ProxiesTests(APITestCase):
         response = self.client.post(
             reverse("proxy-list"),
             json.dumps(proxy_data),
-            content_type="application/json",
+            content_type=APPLICATION_JSON_CONTENT_TYPE,
         )
         self.assertEqual(response.status_code, 400)
 
@@ -116,29 +118,60 @@ class ProxiesTests(APITestCase):
         "proxylist.proxy.get_proxy_location",
         return_value=fake_proxy_data,
     )
-    def test_add_same_proxy_twice(self, get_proxy_location_models, get_proxy_location_update):
+    def test_add_same_proxy_twice(
+        self, get_proxy_location_models, get_proxy_location_update
+    ):
         root_user = User.objects.create_superuser("root")
         self.client.force_login(root_user)
 
         proxies = [
             "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpmYWtlcGFzc3dvcmQ@178.163.164.199:20465#aproxy",
-            "ss://YWVzLTI1Ni1nY206UENubkg2U1FTbmZvUzI3QDUuMzkuNzAuMTM4OjgwOTA=#FrOutlineKeys"
+            "ss://YWVzLTI1Ni1nY206UENubkg2U1FTbmZvUzI3QDUuMzkuNzAuMTM4OjgwOTA=#FrOutlineKeys",
         ]
 
         for proxy_url in proxies:
-            proxy_data = {
-                "url": proxy_url
-            }
+            proxy_data = {"url": proxy_url}
             response = self.client.post(
                 reverse("proxy-list"),
                 json.dumps(proxy_data),
-                content_type="application/json",
+                content_type=APPLICATION_JSON_CONTENT_TYPE,
             )
             self.assertEqual(response.status_code, 201)
             response = self.client.post(
                 reverse("proxy-list"),
                 json.dumps(proxy_data),
-                content_type="application/json",
+                content_type=APPLICATION_JSON_CONTENT_TYPE,
             )
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.data.get("url")[0], "This proxy was already imported")
+            self.assertEqual(
+                response.data.get("url")[0], "This proxy was already imported"
+            )
+
+    @mock.patch(
+        "proxylist.models.get_proxy_location",
+        return_value=fake_proxy_data,
+    )
+    @mock.patch(
+        "proxylist.proxy.get_proxy_location",
+        return_value=fake_proxy_data,
+    )
+    def test_add_proxy_ipv6(self, get_proxy_location_models, get_proxy_location_update):
+        root_user = User.objects.create_superuser("root")
+        self.client.force_login(root_user)
+        proxy_data = {
+            "url": "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTp1Z0x6SHdiNDZYRVFabUtGMGVCUFR1TWt0d3lRaG5Hdnd0NGZ6dDhQRWQ0PQ@[0000:0000:0000:0000:0000:ffff:1010:7b8b]:8080"
+        }
+        response = self.client.post(
+            reverse("proxy-list"),
+            json.dumps(proxy_data),
+            content_type=APPLICATION_JSON_CONTENT_TYPE,
+        )
+        self.assertEqual(response.status_code, 201)
+        result = json.loads(response.content)
+        self.check_elements_in_proxy_object(result)
+        self.assertEqual(result.get("ip_address"), "178.163.164.199")
+        self.assertEqual(result.get("port"), 8080)
+        self.assertEqual(
+            result.get("url"),
+            "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTp1Z0x6SHdiNDZYRVFabUtGMGVCUFR1TWt0d3lRaG5Hdnd0NGZ6dDhQRWQ0PQ@[0000:0000:0000:0000:0000:ffff:1010:7b8b]:8080",
+        )
