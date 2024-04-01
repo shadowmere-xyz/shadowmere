@@ -7,7 +7,7 @@ from django.utils.timezone import now
 from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 
 from proxylist.base64_decoder import decode_base64
-from proxylist.models import Proxy, Subscription, get_sip002
+from proxylist.models import Proxy, Subscription, get_sip002, TaskLog
 from proxylist.proxy import update_proxy_status, get_proxy_location
 from shadowmere.celery import app
 
@@ -19,6 +19,7 @@ SUBSCRIPTION_TIMEOUT_SECONDS = 60
 @app.task(bind=True)
 def update_status(self):
     print("Updating proxies status")
+    start_time = now()
 
     try:
         req = requests.get("https://clients3.google.com/generate_204")
@@ -43,6 +44,9 @@ def update_status(self):
                 proxy.delete()
 
         print("Update completed")
+        TaskLog.objects.create(
+            name="update_status", start_time=start_time, finish_time=now()
+        )
     else:
         print("The Shadowmere host is having connection issues. Skipping test cycle.")
 
@@ -57,7 +61,7 @@ def decode_line(line):
 @app.task(bind=True)
 def poll_subscriptions(self):
     logging.info("Started polling subscriptions")
-
+    start_time = now()
     all_urls = [proxy.url for proxy in Proxy.objects.all()]
 
     proxies_lists = []
@@ -113,6 +117,9 @@ def poll_subscriptions(self):
     save_proxies(proxies_lists)
 
     executor.shutdown(wait=True)
+    TaskLog.objects.create(
+        name="poll_subscriptions", start_time=start_time, finish_time=now()
+    )
     print("Finished polling subscriptions")
 
 
