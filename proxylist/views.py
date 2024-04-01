@@ -43,7 +43,11 @@ def list_proxies(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    latest_update = TaskLog.objects.latest("finish_time").finish_time
+    update_status_logs = TaskLog.objects.filter(name="update_status")
+    if update_status_logs.count() > 0:
+        latest_update = update_status_logs.latest("finish_time").finish_time
+    else:
+        latest_update = None
 
     return render(
         request,
@@ -53,7 +57,7 @@ def list_proxies(request):
             "proxy_list": proxy_list,
             "country_codes": country_codes,
             "location_country_code": location_country_code,
-            "latest_update": latest_update,
+            "latest_update": latest_update.finish_time if latest_update else None,
         },
     )
 
