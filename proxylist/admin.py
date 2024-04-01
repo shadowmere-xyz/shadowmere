@@ -83,10 +83,14 @@ class TaskLogResource(resources.ModelResource):
 class TaskLogAdmin(ImportExportModelAdmin):
     resource_class = TaskLogResource
 
+    def elapsed(self, obj):
+        return obj.finish_time - obj.start_time
+
     list_display = (
         "name",
         "start_time",
         "finish_time",
+        "elapsed",
     )
 
 
