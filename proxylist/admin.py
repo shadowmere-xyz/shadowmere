@@ -1,3 +1,4 @@
+import humanfriendly
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.db import IntegrityError
@@ -84,7 +85,7 @@ class TaskLogAdmin(ImportExportModelAdmin):
     resource_class = TaskLogResource
 
     def elapsed(self, obj):
-        return obj.finish_time - obj.start_time
+        return humanfriendly.format_timespan(obj.finish_time - obj.start_time)
 
     list_display = (
         "name",
