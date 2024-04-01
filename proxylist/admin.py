@@ -5,7 +5,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from rangefilter.filters import DateRangeFilter
 
-from proxylist.models import Proxy, Subscription
+from proxylist.models import Proxy, Subscription, TaskLog
 from proxylist.proxy import update_proxy_status
 
 
@@ -61,7 +61,7 @@ class SubscriptionResource(resources.ModelResource):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(ImportExportModelAdmin):
-    resource_class = ProxyResource
+    resource_class = SubscriptionResource
 
     list_display = (
         "url",
@@ -72,6 +72,22 @@ class SubscriptionAdmin(ImportExportModelAdmin):
         "error_message",
     )
     fields = ["url", "kind", "enabled"]
+
+
+class TaskLogResource(resources.ModelResource):
+    class Meta:
+        model = TaskLog
+
+
+@admin.register(TaskLog)
+class TaskLogAdmin(ImportExportModelAdmin):
+    resource_class = TaskLogResource
+
+    list_display = (
+        "name",
+        "start_time",
+        "finish_time",
+    )
 
 
 admin.site.unregister(Group)
