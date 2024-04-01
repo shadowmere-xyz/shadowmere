@@ -74,31 +74,35 @@ services:
     image: redis:alpine
     restart: always
 
-## Uncomment the following to run the update tasks using celery
-##
-## Instead, you can set a cronjob to run the update tasks
-## */20 * * * * docker compose exec shadowmere python manage.py update_status
-## 0 */6 * * * docker compose exec shadowmere python manage.py poll_subscriptions
-#  celery:
-#    image: guamulo/shadowmere
-#    restart: always
-#    command: celery -A shadowmere worker -l info
-#    env_file:
-#      - .env
-#    depends_on:
-#      - redis
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#
-#  celery_beat:
-#    image: guamulo/shadowmere
-#    restart: always
-#    command: celery -A shadowmere beat -l info
-#    env_file:
-#      - .env
-#    depends_on:
-#      - redis
-#      - apply_migrations
+  ## Uncomment the following to run the update tasks using celery
+  ##
+  ## Instead, you can set a cronjob to run the update tasks
+  ## */20 * * * * docker compose exec shadowmere python manage.py update_status
+  ## 0 */6 * * * docker compose exec shadowmere python manage.py poll_subscriptions
+  celery:
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+    image: guamulo/shadowmere
+    restart: always
+    command: celery -A shadowmere worker -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  celery_beat:
+    image: guamulo/shadowmere
+    restart: always
+    command: celery -A shadowmere beat -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - apply_migrations
 
 volumes:
   shadowmere_data:
