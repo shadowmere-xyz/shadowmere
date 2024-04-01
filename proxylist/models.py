@@ -142,8 +142,8 @@ class Subscription(models.Model):
 
 class TaskLog(models.Model):
     name = models.CharField(max_length=100)
-    start_time = models.DateTimeField(auto_now_add=True)
-    finish_time = models.DateTimeField(auto_now=True)
+    start_time = models.DateTimeField(auto_now=False)
+    finish_time = models.DateTimeField(auto_now=False)
 
     def __str__(self):
         return f"{self.name} - {self.finish_time}"
