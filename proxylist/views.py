@@ -57,7 +57,7 @@ def list_proxies(request):
             "proxy_list": proxy_list,
             "country_codes": country_codes,
             "location_country_code": location_country_code,
-            "latest_update": latest_update.finish_time if latest_update else None,
+            "latest_update": latest_update if latest_update else None,
         },
     )
 
