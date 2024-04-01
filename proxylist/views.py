@@ -17,7 +17,7 @@ from rest_framework.response import Response
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.metrics import register_metrics
-from proxylist.models import Proxy
+from proxylist.models import Proxy, TaskLog
 from proxylist.permissions import GeneralPermission
 from proxylist.serializers import ProxySerializer
 
@@ -43,6 +43,8 @@ def list_proxies(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    latest_update = TaskLog.objects.latest("finish_time").finish_time
+
     return render(
         request,
         "index.html",
@@ -51,6 +53,7 @@ def list_proxies(request):
             "proxy_list": proxy_list,
             "country_codes": country_codes,
             "location_country_code": location_country_code,
+            "latest_update": latest_update,
         },
     )
 

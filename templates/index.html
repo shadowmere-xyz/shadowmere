@@ -65,7 +65,7 @@
                  src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ location_country_code }}.svg">
         {% endif %}</p>
         {% if proxy_list|length > 0 %}
-            <p><b>{% translate "Last check:" %}</b> {{ proxy_list.0.last_checked }} UTC</p>
+            <p><b>{% translate "Last check:" %}</b> {{ latest_update }} UTC</p>
         {% endif %}
         <a class="w3-button" href="/">
             <img title="world" width="30px" height="20px"
