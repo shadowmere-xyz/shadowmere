@@ -97,6 +97,7 @@ class TaskLogAdmin(ImportExportModelAdmin):
 
     list_display = (
         "name",
+        "details",
         "start_time",
         "finish_time",
         "elapsed",

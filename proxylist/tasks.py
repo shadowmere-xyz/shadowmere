@@ -66,7 +66,8 @@ def poll_subscriptions(self):
 
     proxies_lists = []
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
-        for subscription in Subscription.objects.filter(enabled=True):
+        subscriptions = Subscription.objects.filter(enabled=True)
+        for subscription in subscriptions:
             logging.info(f"Testing subscription {subscription.url}")
             try:
                 r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
@@ -118,7 +119,10 @@ def poll_subscriptions(self):
 
     executor.shutdown(wait=True)
     TaskLog.objects.create(
-        name="poll_subscriptions", start_time=start_time, finish_time=now()
+        name="poll_subscriptions",
+        details=f"Polled {len(subscriptions)} subscriptions and found {len(proxies_lists)} proxies",
+        start_time=start_time,
+        finish_time=now(),
     )
     print("Finished polling subscriptions")
 

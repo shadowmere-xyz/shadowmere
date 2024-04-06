@@ -142,6 +142,7 @@ class Subscription(models.Model):
 
 class TaskLog(models.Model):
     name = models.CharField(max_length=100)
+    details = models.CharField(max_length=1000, default="")
     start_time = models.DateTimeField(auto_now=False)
     finish_time = models.DateTimeField(auto_now=False)
 
