@@ -148,7 +148,7 @@ def process_line(line, all_urls):
         # False positives fall in here
         return None
     if url and url not in all_urls:
-        print(f"Testing {url}")
+        # print(f"Testing {url}")
         location = get_proxy_location(url)
         if location is None or location == "unknown":
             return None
