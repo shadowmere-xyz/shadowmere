@@ -4,20 +4,21 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 from django.db import IntegrityError
 from django.utils.timezone import now
+from huey import crontab
+from huey.contrib.djhuey import db_periodic_task
 from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy, Subscription, get_sip002, TaskLog
 from proxylist.proxy import update_proxy_status, get_proxy_location
-from shadowmere.celery import app
 
 CONCURRENT_CHECKS = 200
 
 SUBSCRIPTION_TIMEOUT_SECONDS = 60
 
 
-@app.task(bind=True)
-def update_status(self):
+@db_periodic_task(crontab(minute="*/20"))
+def update_status():
     print("Updating proxies status")
     start_time = now()
 
@@ -58,8 +59,8 @@ def decode_line(line):
         logging.warning(f"Failed decoding line: {line}")
 
 
-@app.task(bind=True)
-def poll_subscriptions(self):
+@db_periodic_task(crontab(minute="0"))
+def poll_subscriptions():
     logging.info("Started polling subscriptions")
     start_time = now()
     all_urls = [proxy.url for proxy in Proxy.objects.all()]
