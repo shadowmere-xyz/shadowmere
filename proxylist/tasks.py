@@ -116,12 +116,12 @@ def poll_subscriptions():
 
             subscription.save()
 
-    save_proxies(proxies_lists)
+    saved_proxies = save_proxies(proxies_lists)
 
     executor.shutdown(wait=True)
     TaskLog.objects.create(
         name="poll_subscriptions",
-        details=f"Polled {len(subscriptions)} subscriptions and found {len(proxies_lists)} proxies",
+        details=f"Polled {len(subscriptions)} subscriptions and found {len(proxies_lists)} proxies from which we managed to save {saved_proxies}.",
         start_time=start_time,
         finish_time=now(),
     )
@@ -130,14 +130,17 @@ def poll_subscriptions():
 
 def save_proxies(proxies_lists):
     logging.info("Saving proxies")
+    saved_proxies = 0
     for proxy_list in proxies_lists:
         for proxy in proxy_list:
             if proxy is not None:
                 logging.info(f"saving {proxy}")
                 try:
                     proxy.save()
+                    saved_proxies += 1
                 except Exception as e:
                     logging.warning(f"Failed to save proxy {proxy}, {e}")
+    return saved_proxies
 
 
 def process_line(line, all_urls):
