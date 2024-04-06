@@ -84,8 +84,16 @@ class TaskLogResource(resources.ModelResource):
 class TaskLogAdmin(ImportExportModelAdmin):
     resource_class = TaskLogResource
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
     def elapsed(self, obj):
         return humanfriendly.format_timespan(obj.finish_time - obj.start_time)
+
+    ordering = ("-start_time",)
 
     list_display = (
         "name",
