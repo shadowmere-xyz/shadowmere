@@ -74,33 +74,18 @@ services:
     image: redis:alpine
     restart: always
 
-  ## Instead, you can set a cronjob to run the update tasks
-  ## */20 * * * * docker compose exec shadowmere python manage.py update_status
-  ## 0 */6 * * * docker compose exec shadowmere python manage.py poll_subscriptions
-  celery:
+  huey:
     deploy:
       resources:
         limits:
           cpus: "2"
     image: guamulo/shadowmere
     restart: always
-    command: celery -A shadowmere worker -l info
+    command: python manage.py run_huey
     env_file:
       - .env
     depends_on:
       - redis
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  celery_beat:
-    image: guamulo/shadowmere
-    restart: always
-    command: celery -A shadowmere beat -l info
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - apply_migrations
 
 volumes:
   shadowmere_data:
