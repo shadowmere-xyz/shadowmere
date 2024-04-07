@@ -18,6 +18,9 @@ services:
       - "8002-8007:8002-8007"
     build:
       context: .
+    # I'm using this shortcut since Shadowtest runs in the same network as the host
+    extra_hosts:
+      - "shadowtest.akiel.dev:10.0.0.38"
 
   apply_migrations:
     image: guamulo/shadowmere
@@ -86,6 +89,9 @@ services:
       - .env
     depends_on:
       - redis
+    # I'm using this shortcut since Shadowtest runs in the same network as the host
+    extra_hosts:
+      - "shadowtest.akiel.dev:10.0.0.38"
 
 volumes:
   shadowmere_data:
