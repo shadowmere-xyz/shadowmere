@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from django.db import IntegrityError
+from django.db.models import F, FloatField
+from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 
@@ -17,16 +19,14 @@ LOW_QUALITY_THRESHOLD = 0.2
 
 def remove_low_quality_proxies():
     print("Removing low quality proxies")
-    proxies = Proxy.objects.all()
-    for proxy in proxies:
-        if (
-            proxy.times_checked > 1
-            and not proxy.is_active
-            and proxy.times_check_succeeded / proxy.times_checked
-            < LOW_QUALITY_THRESHOLD
-        ):
-            proxy.delete()
-    print("Low quality proxies removed")
+    deleted_count, _ = Proxy.objects.filter(
+        is_active=False,
+        times_checked__gt=1,
+        times_check_succeeded__lt=Coalesce(
+            F("times_checked") * LOW_QUALITY_THRESHOLD, 0, output_field=FloatField()
+        ),
+    ).delete()
+    print(f"Removed {deleted_count} low quality proxies")
 
 
 def update_status():
