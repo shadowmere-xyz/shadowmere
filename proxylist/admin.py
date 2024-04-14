@@ -103,5 +103,11 @@ class TaskLogAdmin(ImportExportModelAdmin):
         "elapsed",
     )
 
+    list_filter = (
+        "name",
+        ("start_time", DateRangeFilter),
+        ("finish_time", DateRangeFilter),
+    )
+
 
 admin.site.unregister(Group)
