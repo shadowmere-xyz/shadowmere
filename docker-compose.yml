@@ -89,6 +89,7 @@ services:
     depends_on:
       - redis
       - db
+      - apply_migrations
     # I'm using this shortcut since Shadowtest runs in the same network as the host
     extra_hosts:
       - "shadowtest.akiel.dev:10.0.0.38"
