@@ -19,6 +19,7 @@ LOW_QUALITY_THRESHOLD = 0.2
 
 def remove_low_quality_proxies():
     print("Removing low quality proxies")
+    start_time = now()
     deleted_count, _ = Proxy.objects.filter(
         is_active=False,
         times_checked__gt=1,
@@ -26,6 +27,12 @@ def remove_low_quality_proxies():
             F("times_checked") * LOW_QUALITY_THRESHOLD, 0, output_field=FloatField()
         ),
     ).delete()
+    TaskLog.objects.create(
+        name="remove_low_quality_proxies",
+        details=f"Removed {deleted_count} low quality proxies",
+        start_time=start_time,
+        finish_time=now(),
+    )
     print(f"Removed {deleted_count} low quality proxies")
 
 
