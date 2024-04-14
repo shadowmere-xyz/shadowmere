@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import re
 
 import flag
@@ -101,9 +102,9 @@ def json_proxy_file(request, proxy_id):
         "method": details["method"],
     }
     response = HttpResponse(json.dumps(config), content_type="application/json")
-    response[
-        "Content-Disposition"
-    ] = f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
+    response["Content-Disposition"] = (
+        f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
+    )
     return response
 
 
@@ -215,4 +216,5 @@ class Base64SubViewSet(viewsets.ViewSet):
         return HttpResponse(b64_servers)
 
 
-register_metrics()
+if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
+    register_metrics()
