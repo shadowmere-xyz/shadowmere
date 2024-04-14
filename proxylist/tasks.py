@@ -3,9 +3,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from django.db import IntegrityError
+from django.db.models import F, FloatField
+from django.db.models.functions import Coalesce
 from django.utils.timezone import now
-from huey import crontab
-from huey.contrib.djhuey import db_periodic_task
 from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 
 from proxylist.base64_decoder import decode_base64
@@ -13,11 +13,29 @@ from proxylist.models import Proxy, Subscription, get_sip002, TaskLog
 from proxylist.proxy import update_proxy_status, get_proxy_location
 
 CONCURRENT_CHECKS = 200
-
 SUBSCRIPTION_TIMEOUT_SECONDS = 60
+LOW_QUALITY_THRESHOLD = 0.2
 
 
-@db_periodic_task(crontab(minute="*/20"))
+def remove_low_quality_proxies():
+    print("Removing low quality proxies")
+    start_time = now()
+    deleted_count, _ = Proxy.objects.filter(
+        is_active=False,
+        times_checked__gt=1,
+        times_check_succeeded__lt=Coalesce(
+            F("times_checked") * LOW_QUALITY_THRESHOLD, 0, output_field=FloatField()
+        ),
+    ).delete()
+    TaskLog.objects.create(
+        name="remove_low_quality_proxies",
+        details=f"Removed {deleted_count} low quality proxies",
+        start_time=start_time,
+        finish_time=now(),
+    )
+    print(f"Removed {deleted_count} low quality proxies")
+
+
 def update_status():
     print("Updating proxies status")
     start_time = now()
@@ -59,7 +77,6 @@ def decode_line(line):
         logging.warning(f"Failed decoding line: {line}")
 
 
-@db_periodic_task(crontab(minute="0"))
 def poll_subscriptions():
     logging.info("Started polling subscriptions")
     start_time = now()

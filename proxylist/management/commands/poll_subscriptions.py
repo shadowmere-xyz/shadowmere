@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from proxylist.tasks import update_status, poll_subscriptions
+from proxylist.tasks import poll_subscriptions
 
 
 class Command(BaseCommand):
