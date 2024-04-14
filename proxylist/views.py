@@ -101,9 +101,9 @@ def json_proxy_file(request, proxy_id):
         "method": details["method"],
     }
     response = HttpResponse(json.dumps(config), content_type="application/json")
-    response[
-        "Content-Disposition"
-    ] = f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
+    response["Content-Disposition"] = (
+        f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
+    )
     return response
 
 
