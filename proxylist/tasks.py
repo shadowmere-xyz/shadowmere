@@ -6,6 +6,8 @@ from django.db import IntegrityError
 from django.db.models import F, FloatField
 from django.db.models.functions import Coalesce
 from django.utils.timezone import now
+from huey import crontab
+from huey.contrib.djhuey import db_periodic_task
 from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 
 from proxylist.base64_decoder import decode_base64
@@ -15,6 +17,21 @@ from proxylist.proxy import update_proxy_status, get_proxy_location
 CONCURRENT_CHECKS = 200
 SUBSCRIPTION_TIMEOUT_SECONDS = 60
 LOW_QUALITY_THRESHOLD = 0.2
+
+
+@db_periodic_task(crontab(minute="15", hour="10"))
+def remove_low_quality_proxies_scheduled():
+    remove_low_quality_proxies()
+
+
+@db_periodic_task(crontab(minute="*/20"))
+def update_status_scheduled():
+    update_status()
+
+
+@db_periodic_task(crontab(minute="0"))
+def poll_subscriptions_scheduled():
+    poll_subscriptions()
 
 
 def remove_low_quality_proxies():
