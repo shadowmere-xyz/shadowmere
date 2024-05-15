@@ -17,7 +17,7 @@ prompt-toolkit==3.0.43
 psycopg2-binary==2.9.9
 Pillow==10.3.0
 qrcode==7.4.2
-redis==5.0.3
+redis==5.0.4
 requests==2.31.0
 sentry-sdk==2.1.1
 sqlparse>=0.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
