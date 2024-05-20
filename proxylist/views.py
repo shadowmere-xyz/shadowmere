@@ -13,6 +13,7 @@ from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -91,6 +92,11 @@ def get_proxy_config(proxy):
     return config
 
 
+@ratelimit(
+    key="ip",
+    rate="1/s",
+    block=True,
+)
 def json_proxy_file(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
     details = get_proxy_config(proxy)
@@ -108,6 +114,11 @@ def json_proxy_file(request, proxy_id):
     return response
 
 
+@ratelimit(
+    key="ip",
+    rate="1/s",
+    block=True,
+)
 def qr_code(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
     img = qrcode.make(f"{proxy.url}#{urlencode(proxy.location)}")
@@ -137,6 +148,7 @@ class ProxyViewSet(viewsets.ModelViewSet):
         "port",
     )
 
+    @method_decorator(ratelimit(key="ip", rate="1/s", block=True, method=["GET"]))
     @method_decorator(cache_page(20 * 60))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
@@ -189,6 +201,13 @@ class SubViewSet(viewsets.ViewSet):
     Subscription endpoint for the shadowsocks APP
     """
 
+    @method_decorator(
+        ratelimit(
+            key="ip",
+            rate="3/m",
+            block=True,
+        )
+    )
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         servers = [
@@ -205,6 +224,13 @@ class Base64SubViewSet(viewsets.ViewSet):
     Subscription endpoint for the v2ray and nekoray apps
     """
 
+    @method_decorator(
+        ratelimit(
+            key="ip",
+            rate="3/m",
+            block=True,
+        )
+    )
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         server_list = ""
