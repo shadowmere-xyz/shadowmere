@@ -148,7 +148,7 @@ class ProxyViewSet(viewsets.ModelViewSet):
         "port",
     )
 
-    @method_decorator(ratelimit(key="ip", rate="1/s", block=True, method=["GET"]))
+    @method_decorator(ratelimit(key="ip", rate="3/s", block=True, method=["GET"]))
     @method_decorator(cache_page(20 * 60))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
