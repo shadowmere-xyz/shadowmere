@@ -71,6 +71,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_ratelimit.middleware.RatelimitMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
@@ -296,3 +297,4 @@ if not DEBUG and os.getenv("SENTRY_DSN") != "":
     )
 
 RATELIMIT_ENABLE = not DEBUG
+RATELIMIT_VIEW = "proxylist.views.ratelimited_error"
