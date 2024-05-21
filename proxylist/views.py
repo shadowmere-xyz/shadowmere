@@ -6,7 +6,7 @@ import re
 import flag
 import qrcode
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import urlencode
 from django.utils.decorators import method_decorator
@@ -240,6 +240,10 @@ class Base64SubViewSet(viewsets.ViewSet):
             server_list += f"\n{proxy.url}#{get_flag_or_empty(proxy.location_country_code)} {proxy.location}"
         b64_servers = base64.b64encode(server_list.encode("utf-8"))
         return HttpResponse(b64_servers)
+
+
+def ratelimited_error(request, exception):
+    return JsonResponse({"error": "Too many requests"}, status=429)
 
 
 if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
