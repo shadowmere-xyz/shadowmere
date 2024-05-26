@@ -1,8 +1,36 @@
+import re
+
+import flag
 import requests
 from django.utils.timezone import now
 from requests.exceptions import InvalidJSONError
 
+from proxylist.base64_decoder import decode_base64
 from shadowmere import settings
+
+
+def get_flag_or_empty(country_code):
+    if country_code != "":
+        return flag.flag(country_code)
+    return ""
+
+
+def get_proxy_config(proxy):
+    method_password = decode_base64(
+        proxy.url.split("@")[0].replace("ss://", "").encode("ascii")
+    )
+    server_and_port = proxy.url.split("@")[1]
+    config = {
+        "server": re.findall(r"^(.*?):\d+", server_and_port)[0],
+        "server_port": int(re.findall(r":(\d+)", server_and_port)[0]),
+        "password": method_password.decode("ascii").split(":")[1],
+        "method": method_password.decode("ascii").split(":")[0],
+        "plugin": "",
+        "plugin_opts": None,
+        "remarks": f"{get_flag_or_empty(proxy.location_country_code)} {proxy.location}",
+    }
+
+    return config
 
 
 def get_proxy_location(proxy_url):
