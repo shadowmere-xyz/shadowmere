@@ -14,7 +14,7 @@ gunicorn==22.0.0
 huey==2.5.0
 humanfriendly==10.0
 prometheus-client==0.20.0
-prompt-toolkit==3.0.43
+prompt-toolkit==3.0.45
 psycopg2-binary==2.9.9
 Pillow==10.3.0
 qrcode==7.4.2
