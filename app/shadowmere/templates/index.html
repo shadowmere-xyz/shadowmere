@@ -1,0 +1,158 @@
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="onion-location" content="http://eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion">
+    <title>Shadowmere</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <!-- Cookie Consent by TermsFeed https://www.TermsFeed.com -->
+    <script type="text/javascript" src="https://www.termsfeed.com/public/cookie-consent/4.1.0/cookie-consent.js"
+            charset="UTF-8"></script>
+    <script type="text/javascript" charset="UTF-8">
+        document.addEventListener('DOMContentLoaded', function () {
+            cookieconsent.run({
+                "notice_banner_type": "simple",
+                "consent_type": "express",
+                "palette": "light",
+                "language": "en",
+                "page_load_consent_levels": ["strictly-necessary"],
+                "notice_banner_reject_button_hide": false,
+                "preferences_center_close_button_hide": false,
+                "page_refresh_confirmation_buttons": false,
+                "website_name": "Shadowmere"
+            });
+        });
+    </script>
+
+    <!-- umami -->
+    <script type="text/plain" data-cookie-consent="tracking" async src="https://umami.akiel.dev/script.js"
+            data-website-id="694ad5dc-d5e9-4bd8-9e42-83321007c1be"></script>
+    <!-- end of umami-->
+    <!-- End Cookie Consent by TermsFeed https://www.TermsFeed.com -->
+
+</head>
+<body class="w3-light-gray w3-container">
+<a style="position: absolute;top: 0;left: 0;" href="https://github.com/jadolg/shadowmere"><img loading="lazy"
+                                                                                               width="149" height="149"
+                                                                                               src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149"
+                                                                                               class="attachment-full size-full"
+                                                                                               alt="Fork me on GitHub"
+                                                                                               data-recalc-dims="1"></a>
+<div class="w3-margin">
+    <div class="w3-quarter w3-margin w3-center">
+        <a href="/">
+            <h2>Shadowmere</h2>
+        </a>
+        <p>{% translate "A list of Shadowsocks proxies" %}</p>
+        <p>
+            <b>{% translate "Disclaimer:" %}</b> {% translate "This website is only a list of tunnels collected all around internet. We do NOT provide or maintain any of these tunnels." %}
+            <span class="w3-red">{% translate "Use them at your own risk." %}</span></p>
+        <p><b>{% translate "How do I use this?:" %}</b>
+            {% blocktranslate %}Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for
+                information.
+                <a href="https://shadowsocks.org/en/download/clients.html">Here</a> is a list of clients for several
+                platforms, but my favorite is <a href="https://getoutline.org/">Outline</a> for any platform and
+                <a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks">shadowsocks</a> for
+                Android</p>
+            {% endblocktranslate %}
+        <p><b>{% translate "Online:" %}</b> {{ proxy_list|length }} {% if location_country_code != "" %}
+            <img class="w3-margin" title="" width="70px" height="30px"
+                 alt="Country flag for {{ location_country_code }}"
+                 src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ location_country_code }}.svg">
+        {% endif %}</p>
+        {% if proxy_list|length > 0 %}
+            <p><b>{% translate "Last check:" %}</b> {{ latest_update }} UTC</p>
+        {% endif %}
+        <a class="w3-button" href="/">
+            <img title="world" width="30px" height="20px"
+                 alt="Planet Earth flag"
+                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/International_Flag_of_Planet_Earth.svg/1280px-International_Flag_of_Planet_Earth.svg.png">
+        </a>
+        {% for country_code in country_codes %}
+            {% if country_code.location_country_code != "" %}
+                <a class="w3-button" href="/?location_country_code={{ country_code.location_country_code }}">
+                    <img title="{{ country_code.location_country }}" width="45px" height="35px"
+                         alt="Country flag for {{ country_code.location_country }}"
+                         src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ country_code.location_country_code }}.svg">
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% if proxy_list %}
+        <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
+            {% for proxy in page_obj %}
+                <li class="w3-bar {% if forloop.counter != 10 %} w3-bottombar {% endif %} w3-display-container w3-row">
+                    <div class="w3-bar-item w3-display-topleft">
+                        <span><img title="{{ proxy.location }}" width="45px" height="35px" alt="{{ proxy.location }}"
+                                   src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ proxy.location_country_code }}.svg"/></span>
+                        <span class="w3-tag w3-margin-left">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
+                    </div>
+                    <div class="w3-bar-item w3-display-bottomleft">
+                        <div class="w3-hide" style="word-wrap: anywhere;max-width: 900px"
+                             id="proxy{{ forloop.counter }}">{{ proxy.url }}#{{ proxy.location|urlencode }}</div>
+                        <div><b>{{ proxy.ip_address }}</b> &#9875;{{ proxy.port }}</div>
+                    </div>
+                    <div class="w3-bar-item w3-right">
+                        <div data-umami-event="clipboard button" class="w3-button w3-light-gray  w3-large"
+                             onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
+                        </div>
+                        <div data-umami-event="qr button"
+                             class="w3-button w3-light-gray w3-margin-left w3-large"
+                             onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
+                            &#9633;
+                        </div>
+                        <a data-umami-event="download button" href="/{{ proxy.id }}/config">
+                            <div class="w3-button w3-light-gray w3-margin-left w3-large">&#x2193;
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- The Modal -->
+                    <div id="proxyqr{{ forloop.counter }}" class="w3-modal">
+                        <div class="w3-modal-content w3-center">
+                            <div class="w3-container">
+                                <span onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='none'"
+                                      class="w3-button w3-display-topright w3-light-gray">&times;</span>
+                                <img class="w3-image" loading="lazy" src="/{{ proxy.id }}/qr" alt="qr"/>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="w3-center">
+            <div class="pagination w3-bar">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a class="w3-button" data-umami-event="pagination previous"
+                           href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}">&#10094;</a>
+                    {% endif %}
+
+                    <span class="w3-button">
+                        {{ page_obj.number }} {% translate "of" %} {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a class="w3-button" data-umami-event="pagination next"
+                           href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}">&#10095;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    {% else %}
+        <h2 class="w3-center">{% translate "No active proxies found" %}</h2>
+    {% endif %}
+</div>
+</body>
+<a href="#" id="open_preferences_center">Update cookies preferences</a>
+<script>
+    function copyToClipboard(elementId) {
+        var copyText = document.getElementById(elementId);
+        navigator.clipboard.writeText(copyText.innerText);
+    }
+</script>
+</html>
