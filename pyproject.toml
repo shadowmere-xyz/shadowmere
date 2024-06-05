@@ -1,10 +1,13 @@
-[tool.poetry]
+[project]
 name = "shadowmere"
 version = "1.0.0"
 description = "An automatically tested list of Shadowsocks proxies."
 authors = ["Your Name <you@example.com>"]
 license = "GPLv3"
 readme = "README.md"
+
+[tool.poetry]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -29,6 +32,9 @@ django-environ = "^0.11.2"
 uvicorn = "^0.24.0.post1"
 gunicorn = "^21.2.0"
 django-jazzmin = "^2.6.0"
+huey = "^2.5.0"
+humanfriendly = "^10.0"
+django-ratelimit = "^4.1.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.7"
@@ -39,7 +45,16 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-select = ["E", "F"]
+exclude = ["migrations"]
+select = ["E", "F", "I", "W", "N"]
 ignore = []
 line-length = 120
 target-version = "py312"
+fix = true
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 120
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
