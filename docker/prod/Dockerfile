@@ -68,6 +68,6 @@ COPY ./docker/celery/beat/start /start-celerybeat
 RUN sed -i 's/\r//' /start-celerybeat
 RUN chmod +x /start-celerybeat
 
-COPY . $PROJECT_PATH
+COPY ../.. $PROJECT_PATH
 
 USER $PROJECT_USER
