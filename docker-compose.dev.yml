@@ -1,4 +1,3 @@
-version: "3"
 volumes:
   shadowmere_data:
   redis_data:
@@ -9,6 +8,8 @@ services:
     restart: always
     volumes:
       - redis_data:/data
+    ports:
+      - "6379:6379"
 
   db:
     image: postgres:alpine
@@ -17,37 +18,40 @@ services:
       - shadowmere_data:/var/lib/postgresql/data
     env_file: .env
 
-  shadowmere:
+  backend:
     &shadowmere
     build:
       context: .
-    image: guamulo/shadowmere
-    restart: always
+      dockerfile: ./docker/dev/Dockerfile
+    image: guamulo/shadowmere_backend
+    volumes:
+      - ./app/shadowmere:/app/shadowmere
+    working_dir: /app/shadowmere
     command: /start
+    entrypoint: /entrypoint
+    restart: always
     env_file: .env
-    depends_on:
-      - db
     ports:
       - "8001:8001"
-
-  celery:
-    <<: *shadowmere
-    image: guamulo/shadowmere-celeryworker
-    restart: always
-    command: /wait_for_migration.sh /start-celeryworker
-    env_file: .env
     depends_on:
-      - redis
-    ports: []
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - db
 
-  celery_beat:
+  huey:
     <<: *shadowmere
-    image: guamulo/shadowmere-celerybeat
+    image: guamulo/shadowmere_huey
     restart: always
-    command: /wait_for_migration.sh /start-celerybeat
-    env_file: .env
+    command: ["python", "manage.py", "run_huey"]
+    env_file:
+      - .env
     ports: []
     depends_on:
       - redis
+      - db
+
+  frontend:
+    image: guamulo/shadowmere-frontend-njs
+    restart: always
+    ports:
+      - "8000:80"
+    depends_on:
+      - backend
