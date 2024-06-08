@@ -3,9 +3,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
-from apps.proxylist.base64_decoder import decode_base64
-from apps.proxylist.models import Proxy, Subscription, TaskLog, get_sip002
-from apps.proxylist.proxy import get_proxy_location, update_proxy_status
+from apps.proxylist.models import Proxy, Subscription, TaskLog
 from django.db import IntegrityError
 from django.db.models import F, FloatField
 from django.db.models.functions import Coalesce
@@ -13,6 +11,9 @@ from django.utils.timezone import now
 from huey import crontab
 from huey.contrib.djhuey import db_periodic_task
 from requests.exceptions import ConnectionError, ReadTimeout, SSLError
+from utils.base64_decoder import decode_base64
+from utils.proxy import get_proxy_location, update_proxy_status
+from utils.uri_scheme import get_sip002
 
 CONCURRENT_CHECKS = 200
 SUBSCRIPTION_TIMEOUT_SECONDS = 60

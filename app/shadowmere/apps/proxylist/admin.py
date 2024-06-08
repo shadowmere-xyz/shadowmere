@@ -1,12 +1,12 @@
 import humanfriendly
 from apps.proxylist.models import Proxy, Subscription, TaskLog
-from apps.proxylist.proxy import update_proxy_status
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.db import IntegrityError
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from rangefilter.filters import DateRangeFilter
+from utils.proxy import update_proxy_status
 
 
 class ProxyResource(resources.ModelResource):

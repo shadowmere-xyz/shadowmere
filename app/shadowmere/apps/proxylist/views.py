@@ -5,7 +5,6 @@ import re
 
 import flag
 import qrcode
-from apps.proxylist.base64_decoder import decode_base64
 from apps.proxylist.metrics import register_metrics
 from apps.proxylist.models import Proxy, TaskLog
 from apps.proxylist.permissions import GeneralPermission
@@ -21,6 +20,7 @@ from django_filters import rest_framework as filters
 from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets
 from rest_framework.response import Response
+from utils.base64_decoder import decode_base64
 
 
 @cache_page(None)
