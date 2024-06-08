@@ -16,7 +16,6 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 max_length=1024,
                 unique=True,
-                validators=[apps.proxylist.models.validate_not_existing],
             ),
         ),
     ]

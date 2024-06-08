@@ -1,46 +1,7 @@
-import base64
-import re
-
-from apps.proxylist.base64_decoder import decode_base64
-from apps.proxylist.proxy import get_proxy_location, update_proxy_status
-from django.core.cache import cache
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError, models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.db import models
 from django.utils.timezone import now
 from django_prometheus.models import ExportModelOperationsMixin
-
-
-def validate_sip002(value):
-    if get_sip002(value) == "":
-        raise ValidationError(
-            "The value entered is not SIP002 compatible",
-            params={"value": value},
-        )
-
-
-def validate_not_existing(value):
-    if Proxy.objects.filter(url=get_sip002(value)):
-        raise ValidationError(
-            "This proxy was already imported",
-            params={"value": value},
-        )
-
-
-def validate_proxy_can_connect(value):
-    location = get_proxy_location(get_sip002(value))
-    if location is None or location == "unknown":
-        raise ValidationError(
-            "Can't get the location for this address",
-            params={"value": value},
-        )
-
-
-def proxy_validator(value):
-    validate_sip002(value)
-    validate_not_existing(value)
-    validate_proxy_can_connect(value)
+from utils.validators import proxy_validator
 
 
 class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
@@ -51,12 +12,12 @@ class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
             proxy_validator,
         ],
     )
-    location = models.CharField(max_length=100, default="")
-    location_country_code = models.CharField(max_length=3, default="")
-    location_country = models.CharField(max_length=50, default="")
-    ip_address = models.CharField(max_length=100, default="")
-    port = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=False)
+    location = models.CharField(max_length=100, blank=True, null=True)
+    location_country_code = models.CharField(max_length=3, blank=True, null=True, db_index=True)
+    location_country = models.CharField(max_length=50, blank=True, null=True, db_index=True)
+    ip_address = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    port = models.IntegerField(default=0, db_index=True)
+    is_active = models.BooleanField(default=False, db_index=True)
     last_checked = models.DateTimeField(auto_now=True)
     last_active = models.DateTimeField(blank=True, default=now)
     times_checked = models.IntegerField(default=0)
@@ -64,55 +25,6 @@ class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
 
     def __str__(self):
         return f"{self.location} ({self.url})"
-
-
-def get_sip002(instance_url):
-    try:
-        url = instance_url
-        if "#" in url:
-            url = url.split("#")[0]
-        if "=" in url:
-            url = url.replace("=", "")
-        if "@" not in url:
-            url = url.replace("ss://", "")
-            decoded_url = decode_base64(url.encode("ascii"))
-            if decoded_url:
-                encoded_bits = base64.b64encode(decoded_url.split(b"@")[0]).decode("ascii").rstrip("=")
-                url = f'ss://{encoded_bits}@{decoded_url.split(b"@")[1].decode("ascii")}'
-            else:
-                return ""
-    except IndexError:
-        return ""
-
-    return url
-
-
-@receiver(post_save, sender=Proxy)
-def update_url_and_location_after_save(sender, instance, created, **kwargs):
-    url = get_sip002(instance.url)
-    if url != instance.url:
-        instance.url = url
-        instance.save()
-        return
-
-    if instance.port == 0:
-        server_and_port = instance.url.split("@")[1]
-        instance.port = int(re.findall(r":(\d+)", server_and_port)[-1])
-        instance.save()
-        return
-
-    if instance.location == "":
-        update_proxy_status(instance)
-        try:
-            instance.save()
-        except IntegrityError:
-            # This means the proxy is either a duplicate or no longer valid
-            instance.delete()
-
-
-@receiver(post_save, sender=Proxy)
-def clear_cache(sender, instance, **kwargs):
-    cache.clear()
 
 
 class Subscription(models.Model):
