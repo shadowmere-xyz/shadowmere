@@ -153,7 +153,7 @@ class CountryCodeViewSet(viewsets.ViewSet):
     """
 
     @method_decorator(cache_page(20 * 60))
-    def list(self, request, format=None):
+    def list(self, request):
         country_codes = [
             {"code": code["location_country_code"], "name": code["location_country"]}
             for code in Proxy.objects.filter(is_active=True)
@@ -171,7 +171,7 @@ class PortViewSet(viewsets.ViewSet):
     """
 
     @method_decorator(cache_page(20 * 60))
-    def list(self, request, format=None):
+    def list(self, request):
         ports = [
             port for port in Proxy.objects.filter(is_active=True).values_list("port", flat=True).distinct() if port != 0
         ]
@@ -198,7 +198,7 @@ class SubViewSet(viewsets.ViewSet):
         )
     )
     @method_decorator(cache_page(20 * 60))
-    def list(self, request, format=None):
+    def list(self, request):
         servers = [
             get_proxy_config(server)
             for server in Proxy.objects.filter(is_active=True).order_by("location_country_code")
@@ -219,7 +219,7 @@ class Base64SubViewSet(viewsets.ViewSet):
         )
     )
     @method_decorator(cache_page(20 * 60))
-    def list(self, request, format=None):
+    def list(self, request):
         server_list = ""
         for proxy in Proxy.objects.filter(is_active=True).order_by("location_country_code"):
             server_list += f"\n{proxy.url}#{get_flag_or_empty(proxy.location_country_code)} {proxy.location}"
