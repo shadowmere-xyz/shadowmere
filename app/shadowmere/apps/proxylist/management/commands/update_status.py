@@ -1,6 +1,5 @@
+from apps.proxylist.tasks import update_status
 from django.core.management.base import BaseCommand
-
-from proxylist.tasks import update_status
 
 
 class Command(BaseCommand):
