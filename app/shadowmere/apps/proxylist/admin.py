@@ -17,7 +17,7 @@ class ProxyResource(resources.ModelResource):
 @admin.register(Proxy)
 class ProxyAdmin(ImportExportModelAdmin):
     @staticmethod
-    def update_status(modeladmin, request, queryset):
+    def update_status(queryset):
         for proxy in queryset:
             update_proxy_status(proxy)
             try:
@@ -27,7 +27,7 @@ class ProxyAdmin(ImportExportModelAdmin):
                 proxy.delete()
 
     @staticmethod
-    def quality(self, obj):
+    def quality(obj):
         if obj.times_checked > 0:
             return obj.times_check_succeeded * 100 / obj.times_checked
         else:
