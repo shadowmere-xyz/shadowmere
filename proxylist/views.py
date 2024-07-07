@@ -1,23 +1,25 @@
 import base64
 import json
+import os
 import re
 
 import flag
 import qrcode
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import urlencode
 from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets
 from rest_framework.response import Response
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.metrics import register_metrics
-from proxylist.models import Proxy
+from proxylist.models import Proxy, TaskLog
 from proxylist.permissions import GeneralPermission
 from proxylist.serializers import ProxySerializer
 
@@ -43,6 +45,12 @@ def list_proxies(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    update_status_logs = TaskLog.objects.filter(name="update_status")
+    if update_status_logs.count() > 0:
+        latest_update = update_status_logs.latest("finish_time").finish_time
+    else:
+        latest_update = None
+
     return render(
         request,
         "index.html",
@@ -51,6 +59,7 @@ def list_proxies(request):
             "proxy_list": proxy_list,
             "country_codes": country_codes,
             "location_country_code": location_country_code,
+            "latest_update": latest_update if latest_update else None,
         },
     )
 
@@ -83,6 +92,11 @@ def get_proxy_config(proxy):
     return config
 
 
+@ratelimit(
+    key="ip",
+    rate="1/s",
+    block=True,
+)
 def json_proxy_file(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
     details = get_proxy_config(proxy)
@@ -94,12 +108,17 @@ def json_proxy_file(request, proxy_id):
         "method": details["method"],
     }
     response = HttpResponse(json.dumps(config), content_type="application/json")
-    response[
-        "Content-Disposition"
-    ] = f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
+    response["Content-Disposition"] = (
+        f'attachment; filename="shadowmere_config_{slugify(proxy.location)}.json"'
+    )
     return response
 
 
+@ratelimit(
+    key="ip",
+    rate="1/s",
+    block=True,
+)
 def qr_code(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
     img = qrcode.make(f"{proxy.url}#{urlencode(proxy.location)}")
@@ -129,6 +148,7 @@ class ProxyViewSet(viewsets.ModelViewSet):
         "port",
     )
 
+    @method_decorator(ratelimit(key="ip", rate="3/s", block=True, method=["GET"]))
     @method_decorator(cache_page(20 * 60))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
@@ -181,6 +201,13 @@ class SubViewSet(viewsets.ViewSet):
     Subscription endpoint for the shadowsocks APP
     """
 
+    @method_decorator(
+        ratelimit(
+            key="ip",
+            rate="3/m",
+            block=True,
+        )
+    )
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         servers = [
@@ -197,6 +224,13 @@ class Base64SubViewSet(viewsets.ViewSet):
     Subscription endpoint for the v2ray and nekoray apps
     """
 
+    @method_decorator(
+        ratelimit(
+            key="ip",
+            rate="3/m",
+            block=True,
+        )
+    )
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         server_list = ""
@@ -208,4 +242,9 @@ class Base64SubViewSet(viewsets.ViewSet):
         return HttpResponse(b64_servers)
 
 
-register_metrics()
+def ratelimited_error(request, exception):
+    return JsonResponse({"error": "Too many requests"}, status=429)
+
+
+if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
+    register_metrics()

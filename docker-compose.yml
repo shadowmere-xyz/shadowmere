@@ -1,4 +1,3 @@
-version: "3"
 services:
   frontend:
     image: guamulo/shadowmere-frontend-njs
@@ -18,6 +17,9 @@ services:
       - "8002-8007:8002-8007"
     build:
       context: .
+    # I'm using this shortcut since Shadowtest runs in the same network as the host
+    extra_hosts:
+      - "shadowtest.akiel.dev:10.0.0.38"
 
   apply_migrations:
     image: guamulo/shadowmere
@@ -74,26 +76,23 @@ services:
     image: redis:alpine
     restart: always
 
-  celery:
+  huey:
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
     image: guamulo/shadowmere
     restart: always
-    command: celery -A shadowmere worker -l info
+    command: python manage.py run_huey
     env_file:
       - .env
     depends_on:
       - redis
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  celery_beat:
-    image: guamulo/shadowmere
-    restart: always
-    command: celery -A shadowmere beat -l info
-    env_file:
-      - .env
-    depends_on:
-      - redis
+      - db
       - apply_migrations
+    # I'm using this shortcut since Shadowtest runs in the same network as the host
+    extra_hosts:
+      - "shadowtest.akiel.dev:10.0.0.38"
 
 volumes:
   shadowmere_data:

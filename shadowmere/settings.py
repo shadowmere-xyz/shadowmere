@@ -9,11 +9,11 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-from celery.schedules import crontab
 from django.contrib.admin import AdminSite
 from django.utils.translation import gettext_lazy as _
 
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "import_export",
     "django_prometheus",
     "rangefilter",
+    "huey.contrib.djhuey",
     "rest_framework",
     "django_filters",
     "django_blocklist",
@@ -71,6 +72,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_ratelimit.middleware.RatelimitMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
     "django_blocklist.middleware.BlocklistMiddleware",
 ]
@@ -215,9 +217,17 @@ if not DEBUG:
     MINIO_STORAGE_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
     MINIO_STORAGE_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
     MINIO_STORAGE_USE_HTTPS = True
-    MINIO_STORAGE_MEDIA_BUCKET_NAME = "shadowmere-media"
+    MINIO_STORAGE_MEDIA_BUCKET_NAME = (
+        f"{os.getenv('MINIO_BUCKET')}-media"
+        if os.getenv("MINIO_BUCKET") != ""
+        else "shadowmere-media"
+    )
     MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
-    MINIO_STORAGE_STATIC_BUCKET_NAME = "shadowmere-static"
+    MINIO_STORAGE_STATIC_BUCKET_NAME = (
+        f"{os.getenv('MINIO_BUCKET')}-static"
+        if os.getenv("MINIO_BUCKET") != ""
+        else "shadowmere-static"
+    )
     MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
 
 # Default primary key field type
@@ -225,17 +235,34 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = "redis://redis:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379"
-
-CELERY_BEAT_SCHEDULE = {
-    "update_status": {
-        "task": "proxylist.tasks.update_status",
-        "schedule": crontab(minute="*/20"),
+HUEY = {
+    "huey_class": "huey.RedisHuey",  # Huey implementation to use.
+    "name": "shadowmere",  # Use db name for huey.
+    "results": True,  # Store return values of tasks.
+    "store_none": False,  # If a task returns None, do not save to results.
+    "immediate": False,  # If DEBUG=True, run synchronously.
+    "utc": True,  # Use UTC for all times internally.
+    "blocking": True,  # Perform blocking pop rather than poll Redis.
+    "connection": {
+        "host": "localhost" if DEBUG else "redis",
+        "port": 6379,
+        "db": 0,
+        "connection_pool": None,  # Definitely you should use pooling!
+        # ... tons of other options, see redis-py for details.
+        # huey-specific connection parameters.
+        "read_timeout": 1,  # If not polling (blocking pop), use timeout.
+        "url": None,  # Allow Redis config via a DSN.
     },
-    "poll_subscriptions": {
-        "task": "proxylist.tasks.poll_subscriptions",
-        "schedule": crontab(hour="*/6"),
+    "consumer": {
+        "workers": 4,
+        "worker_type": "process",
+        "initial_delay": 0.1,  # Smallest polling interval, same as -d.
+        "backoff": 1.15,  # Exponential backoff using this rate, -b.
+        "max_delay": 10.0,  # Max possible polling interval, -m.
+        "scheduler_interval": 1,  # Check schedule every second, -s.
+        "periodic": True,  # Enable crontab feature.
+        "check_worker_health": True,  # Enable worker health checks.
+        "health_check_interval": 1,  # Check worker health every second.
     },
 }
 
@@ -271,6 +298,7 @@ if not DEBUG and os.getenv("SENTRY_DSN") != "":
         send_default_pii=True,
     )
 
+
 cooldown = os.getenv("BLOCKLIST_COOLDOWN", 1)
 
 BLOCKLIST_CONFIG = {
@@ -278,3 +306,6 @@ BLOCKLIST_CONFIG = {
     "cooldown": cooldown,
     "cache-ttl": 30,
 }
+
+RATELIMIT_ENABLE = not DEBUG
+RATELIMIT_VIEW = "proxylist.views.ratelimited_error"
