@@ -284,5 +284,5 @@ if not DEBUG and os.getenv("SENTRY_DSN") != "":
         send_default_pii=True,
     )
 
-RATELIMIT_ENABLE = not DEBUG
+RATELIMIT_ENABLE = False
 RATELIMIT_VIEW = "proxylist.views.ratelimited_error"
