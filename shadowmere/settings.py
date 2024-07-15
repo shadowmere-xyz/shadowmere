@@ -42,6 +42,7 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "https://shadowmere.akiel.dev",
+    "https://shadowmere.xyz",
 ]
 
 # Application definition
