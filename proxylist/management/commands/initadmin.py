@@ -1,7 +1,10 @@
+import logging
 import os
 
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
+
+log = logging.getLogger("django")
 
 
 class Command(BaseCommand):
@@ -16,4 +19,4 @@ class Command(BaseCommand):
             admin.is_admin = True
             admin.save()
         else:
-            print("Admin accounts can only be initialized if no Accounts exist")
+            log.warning("Admin accounts can only be initialized if no Accounts exist")

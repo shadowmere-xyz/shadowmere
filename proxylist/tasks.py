@@ -18,6 +18,8 @@ CONCURRENT_CHECKS = 200
 SUBSCRIPTION_TIMEOUT_SECONDS = 60
 LOW_QUALITY_THRESHOLD = 0.2
 
+log = logging.getLogger("django")
+
 
 @db_periodic_task(crontab(minute="15", hour="10"))
 def remove_low_quality_proxies_scheduled():
@@ -35,7 +37,7 @@ def poll_subscriptions_scheduled():
 
 
 def remove_low_quality_proxies():
-    print("Removing low quality proxies")
+    log.info("Removing low quality proxies")
     start_time = now()
     deleted_count, _ = Proxy.objects.filter(
         is_active=False,
@@ -50,17 +52,19 @@ def remove_low_quality_proxies():
         start_time=start_time,
         finish_time=now(),
     )
-    print(f"Removed {deleted_count} low quality proxies")
+    log.info(f"Removed {deleted_count} low quality proxies")
 
 
 def update_status():
-    print("Updating proxies status")
+    log.info("Updating proxies status")
     start_time = now()
 
     try:
         req = requests.get("https://clients3.google.com/generate_204")
     except (SSLError, ConnectionError, ReadTimeout):
-        print("The Shadowmere host is having connection issues. Skipping test cycle.")
+        log.info(
+            "The Shadowmere host is having connection issues. Skipping test cycle."
+        )
         return
 
     if req.status_code == 204:
@@ -69,9 +73,9 @@ def update_status():
             executor.map(update_proxy_status, proxies)
             executor.shutdown(wait=True)
 
-        print("Proxy status checked")
+        log.info("Proxy status checked")
 
-        print("Saving new status")
+        log.info("Saving new status")
         for proxy in proxies:
             try:
                 proxy.save()
@@ -79,12 +83,14 @@ def update_status():
                 # This means the proxy is either a duplicate or no longer valid
                 proxy.delete()
 
-        print("Update completed")
+        log.info("Update completed")
         TaskLog.objects.create(
             name="update_status", start_time=start_time, finish_time=now()
         )
     else:
-        print("The Shadowmere host is having connection issues. Skipping test cycle.")
+        log.info(
+            "The Shadowmere host is having connection issues. Skipping test cycle."
+        )
 
 
 def decode_line(line):
@@ -95,7 +101,7 @@ def decode_line(line):
 
 
 def poll_subscriptions():
-    logging.info("Started polling subscriptions")
+    log.info("Started polling subscriptions")
     start_time = now()
     all_urls = [proxy.url for proxy in Proxy.objects.all()]
 
@@ -103,12 +109,12 @@ def poll_subscriptions():
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
         subscriptions = Subscription.objects.filter(enabled=True)
         for subscription in subscriptions:
-            logging.info(f"Testing subscription {subscription.url}")
+            log.info(f"Testing subscription {subscription.url}")
             try:
                 r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
                 if r.status_code != 200:
                     error_message = f"We are facing issues getting this subscription {subscription.url} ({r.status_code} {r.text})"
-                    logging.warning(error_message)
+                    log.warning(error_message)
                     subscription.alive = False
                     subscription.error_message = error_message[:10000]
                     subscription.save()
@@ -140,11 +146,11 @@ def poll_subscriptions():
                 requests.exceptions.SSLError,
                 requests.exceptions.ReadTimeout,
             ) as e:
-                logging.warning(f"Failed to get subscription {subscription.url}, {e}")
+                log.warning(f"Failed to get subscription {subscription.url}, {e}")
                 subscription.error_message = f"{e}"
                 subscription.alive = False
             except AttributeError as e:
-                logging.warning(f"Error decoding subscription {subscription.url}, {e}")
+                log.warning(f"Error decoding subscription {subscription.url}, {e}")
                 subscription.error_message = f"{e}"
                 subscription.alive = False
 
@@ -159,23 +165,23 @@ def poll_subscriptions():
         start_time=start_time,
         finish_time=now(),
     )
-    print("Finished polling subscriptions")
+    log.info("Finished polling subscriptions")
 
 
 def save_proxies(proxies_lists):
-    logging.info("Saving proxies")
+    log.info("Saving proxies")
     saved_proxies = 0
     found_proxies = 0
     for proxy_list in proxies_lists:
         for proxy in proxy_list:
             if proxy is not None:
                 found_proxies += 1
-                logging.info(f"saving {proxy}")
+                log.info(f"saving {proxy}")
                 try:
                     proxy.save()
                     saved_proxies += 1
                 except Exception as e:
-                    logging.warning(f"Failed to save proxy {proxy}, {e}")
+                    log.warning(f"Failed to save proxy {proxy}, {e}")
     return saved_proxies, found_proxies
 
 
@@ -188,7 +194,7 @@ def process_line(line, all_urls):
         # False positives fall in here
         return None
     if url and url not in all_urls:
-        # print(f"Testing {url}")
+        # log.info(f"Testing {url}")
         location = get_proxy_location(url)
         if location is None or location == "unknown":
             return None
