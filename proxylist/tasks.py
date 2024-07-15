@@ -58,7 +58,7 @@ def remove_low_quality_proxies():
     )
     log.info(
         f"Removed {deleted_count} low quality proxies",
-        extra={"task": inspect.currentframe().f_code.co_name},
+        extra={"task": inspect.currentframe().f_code.co_name, "removed": deleted_count},
     )
 
 
@@ -83,24 +83,29 @@ def update_status():
             executor.shutdown(wait=True)
 
         log.info(
-            "Proxy status checked",
+            "Proxies statuses checked. Saving new status now.",
             extra={"task": inspect.currentframe().f_code.co_name},
         )
 
-        log.info(
-            "Saving new status",
-            extra={"task": inspect.currentframe().f_code.co_name},
-        )
+        saved_proxies = 0
+        deleted_proxies = 0
+
         for proxy in proxies:
             try:
                 proxy.save()
+                saved_proxies += 1
             except IntegrityError:
                 # This means the proxy is either a duplicate or no longer valid
                 proxy.delete()
+                deleted_proxies += 1
 
         log.info(
             "Update completed",
-            extra={"task": inspect.currentframe().f_code.co_name},
+            extra={
+                "task": inspect.currentframe().f_code.co_name,
+                "saved": saved_proxies,
+                "deleted": deleted_proxies,
+            },
         )
         TaskLog.objects.create(
             name="update_status", start_time=start_time, finish_time=now()
@@ -116,9 +121,9 @@ def decode_line(line):
     try:
         return decode_base64(line).decode("utf-8").split("\n")
     except UnicodeDecodeError:
-        logging.warning(
-            f"Failed decoding line: {line}",
-            extra={"task": inspect.currentframe().f_code.co_name},
+        log.error(
+            f"Failed decoding line",
+            extra={"task": inspect.currentframe().f_code.co_name, "line": line},
         )
 
 
@@ -135,8 +140,11 @@ def poll_subscriptions():
         subscriptions = Subscription.objects.filter(enabled=True)
         for subscription in subscriptions:
             log.info(
-                f"Testing subscription {subscription.url}",
-                extra={"task": inspect.currentframe().f_code.co_name},
+                f"Testing subscription",
+                extra={
+                    "task": inspect.currentframe().f_code.co_name,
+                    "subscription": subscription.url,
+                },
             )
             try:
                 r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
@@ -144,7 +152,12 @@ def poll_subscriptions():
                     error_message = f"We are facing issues getting this subscription {subscription.url} ({r.status_code} {r.text})"
                     log.warning(
                         error_message,
-                        extra={"task": inspect.currentframe().f_code.co_name},
+                        extra={
+                            "task": inspect.currentframe().f_code.co_name,
+                            "subscription": subscription.url,
+                            "status_code": r.status_code,
+                            "text": r.text,
+                        },
                     )
                     subscription.alive = False
                     subscription.error_message = error_message[:10000]
@@ -177,16 +190,24 @@ def poll_subscriptions():
                 requests.exceptions.SSLError,
                 requests.exceptions.ReadTimeout,
             ) as e:
-                log.warning(
-                    f"Failed to get subscription {subscription.url}, {e}",
-                    extra={"task": inspect.currentframe().f_code.co_name},
+                log.error(
+                    f"Failed to get subscription",
+                    extra={
+                        "error": f"{e}",
+                        "task": inspect.currentframe().f_code.co_name,
+                        "subscription": subscription.url,
+                    },
                 )
                 subscription.error_message = f"{e}"
                 subscription.alive = False
             except AttributeError as e:
                 log.warning(
-                    f"Error decoding subscription {subscription.url}, {e}",
-                    extra={"task": inspect.currentframe().f_code.co_name},
+                    f"Error decoding subscription",
+                    extra={
+                        "task": inspect.currentframe().f_code.co_name,
+                        "error": f"{e}",
+                        "subscription": subscription.url,
+                    },
                 )
                 subscription.error_message = f"{e}"
                 subscription.alive = False
@@ -204,7 +225,11 @@ def poll_subscriptions():
     )
     log.info(
         "Finished polling subscriptions",
-        extra={"task": inspect.currentframe().f_code.co_name},
+        extra={
+            "task": inspect.currentframe().f_code.co_name,
+            "found": found_proxies,
+            "saved": saved_proxies,
+        },
     )
 
 
@@ -228,8 +253,12 @@ def save_proxies(proxies_lists):
                     saved_proxies += 1
                 except Exception as e:
                     log.warning(
-                        f"Failed to save proxy {proxy}, {e}",
-                        extra={"task": inspect.currentframe().f_code.co_name},
+                        f"Failed to save proxy",
+                        extra={
+                            "task": inspect.currentframe().f_code.co_name,
+                            "proxy": proxy,
+                            "error": f"{e}",
+                        },
                     )
     return saved_proxies, found_proxies
 
