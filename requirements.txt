@@ -17,6 +17,7 @@ prometheus-client==0.20.0
 prompt-toolkit==3.0.47
 psycopg2-binary==2.9.9
 Pillow==10.4.0
+python-json-logger==2.0.7
 qrcode==7.4.2
 redis==5.0.7
 requests==2.32.3

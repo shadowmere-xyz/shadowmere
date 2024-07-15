@@ -16,6 +16,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from django.contrib.admin import AdminSite
 from django.utils.translation import gettext_lazy as _
+from pythonjsonlogger import jsonlogger
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -133,54 +134,39 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+from pythonjsonlogger import jsonlogger
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "filters": {
-        "require_debug_false": {
-            "()": "django.utils.log.RequireDebugFalse",
-        },
-        "require_debug_true": {
-            "()": "django.utils.log.RequireDebugTrue",
-        },
-    },
     "formatters": {
-        "django.server": {
-            "()": "django.utils.log.ServerFormatter",
-            "format": "[%(server_time)s] %(message)s",
-        }
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": "%(levelname)s %(name)s %(message)s %(asctime)s %(module)s %(task)s",
+        },
     },
     "handlers": {
         "console": {
-            "level": "INFO",
-            "filters": ["require_debug_true"],
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
-        },
-        # Custom handler which we will use with logger 'django'.
-        # We want errors/warnings to be logged when DEBUG=False
-        "console_on_not_debug": {
-            "level": "WARNING",
-            "filters": ["require_debug_false"],
-            "class": "logging.StreamHandler",
-        },
-        "django.server": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "django.server",
+            "formatter": "json",
         },
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "console_on_not_debug"],
+            "handlers": ["console"],
             "level": "INFO",
+            "propagate": True,
         },
         "django.server": {
-            "handlers": ["django.server"],
+            "handlers": ["console"],
             "level": "INFO",
-            "propagate": False,
+            "propagate": True,
         },
+        # Add other loggers here as needed
     },
 }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
