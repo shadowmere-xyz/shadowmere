@@ -34,6 +34,7 @@ SHADOWTEST_URL = os.getenv("SHADOWTEST_URL", "https://shadowtest.akiel.dev/v2/te
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "shadowmere.xyz",
     "shadowmere.akiel.dev",
     "old.shadowmere.akiel.dev",
     "eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion",
