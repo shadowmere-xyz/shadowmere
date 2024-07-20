@@ -1,0 +1,57 @@
+volumes:
+  shadowmere_data:
+  redis_data:
+
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - shadowmere_data:/var/lib/postgresql/data
+    env_file: .env
+
+  backend:
+    &shadowmere
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile
+    image: guamulo/shadowmere_backend
+    volumes:
+      - ./app/shadowmere:/app/shadowmere
+    working_dir: /app/shadowmere
+    command: /start
+    entrypoint: /entrypoint
+    restart: always
+    env_file: .env
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+
+  huey:
+    <<: *shadowmere
+    image: guamulo/shadowmere_huey
+    restart: always
+    command: ["python", "manage.py", "run_huey"]
+    env_file:
+      - .env
+    ports: []
+    depends_on:
+      - redis
+      - db
+
+  frontend:
+    image: guamulo/shadowmere-frontend-njs
+    restart: always
+    ports:
+      - "8000:80"
+    depends_on:
+      - backend
