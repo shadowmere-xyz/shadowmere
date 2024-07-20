@@ -1,98 +1,57 @@
+volumes:
+  shadowmere_data:
+  redis_data:
+
 services:
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    volumes:
+      - shadowmere_data:/var/lib/postgresql/data
+    env_file: .env
+
+  backend:
+    &shadowmere
+    build:
+      context: .
+      dockerfile: ./docker/prod/Dockerfile
+    image: guamulo/shadowmere_backend
+    volumes:
+      - ./app/shadowmere:/app/shadowmere
+    working_dir: /app/shadowmere
+    command: /start
+    entrypoint: /entrypoint
+    restart: always
+    env_file: .env
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+
+  huey:
+    <<: *shadowmere
+    image: guamulo/shadowmere_huey
+    restart: always
+    command: [ "python", "manage.py", "run_huey" ]
+    env_file:
+      - .env
+    ports: [ ]
+    depends_on:
+      - redis
+      - db
+
   frontend:
     image: guamulo/shadowmere-frontend-njs
     restart: always
     ports:
       - "8000:80"
-
-  shadowmere:
-    image: guamulo/shadowmere
-    restart: always
-    env_file:
-      - .env
     depends_on:
-      - db
-    ports:
-      - "8001:8001"
-      - "8002-8007:8002-8007"
-    build:
-      context: .
-    # I'm using this shortcut since Shadowtest runs in the same network as the host
-    extra_hosts:
-      - "shadowtest.akiel.dev:10.0.0.38"
-
-  apply_migrations:
-    image: guamulo/shadowmere
-    env_file:
-      - .env
-    restart: on-failure
-    depends_on:
-      - db
-      - shadowmere
-    command:
-      - python
-      - manage.py
-      - migrate
-
-  collectstatics:
-    image: guamulo/shadowmere
-    env_file:
-      - .env
-    restart: on-failure
-    depends_on:
-      - db
-      - shadowmere
-    command:
-      - python
-      - manage.py
-      - collectstatic
-      - --noinput
-
-  create_superuser:
-    image: guamulo/shadowmere
-    env_file:
-      - .env
-    restart: on-failure
-    depends_on:
-      - db
-      - apply_migrations
-    command:
-      - python
-      - manage.py
-      - initadmin
-
-  db:
-    image: postgres:13-alpine
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - shadowmere_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=shadowmere
-      - POSTGRES_DB=shadowmere
-
-  redis:
-    image: redis:alpine
-    restart: always
-
-  huey:
-    deploy:
-      resources:
-        limits:
-          cpus: "2"
-    image: guamulo/shadowmere
-    restart: always
-    command: python manage.py run_huey
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - db
-      - apply_migrations
-    # I'm using this shortcut since Shadowtest runs in the same network as the host
-    extra_hosts:
-      - "shadowtest.akiel.dev:10.0.0.38"
-
-volumes:
-  shadowmere_data:
+      - backend

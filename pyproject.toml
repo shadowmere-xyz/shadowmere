@@ -35,6 +35,8 @@ django-jazzmin = "^2.6.0"
 huey = "^2.5.0"
 humanfriendly = "^10.0"
 django-ratelimit = "^4.1.0"
+gevent = "^24.2.1"
+python-json-logger = "^2.0.7"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.7"
