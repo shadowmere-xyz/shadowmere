@@ -55,3 +55,18 @@ if env("SENTRY_DSN") != "":  # noqa
         traces_sample_rate=0.01,
         send_default_pii=True,
     )
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django_prometheus.db.backends.postgresql",
+        "NAME": "shadowmere",
+        "USER": "shadowmere",
+        "PASSWORD": env("POSTGRES_PASSWORD"),
+        "HOST": "db",
+    }
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://shadowmere.akiel.dev",
+    "https://shadowmere.xyz",
+]

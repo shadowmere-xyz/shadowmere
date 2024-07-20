@@ -1,3 +1,7 @@
+from django.contrib import admin
+from django.urls import include, path
+from rest_framework import routers
+
 from apps.proxylist.views import (
     Base64SubViewSet,
     CountryCodeViewSet,
@@ -9,9 +13,6 @@ from apps.proxylist.views import (
     list_proxies,
     qr_code,
 )
-from django.contrib import admin
-from django.urls import include, path
-from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r"proxies", ProxyViewSet)

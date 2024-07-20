@@ -89,8 +89,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {"default": env.db()}
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -173,8 +171,6 @@ LANGUAGES = [
 LOCALE_PATHS = ("./locale",)
 
 STATIC_URL = "/static/"
-
-STATIC_ROOT = "./static_files/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
