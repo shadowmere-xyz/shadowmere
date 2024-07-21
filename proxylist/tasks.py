@@ -105,6 +105,8 @@ def update_status():
                 "task": inspect.currentframe().f_code.co_name,
                 "saved": saved_proxies,
                 "deleted": deleted_proxies,
+                "start_time": start_time,
+                "finish_time": now(),
             },
         )
         TaskLog.objects.create(
