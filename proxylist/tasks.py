@@ -71,7 +71,7 @@ def update_status():
     try:
         req = requests.get("https://clients3.google.com/generate_204")
     except (SSLError, ConnectionError, ReadTimeout):
-        log.info(
+        log.error(
             "The Shadowmere host is having connection issues. Skipping test cycle."
         )
         return
