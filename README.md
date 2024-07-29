@@ -19,4 +19,4 @@ And if you are using Tor you can directly use the hidden service at http://eb7x5
  2. Run `docker-compose up -d --build`
  3. The website should be accessible in http://127.0.0.1:8001 (old interface), http://127.0.0.1:8000 (new interface), and administration in http://127.0.0.1:8001/admin 
 ### Frontend
-The new interface is powered by https://github.com/swordfest/shadowmere-njs
+The new interface is powered by [https://github.com/swordfest/shadowmere-njs](https://github.com/shadowmere-xyz/shadowmere-njs)
