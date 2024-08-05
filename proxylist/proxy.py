@@ -20,7 +20,7 @@ def get_proxy_location(proxy_url):
     return output
 
 
-def update_proxy_status(proxy):
+def update_proxy_status(proxy) -> None:
     ip_information = get_proxy_location(proxy_url=proxy.url)
 
     if ip_information:
