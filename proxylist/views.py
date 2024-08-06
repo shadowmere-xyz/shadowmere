@@ -86,7 +86,7 @@ def get_proxy_config(proxy):
         "method": method_password.decode("ascii").split(":")[0],
         "plugin": "",
         "plugin_opts": None,
-        "remarks": f"{get_flag_or_empty(proxy.location_country_code)} {proxy.location}",
+        "remarks": f"{get_flag_or_empty(country_code=proxy.location_country_code)} {proxy.location}",
     }
 
     return config
@@ -99,7 +99,7 @@ def get_proxy_config(proxy):
 )
 def json_proxy_file(request, proxy_id):
     proxy = get_object_or_404(Proxy, id=proxy_id)
-    details = get_proxy_config(proxy)
+    details = get_proxy_config(proxy=proxy)
     config = {
         "server": details["server"],
         "server_port": details["server_port"],
@@ -211,7 +211,7 @@ class SubViewSet(viewsets.ViewSet):
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
         servers = [
-            get_proxy_config(server)
+            get_proxy_config(proxy=server)
             for server in Proxy.objects.filter(is_active=True).order_by(
                 "location_country_code"
             )
@@ -237,7 +237,7 @@ class Base64SubViewSet(viewsets.ViewSet):
         for proxy in Proxy.objects.filter(is_active=True).order_by(
             "location_country_code"
         ):
-            server_list += f"\n{proxy.url}#{get_flag_or_empty(proxy.location_country_code)} {proxy.location}"
+            server_list += f"\n{proxy.url}#{get_flag_or_empty(country_code=proxy.location_country_code)} {proxy.location}"
         b64_servers = base64.b64encode(server_list.encode("utf-8"))
         return HttpResponse(b64_servers)
 

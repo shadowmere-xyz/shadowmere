@@ -14,7 +14,7 @@ from proxylist.proxy import update_proxy_status, get_proxy_location
 
 
 def validate_sip002(value):
-    if get_sip002(value) == "":
+    if get_sip002(instance_url=value) == "":
         raise ValidationError(
             "The value entered is not SIP002 compatible",
             params={"value": value},
@@ -22,7 +22,7 @@ def validate_sip002(value):
 
 
 def validate_not_existing(value):
-    if Proxy.objects.filter(url=get_sip002(value)):
+    if Proxy.objects.filter(url=get_sip002(instance_url=value)):
         raise ValidationError(
             "This proxy was already imported",
             params={"value": value},
@@ -30,7 +30,7 @@ def validate_not_existing(value):
 
 
 def validate_proxy_can_connect(value):
-    location = get_proxy_location(get_sip002(value))
+    location = get_proxy_location(get_sip002(instance_url=value))
     if location is None or location == "unknown":
         raise ValidationError(
             "Can't get the location for this address",
@@ -39,9 +39,9 @@ def validate_proxy_can_connect(value):
 
 
 def proxy_validator(value):
-    validate_sip002(value)
-    validate_not_existing(value)
-    validate_proxy_can_connect(value)
+    validate_sip002(value=value)
+    validate_not_existing(value=value)
+    validate_proxy_can_connect(value=value)
 
 
 class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
@@ -96,7 +96,7 @@ def get_sip002(instance_url):
 
 @receiver(post_save, sender=Proxy)
 def update_url_and_location_after_save(sender, instance, created, **kwargs):
-    url = get_sip002(instance.url)
+    url = get_sip002(instance_url=instance.url)
     if url != instance.url:
         instance.url = url
         instance.save()
