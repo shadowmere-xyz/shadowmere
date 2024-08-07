@@ -21,7 +21,7 @@ def validate_sip002(value) -> None:
         )
 
 
-def validate_not_existing(value)-> None:
+def validate_not_existing(value) -> None:
     if Proxy.objects.filter(url=get_sip002(instance_url=value)):
         raise ValidationError(
             "This proxy was already imported",
@@ -38,7 +38,7 @@ def validate_proxy_can_connect(value) -> None:
         )
 
 
-def proxy_validator(value) -> None::
+def proxy_validator(value) -> None:
     validate_sip002(value=value)
     validate_not_existing(value=value)
     validate_proxy_can_connect(value=value)
