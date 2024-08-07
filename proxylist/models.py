@@ -13,7 +13,7 @@ from proxylist.base64_decoder import decode_base64
 from proxylist.proxy import update_proxy_status, get_proxy_location
 
 
-def validate_sip002(value):
+def validate_sip002(value) -> None:
     if get_sip002(instance_url=value) == "":
         raise ValidationError(
             "The value entered is not SIP002 compatible",
@@ -21,7 +21,7 @@ def validate_sip002(value):
         )
 
 
-def validate_not_existing(value):
+def validate_not_existing(value)-> None:
     if Proxy.objects.filter(url=get_sip002(instance_url=value)):
         raise ValidationError(
             "This proxy was already imported",
@@ -29,7 +29,7 @@ def validate_not_existing(value):
         )
 
 
-def validate_proxy_can_connect(value):
+def validate_proxy_can_connect(value) -> None:
     location = get_proxy_location(get_sip002(instance_url=value))
     if location is None or location == "unknown":
         raise ValidationError(
@@ -38,7 +38,7 @@ def validate_proxy_can_connect(value):
         )
 
 
-def proxy_validator(value):
+def proxy_validator(value) -> None::
     validate_sip002(value=value)
     validate_not_existing(value=value)
     validate_proxy_can_connect(value=value)
@@ -118,7 +118,7 @@ def update_url_and_location_after_save(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Proxy)
-def clear_cache(sender, instance, **kwargs):
+def clear_cache(sender, instance, **kwargs) -> None:
     cache.clear()
 
 

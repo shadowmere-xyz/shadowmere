@@ -18,5 +18,5 @@ class CustomCollector(Collector):
         )
 
 
-def register_metrics():
+def register_metrics() -> None:
     REGISTRY.register(CustomCollector())

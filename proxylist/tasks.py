@@ -23,21 +23,21 @@ log = logging.getLogger("django")
 
 
 @db_periodic_task(crontab(minute="15", hour="10"))
-def remove_low_quality_proxies_scheduled():
+def remove_low_quality_proxies_scheduled() -> None:
     remove_low_quality_proxies()
 
 
 @db_periodic_task(crontab(minute="*/20"))
-def update_status_scheduled():
+def update_status_scheduled() -> None:
     update_status()
 
 
 @db_periodic_task(crontab(minute="0"))
-def poll_subscriptions_scheduled():
+def poll_subscriptions_scheduled() -> None:
     poll_subscriptions()
 
 
-def remove_low_quality_proxies():
+def remove_low_quality_proxies() -> None:
     log.info(
         "Removing low quality proxies",
         extra={"task": inspect.currentframe().f_back.f_code.co_name},
@@ -129,7 +129,7 @@ def decode_line(line):
         )
 
 
-def poll_subscriptions():
+def poll_subscriptions() -> None:
     log.info(
         "Started polling subscriptions",
         extra={"task": inspect.currentframe().f_code.co_name},
@@ -282,7 +282,7 @@ def process_line(line, all_urls):
         return proxy
 
 
-def flatten(something):
+def flatten(something) -> None:
     if isinstance(something, (list, tuple, set, range)):
         for sub in something:
             yield from flatten(something=sub)

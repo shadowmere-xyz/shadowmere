@@ -1,9 +1,7 @@
-name: Docker Image CI
+name: Docker Image release
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
   workflow_dispatch:
 
@@ -25,11 +23,6 @@ jobs:
         with:
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:${{ github.sha }}
-      - name: Build and latest
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:latest
