@@ -173,8 +173,8 @@ def poll_subscriptions() -> None:
                         )
                     )
                 elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                    decoded = [decode_line(line) for line in r.iter_lines()]
-                    flatten_decoded = list(flatten(decoded))
+                    decoded = [decode_line(line=line) for line in r.iter_lines()]
+                    flatten_decoded = list(flatten(something=decoded))
                     proxies_lists.append(
                         executor.map(
                             process_line,
@@ -216,7 +216,7 @@ def poll_subscriptions() -> None:
 
             subscription.save()
 
-    saved_proxies, found_proxies = save_proxies(proxies_lists)
+    saved_proxies, found_proxies = save_proxies(proxies_lists=proxies_lists)
 
     executor.shutdown(wait=True)
     TaskLog.objects.create(
@@ -285,6 +285,6 @@ def process_line(line, all_urls):
 def flatten(something) -> None:
     if isinstance(something, (list, tuple, set, range)):
         for sub in something:
-            yield from flatten(sub)
+            yield from flatten(something=sub)
     else:
         yield something
