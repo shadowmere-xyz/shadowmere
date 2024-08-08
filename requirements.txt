@@ -1,5 +1,5 @@
 botocore==1.34.153
-Django==5.0.8
+Django==5.1
 django-admin-rangefilter==0.13.1
 django-filter==24.3
 django-import-export==4.1.1
