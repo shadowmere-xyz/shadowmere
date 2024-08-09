@@ -1,12 +1,23 @@
+import logging
+
 import requests
 from django.utils.timezone import now
 from requests.exceptions import InvalidJSONError
 
 from shadowmere import settings
 
+log = logging.getLogger("django")
+
+
+class ShadowtestError(Exception):
+    pass
+
 
 def get_proxy_location(proxy_url):
     r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
+
+    if r.status_code == 500:
+        raise ShadowtestError()
 
     if r.status_code != 200:
         return None
@@ -21,7 +32,11 @@ def get_proxy_location(proxy_url):
 
 
 def update_proxy_status(proxy) -> None:
-    ip_information = get_proxy_location(proxy_url=proxy.url)
+    try:
+        ip_information = get_proxy_location(proxy_url=proxy.url)
+    except ShadowtestError:
+        log.error(f"Shadowtest is experiencing issues. Skipping updating {proxy.id}")
+        return
 
     if ip_information:
         proxy.is_active = True
