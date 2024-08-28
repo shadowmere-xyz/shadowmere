@@ -138,13 +138,3 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.url} - {self.kind}"
-
-
-class TaskLog(models.Model):
-    name = models.CharField(max_length=100)
-    details = models.CharField(max_length=1000, default="")
-    start_time = models.DateTimeField(auto_now=False)
-    finish_time = models.DateTimeField(auto_now=False)
-
-    def __str__(self):
-        return f"{self.name} - {self.finish_time}"

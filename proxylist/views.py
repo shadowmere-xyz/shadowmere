@@ -19,7 +19,7 @@ from rest_framework.response import Response
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.metrics import register_metrics
-from proxylist.models import Proxy, TaskLog
+from proxylist.models import Proxy
 from proxylist.permissions import GeneralPermission
 from proxylist.serializers import ProxySerializer
 
@@ -45,11 +45,7 @@ def list_proxies(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    update_status_logs = TaskLog.objects.filter(name="update_status")
-    if update_status_logs.count() > 0:
-        latest_update = update_status_logs.latest("finish_time").finish_time
-    else:
-        latest_update = None
+    latest_update = Proxy.objects.first().last_active if Proxy.objects.first() else None
 
     return render(
         request,
