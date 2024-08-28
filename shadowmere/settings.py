@@ -197,8 +197,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = "./static_files/"
 
 if not DEBUG:
-    DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
-    STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
+    STORAGES = {"staticfiles": {"BACKEND": "minio_storage.storage.MinioStaticStorage"}}
     MINIO_STORAGE_ENDPOINT = os.getenv("MINIO_ENDPOINT")
     MINIO_STORAGE_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
     MINIO_STORAGE_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
