@@ -12,7 +12,7 @@ from huey.contrib.djhuey import db_periodic_task
 from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 
 from proxylist.base64_decoder import decode_base64
-from proxylist.models import Proxy, Subscription, get_sip002, TaskLog
+from proxylist.models import Proxy, Subscription, get_sip002
 from proxylist.proxy import update_proxy_status, get_proxy_location
 
 CONCURRENT_CHECKS = 200
@@ -50,15 +50,14 @@ def remove_low_quality_proxies() -> None:
             F("times_checked") * LOW_QUALITY_THRESHOLD, 0, output_field=FloatField()
         ),
     ).delete()
-    TaskLog.objects.create(
-        name="remove_low_quality_proxies",
-        details=f"Removed {deleted_count} low quality proxies",
-        start_time=start_time,
-        finish_time=now(),
-    )
     log.info(
         f"Removed {deleted_count} low quality proxies",
-        extra={"task": inspect.currentframe().f_code.co_name, "removed": deleted_count},
+        extra={
+            "task": inspect.currentframe().f_code.co_name,
+            "removed": deleted_count,
+            "start_time": start_time,
+            "finish_time": now(),
+        },
     )
 
 
@@ -108,9 +107,6 @@ def update_status():
                 "start_time": start_time,
                 "finish_time": now(),
             },
-        )
-        TaskLog.objects.create(
-            name="update_status", start_time=start_time, finish_time=now()
         )
     else:
         log.error(
@@ -219,18 +215,14 @@ def poll_subscriptions() -> None:
     saved_proxies, found_proxies = save_proxies(proxies_lists=proxies_lists)
 
     executor.shutdown(wait=True)
-    TaskLog.objects.create(
-        name="poll_subscriptions",
-        details=f"Polled {len(subscriptions)} subscriptions and found {found_proxies} proxies from which we managed to save {saved_proxies}.",
-        start_time=start_time,
-        finish_time=now(),
-    )
     log.info(
         "Finished polling subscriptions",
         extra={
             "task": inspect.currentframe().f_code.co_name,
             "found": found_proxies,
             "saved": saved_proxies,
+            "start_time": start_time,
+            "finish_time": now(),
         },
     )
 
