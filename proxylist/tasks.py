@@ -15,7 +15,7 @@ from proxylist.base64_decoder import decode_base64
 from proxylist.models import Proxy, Subscription, get_sip002
 from proxylist.proxy import update_proxy_status, get_proxy_location
 
-CONCURRENT_CHECKS = 200
+CONCURRENT_CHECKS = 100
 SUBSCRIPTION_TIMEOUT_SECONDS = 60
 LOW_QUALITY_THRESHOLD = 0.2
 
