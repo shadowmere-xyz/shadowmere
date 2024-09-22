@@ -175,14 +175,13 @@ class PortViewSet(viewsets.ViewSet):
 
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
-        ports = [
-            port
-            for port in Proxy.objects.filter(is_active=True)
+        ports = (
+            Proxy.objects.filter(is_active=True, port__gt=0)
             .values_list("port", flat=True)
             .distinct()
-            if port != 0
-        ]
-        ports.sort()
+            .order_by("port")
+        )
+
         ports = [
             {
                 "port": port,
