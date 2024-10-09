@@ -160,7 +160,7 @@ class CountryCodeViewSet(viewsets.ViewSet):
         country_codes = [
             {"code": code["location_country_code"], "name": code["location_country"]}
             for code in Proxy.objects.filter(is_active=True)
-            .order_by("location_country_code")
+            .order_by("location_country")
             .values("location_country_code", "location_country")
             .distinct()
         ]
