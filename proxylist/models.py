@@ -1,4 +1,5 @@
 import base64
+import logging
 import re
 
 from django.core.cache import cache
@@ -11,6 +12,8 @@ from django_prometheus.models import ExportModelOperationsMixin
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.proxy import update_proxy_status, get_proxy_location
+
+log = logging.getLogger("django")
 
 
 def validate_sip002(value) -> None:
@@ -76,7 +79,7 @@ def get_sip002(instance_url):
             url = url.replace("=", "")
         if "@" not in url:
             url = url.replace("ss://", "")
-            decoded_url = decode_base64(url.encode("ascii"))
+            decoded_url = decode_base64(url.encode("ascii", errors="ignore"))
             if decoded_url:
                 encoded_bits = (
                     base64.b64encode(decoded_url.split(b"@")[0])
@@ -88,7 +91,13 @@ def get_sip002(instance_url):
                 )
             else:
                 return ""
-    except IndexError:
+    except (IndexError, UnicodeEncodeError):
+        log.warning(
+            "Unable to decode SIP002",
+            extra={
+                "url": instance_url,
+            },
+        )
         return ""
 
     return url
