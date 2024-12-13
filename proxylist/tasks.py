@@ -120,7 +120,7 @@ def decode_line(line):
         return decode_base64(line).decode("utf-8").split("\n")
     except UnicodeDecodeError:
         log.error(
-            f"Failed decoding line",
+            "Failed decoding line",
             extra={"task": inspect.currentframe().f_code.co_name, "line": line},
         )
 
@@ -138,7 +138,7 @@ def poll_subscriptions() -> None:
         subscriptions = Subscription.objects.filter(enabled=True)
         for subscription in subscriptions:
             log.info(
-                f"Testing subscription",
+                "Testing subscription",
                 extra={
                     "task": inspect.currentframe().f_code.co_name,
                     "subscription": subscription.url,
@@ -189,7 +189,7 @@ def poll_subscriptions() -> None:
                 requests.exceptions.ReadTimeout,
             ) as e:
                 log.error(
-                    f"Failed to get subscription",
+                    "Failed to get subscription",
                     extra={
                         "error": f"{e}",
                         "task": inspect.currentframe().f_code.co_name,
@@ -200,7 +200,7 @@ def poll_subscriptions() -> None:
                 subscription.alive = False
             except AttributeError as e:
                 log.warning(
-                    f"Error decoding subscription",
+                    "Error decoding subscription",
                     extra={
                         "task": inspect.currentframe().f_code.co_name,
                         "error": f"{e}",
@@ -247,7 +247,7 @@ def save_proxies(proxies_lists):
                     saved_proxies += 1
                 except Exception as e:
                     log.warning(
-                        f"Failed to save proxy",
+                        "Failed to save proxy",
                         extra={
                             "task": inspect.currentframe().f_code.co_name,
                             "proxy": proxy,
