@@ -14,7 +14,7 @@ gunicorn==23.0.0
 huey==2.5.2
 humanfriendly==10.0
 prometheus-client==0.21.1
-prompt-toolkit==3.0.48
+prompt-toolkit==3.0.50
 psycopg2-binary==2.9.10
 Pillow==11.1.0
 python-json-logger==3.2.1
