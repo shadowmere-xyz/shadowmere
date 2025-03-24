@@ -11,7 +11,7 @@ djangorestframework==3.15.2
 emoji-country-flag==2.0.1
 gevent==24.11.1
 gunicorn==23.0.0
-huey==2.5.2
+huey==2.5.3
 humanfriendly==10.0
 prometheus-client==0.21.1
 prompt-toolkit==3.0.50
