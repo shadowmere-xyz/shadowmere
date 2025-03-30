@@ -21,6 +21,10 @@ def get_proxy_location(proxy_url):
     cache_key = f"proxy_location:{proxy_url}"
     cached_result = cache.get(cache_key)
     if cached_result is not None:
+        log.info(
+            "Using cached location",
+            extra={"source": "get_proxy_location", "address": proxy_url},
+        )
         return cached_result
 
     r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
