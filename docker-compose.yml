@@ -62,12 +62,12 @@ services:
       - initadmin
 
   db:
-    image: postgres:13-alpine
+    image: postgres:17-alpine
     restart: always
     env_file:
       - .env
     volumes:
-      - shadowmere_data:/var/lib/postgresql/data
+      - shadowmere_data_17:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=shadowmere
       - POSTGRES_DB=shadowmere
@@ -96,3 +96,4 @@ services:
 
 volumes:
   shadowmere_data:
+  shadowmere_data_17:
