@@ -6,7 +6,7 @@ django-import-export==4.3.7
 django-minio-storage==0.5.7
 django-prometheus==2.3.1
 django-ratelimit==4.1.0
-django-storages==1.14.5
+django-storages==1.14.6
 djangorestframework==3.16.0
 emoji-country-flag==2.0.1
 gevent==24.11.1
