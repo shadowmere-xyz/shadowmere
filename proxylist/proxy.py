@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import time
 
@@ -19,7 +20,7 @@ class ShadowtestError(Exception):
 def get_proxy_location(proxy_url):
     # Return the cached result if it exists
     # This should make t easier for the testing mechanism by avoiding double testing
-    cache_key = f"proxy_location:{proxy_url}"
+    cache_key = f"proxy_location:{hashlib.sha256(proxy_url.encode('utf-8', errors='ignore')).hexdigest()}"
     cached_result = cache.get(cache_key)
     if cached_result is not None:
         log.info(
