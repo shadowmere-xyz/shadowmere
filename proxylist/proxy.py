@@ -1,4 +1,5 @@
 import logging
+import time
 
 import requests
 from django.core.cache import cache
@@ -27,22 +28,38 @@ def get_proxy_location(proxy_url):
         )
         return cached_result
 
-    r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
+    retries = 5
+    delay = 1
 
-    if r.status_code == 500:
-        raise ShadowtestError()
+    for attempt in range(retries):
+        r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
 
-    if r.status_code != 200:
-        return None
-    try:
-        output = r.json()
-        if "YourFuckingLocation" not in output:
+        if r.status_code == 500:
+            log.warning(
+                f"Shadowtest error encountered. Retry {attempt + 1}/{retries} after {delay} seconds.",
+                extra={"source": "get_proxy_location", "address": proxy_url},
+            )
+            if attempt < retries - 1:
+                time.sleep(delay)
+                delay *= 2
+            else:
+                log.error(
+                    "Max retries reached. Giving up on getting proxy location.",
+                    extra={"source": "get_proxy_location", "address": proxy_url},
+                )
+                raise ShadowtestError()
+
+        if r.status_code != 200:
             return None
-    except InvalidJSONError:
-        return None
+        try:
+            output = r.json()
+            if "YourFuckingLocation" not in output:
+                return None
+        except InvalidJSONError:
+            return None
 
-    cache.set(cache_key, output, CACHE_LOCATION_SECONDS)
-    return output
+        cache.set(cache_key, output, CACHE_LOCATION_SECONDS)
+        return output
 
 
 def update_proxy_status(proxy) -> None:
