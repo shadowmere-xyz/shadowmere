@@ -22,7 +22,26 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:latest
+      - name: Deploy
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          curl --fail -H "Authorization: ${{ secrets.DEPLOY_TOKEN }}" "https://smd.akiel.dev/hook?script=${{ secrets.DEPLOY_SCRIPT }}"
+      - name: Send slack notification
+        uses: Gamesight/slack-workflow-status@master
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
+          channel: 'shadowmere'
+          name: 'Deployment'
+      - name: Track release in sentry
+        run: |
+          curl https://sentry.io/api/hooks/release/builtin/${{ secrets.SENTRY_RELEASE_TRACKING }}/ \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            -d '{"version": "${{ github.sha }}"}'
+

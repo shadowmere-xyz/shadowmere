@@ -17,5 +17,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: false
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           tags: shadowmere:${{ github.sha }}
