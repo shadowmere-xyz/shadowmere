@@ -5,7 +5,9 @@ import time
 import requests
 from django.core.cache import cache
 from django.utils.timezone import now
-from requests.exceptions import InvalidJSONError
+from requests import ReadTimeout
+from requests.exceptions import InvalidJSONError, SSLError
+from urllib3.exceptions import MaxRetryError
 
 from shadowmere import settings
 from shadowmere.settings import CACHE_LOCATION_SECONDS
@@ -33,9 +35,18 @@ def get_proxy_location(proxy_url):
     delay = 1
 
     for attempt in range(retries):
-        r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
+        errored = False
+        r = None
+        try:
+            r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
+        except (SSLError, ReadTimeout, MaxRetryError) as e:
+            log.error(
+                f"Error connecting to Shadowtest: {e}",
+                extra={"source": "get_proxy_location", "address": proxy_url},
+            )
+            errored = True
 
-        if r.status_code == 500:
+        if errored or r.status_code == 500:
             log.warning(
                 f"Shadowtest error encountered. Retry {attempt + 1}/{retries} after {delay} seconds.",
                 extra={"source": "get_proxy_location", "address": proxy_url},
@@ -43,6 +54,7 @@ def get_proxy_location(proxy_url):
             if attempt < retries - 1:
                 time.sleep(delay)
                 delay *= 2
+                continue
             else:
                 log.error(
                     "Max retries reached. Giving up on getting proxy location.",
