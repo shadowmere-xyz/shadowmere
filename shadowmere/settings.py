@@ -286,4 +286,4 @@ if not DEBUG and os.getenv("SENTRY_DSN") != "":
 RATELIMIT_ENABLE = False
 RATELIMIT_VIEW = "proxylist.views.ratelimited_error"
 
-CACHE_LOCATION_SECONDS = 300
+CACHE_LOCATION_SECONDS = 1200
