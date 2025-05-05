@@ -18,7 +18,7 @@ prompt-toolkit==3.0.51
 psycopg2-binary==2.9.10
 Pillow==11.2.1
 python-json-logger==3.3.0
-qrcode==8.1
+qrcode==8.2
 redis==5.2.1
 requests==2.32.3
 sentry-sdk==2.27.0
