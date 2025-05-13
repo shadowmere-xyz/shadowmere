@@ -3,6 +3,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
+from django.conf import settings
 from django.db import IntegrityError
 from django.db.models import F, FloatField
 from django.db.models.functions import Coalesce
@@ -74,6 +75,8 @@ def update_status():
             "The Shadowmere host is having connection issues. Skipping test cycle."
         )
         return
+
+    log.info("Using ShadowTest URLs", extra={"url": settings.SHADOWTEST_SERVERS})
 
     if req.status_code == 204:
         proxies = Proxy.objects.all()
