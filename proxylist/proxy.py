@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import time
+from itertools import cycle
 
 import requests
 from django.core.cache import cache
@@ -9,10 +10,11 @@ from requests import ReadTimeout
 from requests.exceptions import InvalidJSONError, SSLError
 from urllib3.exceptions import MaxRetryError
 
-from shadowmere import settings
-from shadowmere.settings import CACHE_LOCATION_SECONDS
+from shadowmere.settings import CACHE_LOCATION_SECONDS, SHADOWTEST_SERVERS
 
 log = logging.getLogger("django")
+
+shadowtest_iterator = cycle(SHADOWTEST_SERVERS)
 
 
 class ShadowtestError(Exception):
@@ -38,7 +40,8 @@ def get_proxy_location(proxy_url):
         errored = False
         r = None
         try:
-            r = requests.post(settings.SHADOWTEST_URL, data={"address": proxy_url})
+            shadowtest_url = next(shadowtest_iterator)
+            r = requests.post(shadowtest_url, data={"address": proxy_url})
         except (SSLError, ReadTimeout, MaxRetryError) as e:
             log.error(
                 f"Error connecting to Shadowtest: {e}",
