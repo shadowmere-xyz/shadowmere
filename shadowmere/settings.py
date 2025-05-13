@@ -29,7 +29,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", False)
 
-SHADOWTEST_URL = os.getenv("SHADOWTEST_URL", "https://shadowtest.akiel.dev/v2/test")
+SHADOWTEST_SERVERS = [
+    url.strip() for url in os.getenv("SHADOWTEST_URL", "https://shadowtest.akiel.dev/v2/test").split(",")
+]
 
 ALLOWED_HOSTS = [
     "localhost",
