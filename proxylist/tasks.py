@@ -1,6 +1,7 @@
 import inspect
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from typing import Iterator
 
 import requests
 from django.conf import settings
@@ -126,6 +127,7 @@ def decode_line(line):
             "Failed decoding line",
             extra={"task": inspect.currentframe().f_code.co_name, "line": line},
         )
+        return None
 
 
 def poll_subscriptions() -> None:
@@ -275,9 +277,10 @@ def process_line(line, all_urls):
             return None
         proxy = Proxy(url=url)
         return proxy
+    return None
 
 
-def flatten(something) -> None:
+def flatten(something) -> Iterator[str]:
     if isinstance(something, (list, tuple, set, range)):
         for sub in something:
             yield from flatten(something=sub)
