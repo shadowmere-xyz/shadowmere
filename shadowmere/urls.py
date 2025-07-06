@@ -1,9 +1,11 @@
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
 import proxylist.views
 from proxylist import views
+from shadowmere import settings
 
 router = routers.DefaultRouter()
 router.register(r"proxies", views.ProxyViewSet)
@@ -21,4 +23,4 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/", include(router.urls)),
     path("", include("django_prometheus.urls")),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

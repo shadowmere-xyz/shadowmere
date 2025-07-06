@@ -30,7 +30,10 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", False)
 
 SHADOWTEST_SERVERS = [
-    url.strip() for url in os.getenv("SHADOWTEST_URL", "https://shadowtest.akiel.dev/v2/test").split(",")
+    url.strip()
+    for url in os.getenv(
+        "SHADOWTEST_URL", "https://shadowtest.akiel.dev/v2/test"
+    ).split(",")
 ]
 
 ALLOWED_HOSTS = [
@@ -197,6 +200,9 @@ LOCALE_PATHS = ("./locale",)
 
 STATIC_URL = "/static/"
 STATIC_ROOT = "./static_files/"
+STATICFILES_DIRS = [
+    BASE_DIR / "assets",
+]
 
 if not DEBUG:
     STORAGES = {"staticfiles": {"BACKEND": "minio_storage.storage.MinioStaticStorage"}}
@@ -216,6 +222,12 @@ if not DEBUG:
         else "shadowmere-static"
     )
     MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
+else:
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        }
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
