@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="onion-location" content="http://eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion">
     <title>Shadowmere</title>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cookie Consent by TermsFeed https://www.TermsFeed.com -->
     <script type="text/javascript" src="https://www.termsfeed.com/public/cookie-consent/4.1.0/cookie-consent.js"
@@ -33,126 +34,175 @@
             data-website-id="694ad5dc-d5e9-4bd8-9e42-83321007c1be"></script>
     <!-- end of umami-->
     <!-- End Cookie Consent by TermsFeed https://www.TermsFeed.com -->
-
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .fork-me {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 0;
+            z-index: 1031;
+        }
+        .flag-icon {
+            width: 2em;
+            height: 1.5em;
+            object-fit: cover;
+        }
+    </style>
 </head>
-<body class="w3-light-gray w3-container">
-<a style="position: absolute;top: 0;left: 0;" href="https://github.com/jadolg/shadowmere"><img loading="lazy"
-                                                                                               width="149" height="149"
-                                                                                               src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149"
-                                                                                               class="attachment-full size-full"
-                                                                                               alt="Fork me on GitHub"
-                                                                                               data-recalc-dims="1"></a>
-<div class="w3-margin">
-    <div class="w3-quarter w3-margin w3-center">
-        <a href="/">
-            <h2>Shadowmere</h2>
+<body>
+<a class="fork-me" href="https://github.com/jadolg/shadowmere"><img loading="lazy"
+                                                                     width="149" height="149"
+                                                                     src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149"
+                                                                     class="attachment-full size-full"
+                                                                     alt="Fork me on GitHub"
+                                                                     data-recalc-dims="1"></a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            Shadowmere
         </a>
-        <p>{% translate "A list of Shadowsocks proxies" %}</p>
-        <p>
-            <b>{% translate "Disclaimer:" %}</b> {% translate "This website is only a list of tunnels collected all around internet. We do NOT provide or maintain any of these tunnels." %}
-            <span class="w3-red">{% translate "Use them at your own risk." %}</span></p>
-        <p><b>{% translate "How do I use this?:" %}</b>
-            {% blocktranslate %}Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for
-                information.
-                <a href="https://shadowsocks.org/en/download/clients.html">Here</a> is a list of clients for several
-                platforms, but my favorite is <a href="https://getoutline.org/">Outline</a> for any platform and
-                <a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks">shadowsocks</a> for
-                Android</p>
-            {% endblocktranslate %}
-        <p><b>{% translate "Online:" %}</b> {{ proxy_list|length }} {% if location_country_code != "" %}
-            <img class="w3-margin" title="" width="70px" height="30px"
-                 alt="Country flag for {{ location_country_code }}"
-                 src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ location_country_code }}.svg">
-        {% endif %}</p>
-        {% if proxy_list|length > 0 %}
-            <p><b>{% translate "Last check:" %}</b> {{ latest_update }} UTC</p>
-        {% endif %}
-        <a class="w3-button" href="/">
-            <img title="world" width="30px" height="20px"
-                 alt="Planet Earth flag"
-                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/International_Flag_of_Planet_Earth.svg/1280px-International_Flag_of_Planet_Earth.svg.png">
-        </a>
-        {% for country_code in country_codes %}
-            {% if country_code.location_country_code != "" %}
-                <a class="w3-button" href="/?location_country_code={{ country_code.location_country_code }}">
-                    <img title="{{ country_code.location_country }}" width="45px" height="35px"
-                         alt="Country flag for {{ country_code.location_country }}"
-                         src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ country_code.location_country_code }}.svg">
-                </a>
-            {% endif %}
-        {% endfor %}
     </div>
-    {% if proxy_list %}
-        <ul class="w3-ul w3-margin w3-card-4 w3-twothird">
-            {% for proxy in page_obj %}
-                <li class="w3-bar {% if forloop.counter != 10 %} w3-bottombar {% endif %} w3-display-container w3-row">
-                    <div class="w3-bar-item w3-display-topleft">
-                        <span><img title="{{ proxy.location }}" width="45px" height="35px" alt="{{ proxy.location }}"
-                                   src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ proxy.location_country_code }}.svg"/></span>
-                        <span class="w3-tag w3-margin-left">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
-                    </div>
-                    <div class="w3-bar-item w3-display-bottomleft">
-                        <div class="w3-hide" style="word-wrap: anywhere;max-width: 900px"
-                             id="proxy{{ forloop.counter }}">{{ proxy.url }}#{{ proxy.location|urlencode }}</div>
-                        <div><b>{{ proxy.ip_address }}</b> &#9875;{{ proxy.port }}</div>
-                    </div>
-                    <div class="w3-bar-item w3-right">
-                        <div data-umami-event="clipboard button" class="w3-button w3-light-gray  w3-large"
-                             onclick=copyToClipboard("proxy{{ forloop.counter }}")>&#9986;
-                        </div>
-                        <div data-umami-event="qr button"
-                             class="w3-button w3-light-gray w3-margin-left w3-large"
-                             onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='block'" )>
-                            &#9633;
-                        </div>
-                        <a data-umami-event="download button" href="/{{ proxy.id }}/config">
-                            <div class="w3-button w3-light-gray w3-margin-left w3-large">&#x2193;
-                            </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{% translate "About" %}</h5>
+                    <p class="card-text">{% translate "A list of Shadowsocks proxies" %}</p>
+                    <p><b>{% translate "Disclaimer:" %}</b> {% translate "This website is only a list of tunnels collected all around internet. We do NOT provide or maintain any of these tunnels." %} <span class="text-danger">{% translate "Use them at your own risk." %}</span></p>
+                    <p><b>{% translate "How do I use this?:" %}</b> {% blocktranslate %}Go give <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for information. <a href="https://shadowsocks.org/en/download/clients.html">Here</a> is a list of clients for several platforms, but my favorite is <a href="https://getoutline.org/">Outline</a> for any platform and <a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks">shadowsocks</a> for Android{% endblocktranslate %}</p>
+                    <p><b>{% translate "Online:" %}</b> {{ proxy_list|length }}</p>
+                    {% if proxy_list|length > 0 %}
+                        <p><b>{% translate "Last check:" %}</b> {{ latest_update }} UTC</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{% translate "Filter by Country" %}</h5>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <a href="/" class="btn btn-outline-secondary btn-sm">
+                            <img title="world" alt="Planet Earth flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/International_Flag_of_Planet_Earth.svg/1280px-International_Flag_of_Planet_Earth.svg.png" class="flag-icon">
+                            All
                         </a>
+                        {% for country_code in country_codes %}
+                            {% if country_code.location_country_code != "" %}
+                                <a href="/?location_country_code={{ country_code.location_country_code }}" class="btn btn-outline-secondary btn-sm">
+                                    <img title="{{ country_code.location_country }}" alt="Country flag for {{ country_code.location_country }}" src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ country_code.location_country_code }}.svg" class="flag-icon">
+                                    {{ country_code.location_country_code }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
                     </div>
-
-                    <!-- The Modal -->
-                    <div id="proxyqr{{ forloop.counter }}" class="w3-modal">
-                        <div class="w3-modal-content w3-center">
-                            <div class="w3-container">
-                                <span onclick="document.getElementById('proxyqr{{ forloop.counter }}').style.display='none'"
-                                      class="w3-button w3-display-topright w3-light-gray">&times;</span>
-                                <img class="w3-image" loading="lazy" src="/{{ proxy.id }}/qr" alt="qr"/>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-        <div class="w3-center">
-            <div class="pagination w3-bar">
-                <span class="step-links">
-                    {% if page_obj.has_previous %}
-                        <a class="w3-button" data-umami-event="pagination previous"
-                           href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}">&#10094;</a>
-                    {% endif %}
-
-                    <span class="w3-button">
-                        {{ page_obj.number }} {% translate "of" %} {{ page_obj.paginator.num_pages }}
-                    </span>
-
-                    {% if page_obj.has_next %}
-                        <a class="w3-button" data-umami-event="pagination next"
-                           href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}">&#10095;</a>
-                    {% endif %}
-                </span>
+                </div>
             </div>
         </div>
-    {% else %}
-        <h2 class="w3-center">{% translate "No active proxies found" %}</h2>
-    {% endif %}
+
+        <div class="col-lg-9">
+            {% if proxy_list %}
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for proxy in page_obj %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <img title="{{ proxy.location }}" alt="{{ proxy.location }}" src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ proxy.location_country_code }}.svg" class="flag-icon">
+                                            <span class="badge bg-success ms-2">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
+                                        </div>
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to clipboard" data-umami-event="clipboard button" onclick=copyToClipboard("proxy{{ forloop.counter }}")>
+                                                <i class="fas fa-clipboard"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#proxyqr{{ forloop.counter }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Show QR Code" data-umami-event="qr button">
+                                                <i class="fas fa-qrcode"></i>
+                                            </button>
+                                            <a href="/{{ proxy.id }}/config" class="btn btn-outline-secondary btn-sm ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Download config" data-umami-event="download button">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-none" id="proxy{{ forloop.counter }}">{{ proxy.url }}#{{ proxy.location|urlencode }}</div>
+                                    <div class="mt-3"><b>{{ proxy.ip_address }}</b> <i class="fas fa-anchor"></i> {{ proxy.port }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="proxyqr{{ forloop.counter }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">{% translate "QR Code" %}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img class="img-fluid" loading="lazy" src="/{{ proxy.id }}/qr" alt="qr"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}" data-umami-event="pagination previous">
+                                    &laquo;
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item disabled"><a class="page-link" href="#">{{ page_obj.number }} {% translate "of" %} {{ page_obj.paginator.num_pages }}</a></li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}" data-umami-event="pagination next">
+                                    &raquo;
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% else %}
+                <div class="alert alert-warning text-center" role="alert">
+                    {% translate "No active proxies found" %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
-</body>
-<a href="#" id="open_preferences_center">Update cookies preferences</a>
+
+<footer class="container mt-4 text-center">
+    <a href="#" id="open_preferences_center">Update cookies preferences</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function copyToClipboard(elementId) {
         var copyText = document.getElementById(elementId);
         navigator.clipboard.writeText(copyText.innerText);
     }
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
 </script>
+</body>
 </html>
