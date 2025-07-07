@@ -97,6 +97,8 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+        <div class="col-lg-2">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">{% translate "Filter by Country" %}</h5>
@@ -124,7 +126,7 @@
             </div>
         </div>
 
-        <div class="col-lg-9">
+        <div class="col-lg-7">
             {% if proxy_list %}
                 <div class="row row-cols-1 row-cols-md-2 g-4">
                     {% for proxy in page_obj %}
