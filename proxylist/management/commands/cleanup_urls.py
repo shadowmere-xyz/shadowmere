@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
 
 from proxylist.models import Proxy, get_sip002
 
@@ -17,6 +18,13 @@ class Command(BaseCommand):
                 try:
                     proxy.save()
                     modified_count += 1
+                except IntegrityError:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"Deleted duplicate proxy {proxy.id} with URL: {cleaned_url}"
+                        )
+                    )
+                    proxy.delete()
                 except Exception as e:
                     self.stdout.write(
                         self.style.ERROR(
