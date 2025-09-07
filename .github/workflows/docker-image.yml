@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
     name: build and push Docker image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v5
       - name: Login to DockerHub
@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/shadowmere:latest
