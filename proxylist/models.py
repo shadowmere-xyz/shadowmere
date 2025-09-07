@@ -91,6 +91,8 @@ def get_sip002(instance_url):
                 )
             else:
                 return ""
+        if "?" in url:
+            url = url.split("?")[0]
     except (IndexError, UnicodeEncodeError):
         log.warning(
             "Unable to decode SIP002",
