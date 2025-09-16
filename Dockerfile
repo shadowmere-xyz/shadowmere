@@ -1,18 +1,24 @@
-FROM python:3.13.7-slim
-WORKDIR /home/
+FROM cgr.dev/chainguard/python:latest-dev AS builder
 
-ENV APP_HOME=/home/
-ENV APP_USER=shadowmere
+ENV LANG=C.UTF-8
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/shadowmere/venv/bin:$PATH"
 
-RUN groupadd -r $APP_USER && \
-    useradd -r -g $APP_USER -d $APP_HOME -s /sbin/nologin -c "Docker image user" $APP_USER
-RUN pip install --upgrade pip
+WORKDIR /shadowmere/
+RUN python -m venv ./venv
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY requirements.txt /home/
-RUN pip install -r requirements.txt
-COPY . /home/
+FROM cgr.dev/chainguard/python:latest
 
-RUN chown -R $APP_USER:$APP_USER $APP_HOME
-USER $APP_USER
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/venv/bin:$PATH"
+COPY --from=builder /shadowmere/venv /venv
 
-CMD ["gunicorn", "shadowmere.wsgi:application", "--bind", "0.0.0.0:8001", "-k", "gevent", "-w", "6", "--capture-output"]
+WORKDIR /app/
+COPY . .
+
+CMD ["python", "-m", "gunicorn", "shadowmere.wsgi:application", "--bind", "0.0.0.0:8001", "-k", "gevent", "-w", "6", "--capture-output"]
+
+ENTRYPOINT [ ]
