@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
+from proxylist.models import BlackListHost
+
 APPLICATION_JSON_CONTENT_TYPE = "application/json"
 
 fake_proxy_data = {
@@ -175,3 +177,27 @@ class ProxiesTests(APITestCase):
             result.get("url"),
             "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTp1Z0x6SHdiNDZYRVFabUtGMGVCUFR1TWt0d3lRaG5Hdnd0NGZ6dDhQRWQ0PQ@[0000:0000:0000:0000:0000:ffff:1010:7b8b]:8080",
         )
+
+    @mock.patch(
+        "proxylist.models.get_proxy_location",
+        return_value=fake_proxy_data,
+    )
+    def test_add_proxy_fails_if_blacklisted(self, get_proxy_location_models):
+        root_user = User.objects.create_superuser("root")
+        self.client.force_login(root_user)
+        for host in [
+            "178.163.164.199",
+            "alovelyproxy.com",
+            "[2607:f8b0:4005:805::200e]",
+        ]:
+            with self.subTest(host=host):
+                BlackListHost.objects.create(host=host).save()
+                proxy_data = {
+                    "url": f"ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpmYWtlcGFzc3dvcmQ@{host}:20465"
+                }
+                response = self.client.post(
+                    reverse("proxy-list"),
+                    json.dumps(proxy_data),
+                    content_type=APPLICATION_JSON_CONTENT_TYPE,
+                )
+                self.assertEqual(response.status_code, 400)
