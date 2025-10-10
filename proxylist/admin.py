@@ -5,7 +5,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from rangefilter.filters import DateRangeFilter
 
-from proxylist.models import Proxy, Subscription
+from proxylist.models import Proxy, Subscription, BlackListHost
 from proxylist.proxy import update_proxy_status
 
 
@@ -72,6 +72,12 @@ class SubscriptionAdmin(ImportExportModelAdmin):
         "error_message",
     )
     fields = ["url", "kind", "enabled"]
+
+
+@admin.register(BlackListHost)
+class BlackListHostAdmin(admin.ModelAdmin):
+    list_display = ("host",)
+    search_fields = ["host"]
 
 
 admin.site.unregister(Group)

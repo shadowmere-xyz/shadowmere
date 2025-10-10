@@ -41,8 +41,21 @@ def validate_proxy_can_connect(value) -> None:
         )
 
 
+def validete_proxy_is_not_blacklisted(value) -> None:
+    sip002 = get_sip002(instance_url=value)
+    if "@" in sip002:
+        server_and_port = sip002.split("@")[1]
+        server = re.findall(r"^(.*):\d+$", server_and_port)
+        if server and BlackListHost.objects.filter(host=server[0]).exists():
+            raise ValidationError(
+                "This host is blacklisted",
+                params={"value": value},
+            )
+
+
 def proxy_validator(value) -> None:
     validate_sip002(value=value)
+    validete_proxy_is_not_blacklisted(value=value)
     validate_not_existing(value=value)
     validate_proxy_can_connect(value=value)
 
@@ -149,3 +162,10 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.url} - {self.kind}"
+
+
+class BlackListHost(models.Model):
+    host = models.CharField(max_length=1024, unique=True)
+
+    def __str__(self):
+        return self.host
