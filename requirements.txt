@@ -8,7 +8,7 @@ django-prometheus==2.4.1
 django-ratelimit==4.1.0
 django-storages==1.14.6
 djangorestframework==3.16.1
-emoji-country-flag==2.0.1
+emoji-country-flag==2.1.0
 gevent==25.9.1
 gunicorn==23.0.0
 huey==2.5.3
