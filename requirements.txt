@@ -15,7 +15,7 @@ huey==2.5.3
 humanfriendly==10.0
 prometheus-client==0.23.1
 prompt-toolkit==3.0.52
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.11
 Pillow==11.3.0
 python-json-logger==4.0.0
 qrcode==8.2
