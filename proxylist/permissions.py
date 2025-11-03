@@ -13,7 +13,7 @@ class GeneralPermission(BasePermission):
 
 class CanAddSubscriptionsPermission(BasePermission):
     def has_permission(self, request, view):
-        """Onl users that have permissions to manage subscriptions."""
+        """Onl users that have permissions to add subscriptions."""
         return request.user.is_authenticated and request.user.has_perm(
             "proxylist.add_subscription"
         )
