@@ -1,0 +1,26 @@
+[
+  {
+    "model": "proxylist.subscription",
+    "pk": 6,
+    "fields": {
+      "url": "https://a.proxy.xyz/sip002/sub",
+      "kind": "BASE64",
+      "alive": false,
+      "alive_timestamp": "2023-09-17T12:27:00.272Z",
+      "enabled": true,
+      "error_message": "'NoneType' object has no attribute 'decode'"
+    }
+  },
+  {
+    "model": "proxylist.subscription",
+    "pk": 7,
+    "fields": {
+      "url": "https://raw.githubusercontent.com/a/sub.txt",
+      "kind": "PLAIN",
+      "alive": true,
+      "alive_timestamp": "2023-09-17T12:34:51.038Z",
+      "enabled": true,
+      "error_message": ""
+    }
+  }
+]

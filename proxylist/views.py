@@ -15,13 +15,14 @@ from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
 from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from proxylist.base64_decoder import decode_base64
 from proxylist.metrics import register_metrics
-from proxylist.models import Proxy
-from proxylist.permissions import GeneralPermission
-from proxylist.serializers import ProxySerializer
+from proxylist.models import Proxy, Subscription
+from proxylist.permissions import GeneralPermission, CanAddSubscriptionsPermission
+from proxylist.serializers import ProxySerializer, SubscriptionSerializer
 
 
 @cache_page(None)
@@ -148,6 +149,22 @@ class ProxyViewSet(viewsets.ModelViewSet):
     @method_decorator(cache_page(20 * 60))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class SubscriptionViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows subscriptions to be viewed or edited.
+    """
+
+    queryset = Subscription.objects.all().order_by("-id")
+    serializer_class = SubscriptionSerializer
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [CanAddSubscriptionsPermission]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
 
 class CountryCodeViewSet(viewsets.ViewSet):
