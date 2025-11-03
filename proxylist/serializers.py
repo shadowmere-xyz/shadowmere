@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from proxylist.models import Proxy
+from proxylist.models import Proxy, Subscription
 
 
 class ProxySerializer(serializers.ModelSerializer):
@@ -33,3 +33,9 @@ class ProxySerializer(serializers.ModelSerializer):
             "times_check_succeeded",
             "port",
         ]
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ["url", "kind"]

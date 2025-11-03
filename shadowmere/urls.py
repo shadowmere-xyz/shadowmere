@@ -9,6 +9,7 @@ from shadowmere import settings
 
 router = routers.DefaultRouter()
 router.register(r"proxies", views.ProxyViewSet)
+router.register(r"subscriptions", views.SubscriptionViewSet)
 router.register(r"country-codes", views.CountryCodeViewSet, basename="country-codes")
 router.register(r"ports", views.PortViewSet, basename="ports")
 router.register(r"sub", views.SubViewSet, basename="sub")

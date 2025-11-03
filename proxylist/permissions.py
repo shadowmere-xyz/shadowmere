@@ -9,3 +9,11 @@ class GeneralPermission(BasePermission):
             return request.user.is_staff
         else:
             return request.user.is_superuser
+
+
+class CanAddSubscriptionsPermission(BasePermission):
+    def has_permission(self, request, view):
+        """Onl users that have permissions to manage subscriptions."""
+        return request.user.is_authenticated and request.user.has_perm(
+            "proxylist.add_subscription"
+        )
