@@ -1,6 +1,6 @@
 import json
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -22,6 +22,18 @@ class SubscriptionssTests(APITestCase):
         self.assertIn("results", result)
         first_element = result.get("results")[0]
         self.check_elements_in_subscription_object(subscription=first_element)
+
+    def test_list_subscriptions_unauthenticated(self):
+        response = self.client.get(reverse("subscription-list"))
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_subscriptions_unauthenticated(self):
+        response = self.client.delete(f'{reverse("subscription-list")}6/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_update_subscriptions_unauthenticated(self):
+        response = self.client.put(f'{reverse("subscription-list")}6/')
+        self.assertEqual(response.status_code, 403)
 
     def test_get_subscription(self):
         root_user = User.objects.create_superuser("root")
@@ -45,8 +57,11 @@ class SubscriptionssTests(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_add_subscription(self):
-        root_user = User.objects.create_superuser("root")
-        self.client.force_login(root_user)
+        submaker_user = User.objects.create_user("submaker")
+        submaker_user.user_permissions.add(
+            Permission.objects.get(codename="add_subscription")
+        )
+        self.client.force_login(submaker_user)
         subscription_data = {"url": "http://example.com/sub", "kind": "PLAIN"}
         response = self.client.post(
             reverse("subscription-list"),
