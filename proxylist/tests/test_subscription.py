@@ -1,7 +1,5 @@
-import base64
 import json
 
-import flag
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -52,4 +50,7 @@ class SubEndpointTests(APITestCase):
         response = self.client.get(reverse("b64sub-list"))
         self.assertEqual(response.status_code, 200)
         content = decode_base64(response.content).decode("utf-8")
-        assert content == '\nss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwcG15SVVQMmV1WU0@37.218.242.73:8091/#🇳🇱 Waalwijk, NB, Netherlands\nss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpHIXlCd1BXSDNWYW8@196.196.156.122:807#🇸🇪 Stockholm, AB, Sweden\nss://YWVzLTI1Ni1nY206ZmFCQW9ENTRrODdVSkc3@169.197.142.39:2375#🇺🇸 unknown'
+        assert (
+            content
+            == "\nss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwcG15SVVQMmV1WU0@37.218.242.73:8091#🇳🇱 Waalwijk, NB, Netherlands\nss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpHIXlCd1BXSDNWYW8@196.196.156.122:807#🇸🇪 Stockholm, AB, Sweden\nss://YWVzLTI1Ni1nY206ZmFCQW9ENTRrODdVSkc3@169.197.142.39:2375#🇺🇸 unknown"
+        )
