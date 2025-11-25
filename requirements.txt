@@ -1,8 +1,8 @@
-botocore==1.40.69
+botocore==1.41.3
 Django==5.2.8
 django-admin-rangefilter==0.13.3
 django-filter==25.2
-django-import-export==4.3.13
+django-import-export==4.3.14
 django-minio-storage==0.5.9
 django-prometheus==2.4.1
 django-ratelimit==4.1.0
@@ -19,9 +19,9 @@ psycopg2-binary==2.9.11
 Pillow==12.0.0
 python-json-logger==4.0.0
 qrcode==8.2
-redis==7.0.1
+redis==7.1.0
 requests==2.32.5
-sentry-sdk==2.43.0
+sentry-sdk==2.46.0
 tzdata==2025.2
 sqlparse>=0.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
