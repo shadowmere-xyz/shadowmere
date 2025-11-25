@@ -2,7 +2,7 @@ botocore==1.40.69
 Django==5.2.8
 django-admin-rangefilter==0.13.3
 django-filter==25.2
-django-import-export==4.3.13
+django-import-export==4.3.14
 django-minio-storage==0.5.9
 django-prometheus==2.4.1
 django-ratelimit==4.1.0
