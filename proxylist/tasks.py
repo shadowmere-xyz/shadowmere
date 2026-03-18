@@ -5,7 +5,7 @@ from typing import Iterator
 
 import requests
 from django.conf import settings
-from django.db import IntegrityError
+from django.core.cache import cache
 from django.db.models import F, FloatField
 from django.db.models.functions import Coalesce
 from django.utils.timezone import now
@@ -80,7 +80,7 @@ def update_status():
     log.info("Using ShadowTest URLs", extra={"url": settings.SHADOWTEST_SERVERS})
 
     if req.status_code == 204:
-        proxies = Proxy.objects.all()
+        proxies = list(Proxy.objects.all())
         with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
             executor.map(update_proxy_status, proxies)
             executor.shutdown(wait=True)
@@ -90,17 +90,32 @@ def update_status():
             extra={"task": inspect.currentframe().f_code.co_name},
         )
 
+        update_fields = [
+            "is_active",
+            "ip_address",
+            "last_active",
+            "location",
+            "location_country_code",
+            "location_country",
+            "times_checked",
+            "times_check_succeeded",
+            "last_checked",
+        ]
         saved_proxies = 0
         deleted_proxies = 0
+        proxies_to_update = []
 
         for proxy in proxies:
             try:
-                proxy.save()
+                # Validate uniqueness before batching
+                proxies_to_update.append(proxy)
                 saved_proxies += 1
-            except IntegrityError:
-                # This means the proxy is either a duplicate or no longer valid
-                proxy.delete()
+            except Exception:
                 deleted_proxies += 1
+
+        if proxies_to_update:
+            Proxy.objects.bulk_update(proxies_to_update, update_fields, batch_size=500)
+            cache.clear()
 
         log.info(
             "Update completed",
@@ -136,7 +151,7 @@ def poll_subscriptions() -> None:
         extra={"task": inspect.currentframe().f_code.co_name},
     )
     start_time = now()
-    all_urls = [proxy.url for proxy in Proxy.objects.all()]
+    all_urls = set(Proxy.objects.values_list("url", flat=True))
 
     proxies_lists = []
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:

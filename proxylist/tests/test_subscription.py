@@ -52,5 +52,5 @@ class SubEndpointTests(APITestCase):
         content = decode_base64(response.content).decode("utf-8")
         assert (
             content
-            == "\nss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwcG15SVVQMmV1WU0@37.218.242.73:8091#🇳🇱 Waalwijk, NB, Netherlands\nss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpHIXlCd1BXSDNWYW8@196.196.156.122:807#🇸🇪 Stockholm, AB, Sweden\nss://YWVzLTI1Ni1nY206ZmFCQW9ENTRrODdVSkc3@169.197.142.39:2375#🇺🇸 unknown"
+            == "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwcG15SVVQMmV1WU0@37.218.242.73:8091#🇳🇱 Waalwijk, NB, Netherlands\nss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpHIXlCd1BXSDNWYW8@196.196.156.122:807#🇸🇪 Stockholm, AB, Sweden\nss://YWVzLTI1Ni1nY206ZmFCQW9ENTRrODdVSkc3@169.197.142.39:2375#🇺🇸 unknown"
         )

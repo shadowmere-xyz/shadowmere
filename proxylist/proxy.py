@@ -104,3 +104,4 @@ def update_proxy_status(proxy) -> None:
         proxy.location_country_code = ""
 
     proxy.times_checked = proxy.times_checked + 1
+    proxy.last_checked = now()
