@@ -46,7 +46,8 @@ def list_proxies(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    latest_update = Proxy.objects.first().last_active if Proxy.objects.first() else None
+    first_proxy = Proxy.objects.first()
+    latest_update = first_proxy.last_active if first_proxy else None
 
     return render(
         request,
@@ -226,7 +227,7 @@ class SubViewSet(viewsets.ViewSet):
             get_proxy_config(proxy=server)
             for server in Proxy.objects.filter(is_active=True).order_by(
                 "location_country_code"
-            )
+            ).only("url", "location_country_code", "location")
         ]
         return Response(servers)
 
@@ -245,11 +246,13 @@ class Base64SubViewSet(viewsets.ViewSet):
     )
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
-        server_list = ""
-        for proxy in Proxy.objects.filter(is_active=True).order_by(
+        proxies = Proxy.objects.filter(is_active=True).order_by(
             "location_country_code"
-        ):
-            server_list += f"\n{proxy.url}#{get_flag_or_empty(country_code=proxy.location_country_code)} {proxy.location}"
+        ).only("url", "location_country_code", "location")
+        server_list = "\n".join(
+            f"{proxy.url}#{get_flag_or_empty(country_code=proxy.location_country_code)} {proxy.location}"
+            for proxy in proxies
+        )
         b64_servers = base64.b64encode(server_list.encode("utf-8"))
         return HttpResponse(b64_servers)
 
