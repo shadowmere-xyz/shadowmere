@@ -189,15 +189,16 @@ def poll_subscriptions() -> None:
                         )
                     )
                 elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                    decoded = [decode_line(line=line) for line in r.iter_lines()]
-                    flatten_decoded = list(flatten(something=decoded))
-                    proxies_lists.append(
-                        executor.map(
-                            process_line,
-                            flatten_decoded,
-                            [all_urls] * len(flatten_decoded),
+                    joined = b"".join(r.iter_lines())
+                    decoded_lines = decode_line(line=joined)
+                    if decoded_lines:
+                        proxies_lists.append(
+                            executor.map(
+                                process_line,
+                                decoded_lines,
+                                [all_urls] * len(decoded_lines),
+                            )
                         )
-                    )
                 subscription.alive_timestamp = now()
                 if subscription.alive is False:
                     subscription.alive = True
@@ -277,8 +278,23 @@ def save_proxies(proxies_lists):
     return saved_proxies, found_proxies
 
 
+NON_SS_SCHEMES = (
+    "vmess://",
+    "vless://",
+    "trojan://",
+    "hysteria://",
+    "hy2://",
+    "tuic://",
+    "http://",
+    "https://",
+)
+
+
 def process_line(line, all_urls):
-    if not str(line).startswith("ss://"):
+    line = str(line).strip()
+    if not line.startswith("ss://"):
+        return None
+    if line.startswith(NON_SS_SCHEMES):
         return None
     try:
         url = get_sip002(line)
