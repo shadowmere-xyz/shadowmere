@@ -7,7 +7,7 @@ django-minio-storage==0.5.9
 django-prometheus==2.4.1
 django-ratelimit==4.1.0
 django-storages==1.14.6
-djangorestframework==3.16.1
+djangorestframework==3.17.0
 emoji-country-flag==2.1.0
 gevent==25.9.1
 gunicorn==25.1.0
