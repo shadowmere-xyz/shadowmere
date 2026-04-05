@@ -24,6 +24,12 @@ LOW_QUALITY_THRESHOLD = 0.2
 log = logging.getLogger("django")
 
 
+def _current_task_name() -> str:
+    frame = inspect.currentframe()
+    caller = frame.f_back if frame else None
+    return caller.f_code.co_name if caller else "unknown"
+
+
 @db_periodic_task(crontab(minute="15", hour="10"))
 def remove_low_quality_proxies_scheduled() -> None:
     remove_low_quality_proxies()
@@ -42,7 +48,7 @@ def poll_subscriptions_scheduled() -> None:
 def remove_low_quality_proxies() -> None:
     log.info(
         "Removing low quality proxies",
-        extra={"task": inspect.currentframe().f_back.f_code.co_name},
+        extra={"task": _current_task_name()},
     )
     start_time = now()
     deleted_count, _ = Proxy.objects.filter(
@@ -55,7 +61,7 @@ def remove_low_quality_proxies() -> None:
     log.info(
         f"Removed {deleted_count} low quality proxies",
         extra={
-            "task": inspect.currentframe().f_code.co_name,
+            "task": _current_task_name(),
             "removed": deleted_count,
             "start_time": start_time,
             "finish_time": now(),
@@ -65,7 +71,7 @@ def remove_low_quality_proxies() -> None:
 
 def update_status():
     log.info(
-        "Updating proxies status", extra={"task": inspect.currentframe().f_code.co_name}
+        "Updating proxies status", extra={"task": _current_task_name()}
     )
     start_time = now()
 
@@ -87,7 +93,7 @@ def update_status():
 
         log.info(
             "Proxies statuses checked. Saving new status now.",
-            extra={"task": inspect.currentframe().f_code.co_name},
+            extra={"task": _current_task_name()},
         )
 
         update_fields = [
@@ -120,7 +126,7 @@ def update_status():
         log.info(
             "Update completed",
             extra={
-                "task": inspect.currentframe().f_code.co_name,
+                "task": _current_task_name(),
                 "saved": saved_proxies,
                 "deleted": deleted_proxies,
                 "start_time": start_time,
@@ -130,17 +136,33 @@ def update_status():
     else:
         log.error(
             "The Shadowmere host is having connection issues. Skipping test cycle.",
-            extra={"task": inspect.currentframe().f_code.co_name},
+            extra={"task": _current_task_name()},
         )
 
 
-def decode_line(line):
+def decode_line(line: str | bytes) -> list[str] | None:
     try:
-        return decode_base64(line).decode("utf-8").split("\n")
-    except UnicodeDecodeError:
+        if isinstance(line, str):
+            line = line.encode("utf-8")
+        decoded = decode_base64(line)
+        if decoded is None:
+            log.warning(
+                "Base64 decoding returned None",
+                extra={
+                    "task": _current_task_name(),
+                    "line": line[:200],
+                },
+            )
+            return None
+        return decoded.decode("utf-8", errors="replace").split("\n")
+    except Exception as error:
         log.error(
             "Failed decoding line",
-            extra={"task": inspect.currentframe().f_code.co_name, "line": line},
+            extra={
+                "task": _current_task_name(),
+                "line": line[:200] if line else "",
+                "error": error,
+            },
         )
         return None
 
@@ -148,7 +170,7 @@ def decode_line(line):
 def poll_subscriptions() -> None:
     log.info(
         "Started polling subscriptions",
-        extra={"task": inspect.currentframe().f_code.co_name},
+        extra={"task": _current_task_name()},
     )
     start_time = now()
     all_urls = set(Proxy.objects.values_list("url", flat=True))
@@ -160,7 +182,7 @@ def poll_subscriptions() -> None:
             log.info(
                 "Testing subscription",
                 extra={
-                    "task": inspect.currentframe().f_code.co_name,
+                    "task": _current_task_name(),
                     "subscription": subscription.url,
                 },
             )
@@ -171,7 +193,7 @@ def poll_subscriptions() -> None:
                     log.warning(
                         error_message,
                         extra={
-                            "task": inspect.currentframe().f_code.co_name,
+                            "task": _current_task_name(),
                             "subscription": subscription.url,
                             "status_code": r.status_code,
                             "text": r.text,
@@ -213,7 +235,7 @@ def poll_subscriptions() -> None:
                     "Failed to get subscription",
                     extra={
                         "error": f"{e}",
-                        "task": inspect.currentframe().f_code.co_name,
+                        "task": _current_task_name(),
                         "subscription": subscription.url,
                     },
                 )
@@ -223,7 +245,7 @@ def poll_subscriptions() -> None:
                 log.warning(
                     "Error decoding subscription",
                     extra={
-                        "task": inspect.currentframe().f_code.co_name,
+                        "task": _current_task_name(),
                         "error": f"{e}",
                         "subscription": subscription.url,
                     },
@@ -239,7 +261,7 @@ def poll_subscriptions() -> None:
     log.info(
         "Finished polling subscriptions",
         extra={
-            "task": inspect.currentframe().f_code.co_name,
+            "task": _current_task_name(),
             "found": found_proxies,
             "saved": saved_proxies,
             "start_time": start_time,
@@ -251,7 +273,7 @@ def poll_subscriptions() -> None:
 def save_proxies(proxies_lists):
     log.info(
         "Saving proxies",
-        extra={"task": inspect.currentframe().f_code.co_name},
+        extra={"task": _current_task_name()},
     )
     saved_proxies = 0
     found_proxies = 0
@@ -261,7 +283,7 @@ def save_proxies(proxies_lists):
                 found_proxies += 1
                 log.info(
                     f"saving {proxy}",
-                    extra={"task": inspect.currentframe().f_code.co_name},
+                    extra={"task": _current_task_name()},
                 )
                 try:
                     proxy.save()
@@ -270,7 +292,7 @@ def save_proxies(proxies_lists):
                     log.warning(
                         "Failed to save proxy",
                         extra={
-                            "task": inspect.currentframe().f_code.co_name,
+                            "task": _current_task_name(),
                             "proxy": proxy,
                             "error": f"{e}",
                         },
