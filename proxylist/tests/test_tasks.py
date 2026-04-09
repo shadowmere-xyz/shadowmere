@@ -1,16 +1,23 @@
 import base64
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
+from django.core.cache import cache
 from django.test import TestCase
+from requests.exceptions import ConnectionError, ReadTimeout, SSLError
 
 from proxylist.models import Proxy
 from proxylist.tasks import (
+    PROXY_UPDATE_FIELDS,
+    _check_connectivity,
     _current_task_name,
+    _persist_proxy_updates,
+    _run_proxy_checks,
     decode_line,
     extract_sip002_url,
     poll_subscriptions,
     remove_low_quality_proxies,
     save_proxies,
+    update_status,
 )
 
 
@@ -30,6 +37,151 @@ class CurrentTaskNameTest(TestCase):
             poll_subscriptions()
         record = next(r for r in cm.records if "Saving proxies" in r.getMessage())
         assert record.task == "poll_subscriptions"
+
+
+class CheckConnectivityTest(TestCase):
+    @staticmethod
+    def _make_response(status_code):
+        resp = Mock()
+        resp.status_code = status_code
+        return resp
+
+    @patch("proxylist.tasks.requests.get", side_effect=SSLError())
+    def test_returns_false_on_ssl_error(self, _):
+        assert _check_connectivity() is False
+
+    @patch("proxylist.tasks.requests.get", side_effect=ConnectionError())
+    def test_returns_false_on_connection_error(self, _):
+        assert _check_connectivity() is False
+
+    @patch("proxylist.tasks.requests.get", side_effect=ReadTimeout())
+    def test_returns_false_on_read_timeout(self, _):
+        assert _check_connectivity() is False
+
+    @patch("proxylist.tasks.requests.get")
+    def test_returns_false_on_non_204_status(self, mock_get):
+        mock_get.return_value = self._make_response(200)
+        with self.assertLogs("django", level="ERROR") as cm:
+            result = _check_connectivity()
+        assert result is False
+        assert any("connection issues" in r.getMessage() for r in cm.records)
+
+    @patch("proxylist.tasks.requests.get")
+    def test_returns_true_on_204_status(self, mock_get):
+        mock_get.return_value = self._make_response(204)
+        assert _check_connectivity() is True
+
+    @patch("proxylist.tasks.requests.get", side_effect=SSLError())
+    def test_logs_error_on_exception(self, _):
+        with self.assertLogs("django", level="ERROR") as cm:
+            _check_connectivity()
+        assert any("connection issues" in r.getMessage() for r in cm.records)
+
+
+class RunProxyChecksTest(TestCase):
+    @patch("proxylist.tasks.update_proxy_status")
+    def test_calls_update_for_each_proxy(self, mock_update):
+        proxies = [Mock(spec=Proxy), Mock(spec=Proxy), Mock(spec=Proxy)]
+        with self.assertLogs("django", level="INFO"):
+            _run_proxy_checks(proxies)
+        assert mock_update.call_count == 3
+        mock_update.assert_has_calls([call(p) for p in proxies], any_order=True)
+
+    @patch("proxylist.tasks.update_proxy_status")
+    def test_handles_empty_list(self, mock_update):
+        with self.assertLogs("django", level="INFO") as cm:
+            _run_proxy_checks([])
+        mock_update.assert_not_called()
+        assert any("Proxies statuses checked" in r.getMessage() for r in cm.records)
+
+    @patch("proxylist.tasks.update_proxy_status")
+    def test_logs_completion(self, _):
+        with self.assertLogs("django", level="INFO") as cm:
+            _run_proxy_checks([])
+        assert any("Proxies statuses checked" in r.getMessage() for r in cm.records)
+
+
+class PersistProxyUpdatesTest(TestCase):
+    fixtures = ["proxies.json"]
+
+    @staticmethod
+    def test_returns_zero_for_empty_list():
+        assert _persist_proxy_updates([]) == 0
+
+    @staticmethod
+    def test_does_not_touch_db_for_empty_list():
+        before = Proxy.objects.count()
+        _persist_proxy_updates([])
+        assert Proxy.objects.count() == before
+
+    @staticmethod
+    def test_does_not_clear_cache_for_empty_list():
+        cache.set("sentinel", "value")
+        _persist_proxy_updates([])
+        assert cache.get("sentinel") == "value"
+
+    @staticmethod
+    def test_returns_count_of_saved_proxies():
+        proxies = list(Proxy.objects.all()[:2])
+        result = _persist_proxy_updates(proxies)
+        assert result == 2
+
+    @staticmethod
+    def test_bulk_updates_with_correct_fields():
+        proxies = list(Proxy.objects.all()[:1])
+        with patch.object(Proxy.objects.__class__, "bulk_update") as mock_bulk:
+            _persist_proxy_updates(proxies)
+        mock_bulk.assert_called_once_with(proxies, PROXY_UPDATE_FIELDS, batch_size=500)
+
+    @staticmethod
+    def test_clears_cache_after_update():
+        cache.set("sentinel", "value")
+        proxies = list(Proxy.objects.all()[:1])
+        _persist_proxy_updates(proxies)
+        assert cache.get("sentinel") is None
+
+
+class UpdateStatusTest(TestCase):
+    fixtures = ["proxies.json"]
+
+    @patch("proxylist.tasks._check_connectivity", return_value=False)
+    def test_returns_early_when_not_connected(self, _):
+        with patch("proxylist.tasks.Proxy") as mock_proxy:
+            update_status()
+        mock_proxy.objects.all.assert_not_called()
+
+    @patch("proxylist.tasks._check_connectivity", return_value=False)
+    def test_logs_start_even_when_not_connected(self, _):
+        with self.assertLogs("django", level="INFO") as cm:
+            update_status()
+        assert any("Updating proxies status" in r.getMessage() for r in cm.records)
+
+    @patch("proxylist.tasks._persist_proxy_updates", return_value=3)
+    @patch("proxylist.tasks._run_proxy_checks")
+    @patch("proxylist.tasks._check_connectivity", return_value=True)
+    def test_runs_checks_and_persists_when_connected(self, _, mock_run, mock_persist):
+        with self.assertLogs("django", level="INFO"):
+            update_status()
+        mock_run.assert_called_once()
+        mock_persist.assert_called_once()
+
+    @patch("proxylist.tasks._persist_proxy_updates", return_value=5)
+    @patch("proxylist.tasks._run_proxy_checks")
+    @patch("proxylist.tasks._check_connectivity", return_value=True)
+    def test_logs_completion_with_saved_count(self, _, _run, _persist):
+        with self.assertLogs("django", level="INFO") as cm:
+            update_status()
+        record = next(r for r in cm.records if "Update completed" in r.getMessage())
+        assert record.saved == 5
+
+    @patch("proxylist.tasks._persist_proxy_updates", return_value=0)
+    @patch("proxylist.tasks._run_proxy_checks")
+    @patch("proxylist.tasks._check_connectivity", return_value=True)
+    def test_passes_all_proxies_to_run_checks(self, _, mock_run, _persist):
+        with self.assertLogs("django", level="INFO"):
+            update_status()
+        proxies_arg = mock_run.call_args[0][0]
+        assert len(proxies_arg) == Proxy.objects.count()
 
 
 class RemovalTest(TestCase):
