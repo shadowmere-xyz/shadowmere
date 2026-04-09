@@ -167,31 +167,35 @@ def decode_line(line: str | bytes) -> list[str] | None:
         return None
 
 
-def poll_subscriptions() -> None:
-    log.info(
-        "Started polling subscriptions",
-        extra={"task": _current_task_name()},
-    )
-    start_time = now()
-    all_urls = set(Proxy.objects.values_list("url", flat=True))
+def _decode_subscription_lines(r, subscription) -> list[str]:
+    """Return decoded proxy lines from an HTTP response based on subscription kind."""
+    if subscription.kind == Subscription.SubscriptionKind.PLAIN:
+        return [line.decode("utf-8") for line in r.iter_lines()]
+    if subscription.kind == Subscription.SubscriptionKind.BASE64:
+        return decode_line(line=b"".join(r.iter_lines())) or []
+    return []
 
-    # Phase 1: Fetch all subscriptions and aggregate unique candidate URLs.
-    # Using a set means duplicate addresses across subscriptions are collapsed
-    # automatically — each address will be connectivity-tested at most once.
+
+def _collect_candidate_urls(subscriptions) -> set[str]:
+    """Fetch every enabled subscription and return the union of valid SIP002 URLs.
+
+    Duplicate addresses across (and within) subscription lists are collapsed
+    by the set, so each address appears at most once.  Subscription alive/error
+    state is updated in place and persisted.
+    """
     candidate_urls: set[str] = set()
-    subscriptions = Subscription.objects.filter(enabled=True)
     for subscription in subscriptions:
         log.info(
             "Fetching subscription",
-            extra={
-                "task": _current_task_name(),
-                "subscription": subscription.url,
-            },
+            extra={"task": _current_task_name(), "subscription": subscription.url},
         )
         try:
             r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
             if r.status_code != 200:
-                error_message = f"We are facing issues getting this subscription {subscription.url} ({r.status_code} {r.text})"
+                error_message = (
+                    f"We are facing issues getting this subscription "
+                    f"{subscription.url} ({r.status_code} {r.text})"
+                )
                 log.warning(
                     error_message,
                     extra={
@@ -205,14 +209,7 @@ def poll_subscriptions() -> None:
                 subscription.error_message = error_message[:10000]
                 subscription.save()
                 continue
-            if subscription.kind == Subscription.SubscriptionKind.PLAIN:
-                lines = [line.decode("utf-8") for line in r.iter_lines()]
-            elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                joined = b"".join(r.iter_lines())
-                lines = decode_line(line=joined) or []
-            else:
-                lines = []
-            for line in lines:
+            for line in _decode_subscription_lines(r, subscription):
                 url = extract_sip002_url(line)
                 if url:
                     candidate_urls.add(url)
@@ -247,19 +244,33 @@ def poll_subscriptions() -> None:
             )
             subscription.error_message = f"{e}"
             subscription.alive = False
-
         subscription.save()
+    return candidate_urls
 
-    # Remove addresses already in the database — no need to re-test them.
-    candidate_urls -= all_urls
 
-    # Phase 2: Test connectivity for deduplicated, new-only URLs in parallel.
+def _test_candidate_urls(candidate_urls: set[str]) -> list[Proxy | None]:
+    """Connectivity-test each URL in parallel and return Proxy objects for live ones."""
     log.info(
         "Testing unique new addresses",
         extra={"task": _current_task_name(), "count": len(candidate_urls)},
     )
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
-        proxy_results = list(executor.map(test_and_create_proxy, candidate_urls))
+        return list(executor.map(test_and_create_proxy, candidate_urls))
+
+
+def poll_subscriptions() -> None:
+    log.info("Started polling subscriptions", extra={"task": _current_task_name()})
+    start_time = now()
+    all_urls = set(Proxy.objects.values_list("url", flat=True))
+
+    # Phase 1: collect unique SIP002 addresses from all subscriptions.
+    candidate_urls = _collect_candidate_urls(Subscription.objects.filter(enabled=True))
+
+    # Remove addresses already in the database — no need to re-test them.
+    candidate_urls -= all_urls
+
+    # Phase 2: connectivity-test the deduplicated, new-only addresses.
+    proxy_results = _test_candidate_urls(candidate_urls)
 
     saved_proxies, found_proxies = save_proxies(proxies_lists=[proxy_results])
 
