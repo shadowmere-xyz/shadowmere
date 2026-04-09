@@ -27,7 +27,10 @@ def _current_task_name() -> str:
     frame = inspect.currentframe()
     outermost_name = "unknown"
     while frame is not None:
-        if frame.f_globals.get("__name__") == __name__ and frame.f_code.co_name != "_current_task_name":
+        if (
+            frame.f_globals.get("__name__") == __name__
+            and frame.f_code.co_name != "_current_task_name"
+        ):
             outermost_name = frame.f_code.co_name
         frame = frame.f_back
     return outermost_name
@@ -72,75 +75,75 @@ def remove_low_quality_proxies() -> None:
     )
 
 
-def update_status():
-    log.info(
-        "Updating proxies status", extra={"task": _current_task_name()}
-    )
-    start_time = now()
+PROXY_UPDATE_FIELDS = [
+    "is_active",
+    "ip_address",
+    "last_active",
+    "location",
+    "location_country_code",
+    "location_country",
+    "times_checked",
+    "times_check_succeeded",
+    "last_checked",
+]
 
+
+def _check_connectivity() -> bool:
     try:
         req = requests.get("https://clients3.google.com/generate_204")
     except (SSLError, ConnectionError, ReadTimeout):
         log.error(
-            "The Shadowmere host is having connection issues. Skipping test cycle."
-        )
-        return
-
-    log.info("Using ShadowTest URLs", extra={"url": settings.SHADOWTEST_SERVERS})
-
-    if req.status_code == 204:
-        proxies = list(Proxy.objects.all())
-        with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
-            executor.map(update_proxy_status, proxies)
-            executor.shutdown(wait=True)
-
-        log.info(
-            "Proxies statuses checked. Saving new status now.",
+            "The Shadowmere host is having connection issues. Skipping test cycle.",
             extra={"task": _current_task_name()},
         )
-
-        update_fields = [
-            "is_active",
-            "ip_address",
-            "last_active",
-            "location",
-            "location_country_code",
-            "location_country",
-            "times_checked",
-            "times_check_succeeded",
-            "last_checked",
-        ]
-        saved_proxies = 0
-        deleted_proxies = 0
-        proxies_to_update = []
-
-        for proxy in proxies:
-            try:
-                # Validate uniqueness before batching
-                proxies_to_update.append(proxy)
-                saved_proxies += 1
-            except Exception:
-                deleted_proxies += 1
-
-        if proxies_to_update:
-            Proxy.objects.bulk_update(proxies_to_update, update_fields, batch_size=500)
-            cache.clear()
-
-        log.info(
-            "Update completed",
-            extra={
-                "task": _current_task_name(),
-                "saved": saved_proxies,
-                "deleted": deleted_proxies,
-                "start_time": start_time,
-                "finish_time": now(),
-            },
-        )
-    else:
+        return False
+    if req.status_code != 204:
         log.error(
             "The Shadowmere host is having connection issues. Skipping test cycle.",
             extra={"task": _current_task_name()},
         )
+        return False
+    return True
+
+
+def _run_proxy_checks(proxies: list[Proxy]) -> None:
+    with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
+        executor.map(update_proxy_status, proxies)
+    log.info(
+        "Proxies statuses checked. Saving new status now.",
+        extra={"task": _current_task_name()},
+    )
+
+
+def _persist_proxy_updates(proxies: list[Proxy]) -> int:
+    if not proxies:
+        return 0
+    Proxy.objects.bulk_update(proxies, PROXY_UPDATE_FIELDS, batch_size=500)
+    cache.clear()
+    return len(proxies)
+
+
+def update_status():
+    log.info("Updating proxies status", extra={"task": _current_task_name()})
+    start_time = now()
+
+    if not _check_connectivity():
+        return
+    log.info("Using ShadowTest URLs", extra={"url": settings.SHADOWTEST_SERVERS})
+
+    proxies = list(Proxy.objects.all())
+    _run_proxy_checks(proxies)
+    saved = _persist_proxy_updates(proxies)
+
+    log.info(
+        "Update completed",
+        extra={
+            "task": _current_task_name(),
+            "saved": saved,
+            "start_time": start_time,
+            "finish_time": now(),
+        },
+    )
 
 
 def decode_line(line: str | bytes) -> list[str] | None:
@@ -314,5 +317,3 @@ def test_and_create_proxy(url: str) -> Proxy | None:
     if location is None or location == "unknown":
         return None
     return Proxy(url=url)
-
-
