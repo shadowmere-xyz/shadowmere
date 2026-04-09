@@ -27,13 +27,17 @@ def _current_task_name() -> str:
     frame = inspect.currentframe()
     outermost_name = "unknown"
     while frame is not None:
-        if (
-            frame.f_globals.get("__name__") == __name__
-            and frame.f_code.co_name != "_current_task_name"
+        if frame.f_globals.get("__name__") == __name__ and frame.f_code.co_name not in (
+            "_current_task_name",
+            "_task_extra",
         ):
             outermost_name = frame.f_code.co_name
         frame = frame.f_back
     return outermost_name
+
+
+def _task_extra(**kwargs) -> dict:
+    return {"task": _current_task_name(), **kwargs}
 
 
 @db_periodic_task(crontab(minute="15", hour="10"))
@@ -52,10 +56,7 @@ def poll_subscriptions_scheduled() -> None:
 
 
 def remove_low_quality_proxies() -> None:
-    log.info(
-        "Removing low quality proxies",
-        extra={"task": _current_task_name()},
-    )
+    log.info("Removing low quality proxies", extra=_task_extra())
     start_time = now()
     deleted_count, _ = Proxy.objects.filter(
         is_active=False,
@@ -66,12 +67,9 @@ def remove_low_quality_proxies() -> None:
     ).delete()
     log.info(
         f"Removed {deleted_count} low quality proxies",
-        extra={
-            "task": _current_task_name(),
-            "removed": deleted_count,
-            "start_time": start_time,
-            "finish_time": now(),
-        },
+        extra=_task_extra(
+            removed=deleted_count, start_time=start_time, finish_time=now()
+        ),
     )
 
 
@@ -94,13 +92,13 @@ def _check_connectivity() -> bool:
     except (SSLError, ConnectionError, ReadTimeout):
         log.error(
             "The Shadowmere host is having connection issues. Skipping test cycle.",
-            extra={"task": _current_task_name()},
+            extra=_task_extra(),
         )
         return False
     if req.status_code != 204:
         log.error(
             "The Shadowmere host is having connection issues. Skipping test cycle.",
-            extra={"task": _current_task_name()},
+            extra=_task_extra(),
         )
         return False
     return True
@@ -109,10 +107,7 @@ def _check_connectivity() -> bool:
 def _run_proxy_checks(proxies: list[Proxy]) -> None:
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
         executor.map(update_proxy_status, proxies)
-    log.info(
-        "Proxies statuses checked. Saving new status now.",
-        extra={"task": _current_task_name()},
-    )
+    log.info("Proxies statuses checked. Saving new status now.", extra=_task_extra())
 
 
 def _persist_proxy_updates(proxies: list[Proxy]) -> int:
@@ -124,12 +119,14 @@ def _persist_proxy_updates(proxies: list[Proxy]) -> int:
 
 
 def update_status():
-    log.info("Updating proxies status", extra={"task": _current_task_name()})
+    log.info("Updating proxies status", extra=_task_extra())
     start_time = now()
 
     if not _check_connectivity():
         return
-    log.info("Using ShadowTest URLs", extra={"url": settings.SHADOWTEST_SERVERS})
+    log.info(
+        "Using ShadowTest URLs", extra=_task_extra(urls=settings.SHADOWTEST_SERVERS)
+    )
 
     proxies = list(Proxy.objects.all())
     _run_proxy_checks(proxies)
@@ -137,12 +134,7 @@ def update_status():
 
     log.info(
         "Update completed",
-        extra={
-            "task": _current_task_name(),
-            "saved": saved,
-            "start_time": start_time,
-            "finish_time": now(),
-        },
+        extra=_task_extra(saved=saved, start_time=start_time, finish_time=now()),
     )
 
 
@@ -154,21 +146,14 @@ def decode_line(line: str | bytes) -> list[str] | None:
         if decoded is None:
             log.warning(
                 "Base64 decoding returned None",
-                extra={
-                    "task": _current_task_name(),
-                    "line": line[:200],
-                },
+                extra=_task_extra(line=line[:200]),
             )
             return None
         return decoded.decode("utf-8", errors="replace").split("\n")
     except Exception as error:
         log.error(
             "Failed decoding line",
-            extra={
-                "task": _current_task_name(),
-                "line": line[:200] if line else "",
-                "error": error,
-            },
+            extra=_task_extra(line=line[:200] if line else "", error=error),
         )
         return None
 
@@ -186,7 +171,7 @@ def _collect_candidate_urls(subscriptions) -> set[str]:
     for subscription in subscriptions:
         log.info(
             "Fetching subscription",
-            extra={"task": _current_task_name(), "subscription": subscription.url},
+            extra=_task_extra(subscription=subscription.url),
         )
         try:
             r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
@@ -197,12 +182,11 @@ def _collect_candidate_urls(subscriptions) -> set[str]:
                 )
                 log.warning(
                     error_message,
-                    extra={
-                        "task": _current_task_name(),
-                        "subscription": subscription.url,
-                        "status_code": r.status_code,
-                        "text": r.text,
-                    },
+                    extra=_task_extra(
+                        subscription=subscription.url,
+                        status_code=r.status_code,
+                        text=r.text,
+                    ),
                 )
                 subscription.alive = False
                 subscription.error_message = error_message[:10000]
@@ -224,22 +208,14 @@ def _collect_candidate_urls(subscriptions) -> set[str]:
         ) as e:
             log.error(
                 "Failed to get subscription",
-                extra={
-                    "error": f"{e}",
-                    "task": _current_task_name(),
-                    "subscription": subscription.url,
-                },
+                extra=_task_extra(error=f"{e}", subscription=subscription.url),
             )
             subscription.error_message = f"{e}"
             subscription.alive = False
         except AttributeError as e:
             log.warning(
                 "Error decoding subscription",
-                extra={
-                    "task": _current_task_name(),
-                    "error": f"{e}",
-                    "subscription": subscription.url,
-                },
+                extra=_task_extra(error=f"{e}", subscription=subscription.url),
             )
             subscription.error_message = f"{e}"
             subscription.alive = False
@@ -250,14 +226,14 @@ def _collect_candidate_urls(subscriptions) -> set[str]:
 def _test_candidate_urls(candidate_urls: set[str]) -> list[Proxy | None]:
     log.info(
         "Testing unique new addresses",
-        extra={"task": _current_task_name(), "count": len(candidate_urls)},
+        extra=_task_extra(count=len(candidate_urls)),
     )
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
         return list(executor.map(test_and_create_proxy, candidate_urls))
 
 
 def poll_subscriptions() -> None:
-    log.info("Started polling subscriptions", extra={"task": _current_task_name()})
+    log.info("Started polling subscriptions", extra=_task_extra())
     start_time = now()
     all_urls = set(Proxy.objects.values_list("url", flat=True))
     candidate_urls = _collect_candidate_urls(Subscription.objects.filter(enabled=True))
@@ -268,35 +244,30 @@ def poll_subscriptions() -> None:
 
     log.info(
         "Finished polling subscriptions",
-        extra={
-            "task": _current_task_name(),
-            "found": found_proxies,
-            "saved": saved_proxies,
-            "start_time": start_time,
-            "finish_time": now(),
-        },
+        extra=_task_extra(
+            found=found_proxies,
+            saved=saved_proxies,
+            start_time=start_time,
+            finish_time=now(),
+        ),
     )
 
 
 def save_proxies(proxies: list[Proxy | None]) -> tuple[int, int]:
-    log.info("Saving proxies", extra={"task": _current_task_name()})
+    log.info("Saving proxies", extra=_task_extra())
     saved_proxies = 0
     found_proxies = 0
     for proxy in proxies:
         if proxy is not None:
             found_proxies += 1
-            log.info(f"saving {proxy}", extra={"task": _current_task_name()})
+            log.info(f"saving {proxy}", extra=_task_extra())
             try:
                 proxy.save()
                 saved_proxies += 1
             except Exception as e:
                 log.warning(
                     "Failed to save proxy",
-                    extra={
-                        "task": _current_task_name(),
-                        "proxy": proxy,
-                        "error": f"{e}",
-                    },
+                    extra=_task_extra(proxy=proxy, error=f"{e}"),
                 )
     return saved_proxies, found_proxies
 
