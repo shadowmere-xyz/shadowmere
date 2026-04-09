@@ -294,23 +294,9 @@ def save_proxies(proxies: list[Proxy | None]) -> tuple[int, int]:
     return saved_proxies, found_proxies
 
 
-NON_SS_SCHEMES = (
-    "vmess://",
-    "vless://",
-    "trojan://",
-    "hysteria://",
-    "hy2://",
-    "tuic://",
-    "http://",
-    "https://",
-)
-
-
 def extract_sip002_url(line: str) -> str | None:
     line = str(line).strip()
     if not line.startswith("ss://"):
-        return None
-    if line.startswith(NON_SS_SCHEMES):
         return None
     try:
         url = get_sip002(line)
