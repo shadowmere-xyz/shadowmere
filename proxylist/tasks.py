@@ -175,89 +175,90 @@ def poll_subscriptions() -> None:
     start_time = now()
     all_urls = set(Proxy.objects.values_list("url", flat=True))
 
-    proxies_lists = []
-    with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
-        subscriptions = Subscription.objects.filter(enabled=True)
-        for subscription in subscriptions:
-            log.info(
-                "Testing subscription",
+    # Phase 1: Fetch all subscriptions and aggregate unique candidate URLs.
+    # Deduplication happens here so each address is only connectivity-tested once.
+    candidate_urls: set[str] = set()
+    subscriptions = Subscription.objects.filter(enabled=True)
+    for subscription in subscriptions:
+        log.info(
+            "Fetching subscription",
+            extra={
+                "task": _current_task_name(),
+                "subscription": subscription.url,
+            },
+        )
+        try:
+            r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
+            if r.status_code != 200:
+                error_message = f"We are facing issues getting this subscription {subscription.url} ({r.status_code} {r.text})"
+                log.warning(
+                    error_message,
+                    extra={
+                        "task": _current_task_name(),
+                        "subscription": subscription.url,
+                        "status_code": r.status_code,
+                        "text": r.text,
+                    },
+                )
+                subscription.alive = False
+                subscription.error_message = error_message[:10000]
+                subscription.save()
+                continue
+            if subscription.kind == Subscription.SubscriptionKind.PLAIN:
+                lines = [line.decode("utf-8") for line in r.iter_lines()]
+            elif subscription.kind == Subscription.SubscriptionKind.BASE64:
+                joined = b"".join(r.iter_lines())
+                lines = decode_line(line=joined) or []
+            else:
+                lines = []
+            for line in lines:
+                url = extract_sip002_url(line, all_urls)
+                if url:
+                    candidate_urls.add(url)
+            subscription.alive_timestamp = now()
+            if subscription.alive is False:
+                subscription.alive = True
+            if subscription.error_message != "":
+                subscription.error_message = ""
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.SSLError,
+            requests.exceptions.ReadTimeout,
+        ) as e:
+            log.error(
+                "Failed to get subscription",
                 extra={
+                    "error": f"{e}",
                     "task": _current_task_name(),
                     "subscription": subscription.url,
                 },
             )
-            try:
-                r = requests.get(subscription.url, timeout=SUBSCRIPTION_TIMEOUT_SECONDS)
-                if r.status_code != 200:
-                    error_message = f"We are facing issues getting this subscription {subscription.url} ({r.status_code} {r.text})"
-                    log.warning(
-                        error_message,
-                        extra={
-                            "task": _current_task_name(),
-                            "subscription": subscription.url,
-                            "status_code": r.status_code,
-                            "text": r.text,
-                        },
-                    )
-                    subscription.alive = False
-                    subscription.error_message = error_message[:10000]
-                    subscription.save()
-                    continue
-                if subscription.kind == Subscription.SubscriptionKind.PLAIN:
-                    decoded_lines = [line.decode("utf-8") for line in r.iter_lines()]
-                    proxies_lists.append(
-                        executor.map(
-                            process_line, decoded_lines, [all_urls] * len(decoded_lines)
-                        )
-                    )
-                elif subscription.kind == Subscription.SubscriptionKind.BASE64:
-                    joined = b"".join(r.iter_lines())
-                    decoded_lines = decode_line(line=joined)
-                    if decoded_lines:
-                        proxies_lists.append(
-                            executor.map(
-                                process_line,
-                                decoded_lines,
-                                [all_urls] * len(decoded_lines),
-                            )
-                        )
-                subscription.alive_timestamp = now()
-                if subscription.alive is False:
-                    subscription.alive = True
-                if subscription.error_message != "":
-                    subscription.error_message = ""
-            except (
-                requests.exceptions.ConnectionError,
-                requests.exceptions.SSLError,
-                requests.exceptions.ReadTimeout,
-            ) as e:
-                log.error(
-                    "Failed to get subscription",
-                    extra={
-                        "error": f"{e}",
-                        "task": _current_task_name(),
-                        "subscription": subscription.url,
-                    },
-                )
-                subscription.error_message = f"{e}"
-                subscription.alive = False
-            except AttributeError as e:
-                log.warning(
-                    "Error decoding subscription",
-                    extra={
-                        "task": _current_task_name(),
-                        "error": f"{e}",
-                        "subscription": subscription.url,
-                    },
-                )
-                subscription.error_message = f"{e}"
-                subscription.alive = False
+            subscription.error_message = f"{e}"
+            subscription.alive = False
+        except AttributeError as e:
+            log.warning(
+                "Error decoding subscription",
+                extra={
+                    "task": _current_task_name(),
+                    "error": f"{e}",
+                    "subscription": subscription.url,
+                },
+            )
+            subscription.error_message = f"{e}"
+            subscription.alive = False
 
-            subscription.save()
+        subscription.save()
 
-    saved_proxies, found_proxies = save_proxies(proxies_lists=proxies_lists)
+    # Phase 2: Test connectivity for deduplicated candidate URLs in parallel.
+    log.info(
+        "Testing unique addresses",
+        extra={"task": _current_task_name(), "count": len(candidate_urls)},
+    )
+    with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
+        proxy_results = list(executor.map(test_and_create_proxy, candidate_urls))
 
-    executor.shutdown(wait=True)
+    saved_proxies, found_proxies = save_proxies(proxies_lists=[proxy_results])
+
     log.info(
         "Finished polling subscriptions",
         extra={
@@ -312,7 +313,11 @@ NON_SS_SCHEMES = (
 )
 
 
-def process_line(line, all_urls):
+def extract_sip002_url(line: str, all_urls: set) -> str | None:
+    """Normalize and validate a SIP002 URL without testing connectivity.
+
+    Returns the normalized URL string if valid and not already known, else None.
+    """
     line = str(line).strip()
     if not line.startswith("ss://"):
         return None
@@ -321,16 +326,25 @@ def process_line(line, all_urls):
     try:
         url = get_sip002(line)
     except UnicodeDecodeError:
-        # False positives fall in here
         return None
     if url and url not in all_urls:
-        # log.info(f"Testing {url}")
-        location = get_proxy_location(url)
-        if location is None or location == "unknown":
-            return None
-        proxy = Proxy(url=url)
-        return proxy
+        return url
     return None
+
+
+def test_and_create_proxy(url: str) -> Proxy | None:
+    """Test connectivity for a SIP002 URL and return a Proxy object if reachable."""
+    location = get_proxy_location(url)
+    if location is None or location == "unknown":
+        return None
+    return Proxy(url=url)
+
+
+def process_line(line, all_urls):
+    url = extract_sip002_url(line, all_urls)
+    if url is None:
+        return None
+    return test_and_create_proxy(url)
 
 
 def flatten(something) -> Iterator[str]:

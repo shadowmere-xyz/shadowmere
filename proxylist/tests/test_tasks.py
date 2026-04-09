@@ -3,7 +3,7 @@ import base64
 from django.test import TestCase
 
 from proxylist.models import Proxy
-from proxylist.tasks import decode_line, process_line, remove_low_quality_proxies
+from proxylist.tasks import decode_line, extract_sip002_url, process_line, remove_low_quality_proxies
 
 
 class RemovalTest(TestCase):
@@ -50,6 +50,46 @@ class ProcessLineTest(TestCase):
     @staticmethod
     def test_rejects_none():
         assert process_line(None, set()) is None
+
+
+class ExtractSip002UrlTest(TestCase):
+    @staticmethod
+    def test_rejects_vmess():
+        assert extract_sip002_url("vmess://eyJhZGQiOiIxLjIuMy40In0=", set()) is None
+
+    @staticmethod
+    def test_rejects_vless():
+        assert extract_sip002_url("vless://uuid@host:443?type=tcp#name", set()) is None
+
+    @staticmethod
+    def test_rejects_trojan():
+        assert extract_sip002_url("trojan://password@host:443#name", set()) is None
+
+    @staticmethod
+    def test_rejects_http():
+        assert extract_sip002_url("https://example.com", set()) is None
+
+    @staticmethod
+    def test_rejects_empty():
+        assert extract_sip002_url("", set()) is None
+
+    @staticmethod
+    def test_rejects_none():
+        assert extract_sip002_url(None, set()) is None
+
+    @staticmethod
+    def test_rejects_already_known_url():
+        url = "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNz@1.2.3.4:8388"
+        assert extract_sip002_url(url, {url}) is None
+
+    @staticmethod
+    def test_returns_url_for_unknown_ss_address():
+        # A minimal valid ss:// URL that get_sip002 can normalize
+        line = "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNz@1.2.3.4:8388"
+        result = extract_sip002_url(line, set())
+        # Should return a non-empty string (the normalized URL)
+        assert result is not None
+        assert result.startswith("ss://")
 
 
 class DecodeLineTest(TestCase):
