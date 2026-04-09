@@ -279,7 +279,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 CONN_MAX_AGE = 60
 CONN_HEALTH_CHECKS = True
 
-if not DEBUG and os.getenv("SENTRY_DSN") != "":
+if not DEBUG and os.getenv("SENTRY_DSN"):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -299,5 +299,15 @@ if not DEBUG and os.getenv("SENTRY_DSN") != "":
 
 RATELIMIT_ENABLE = False
 RATELIMIT_VIEW = "proxylist.views.ratelimited_error"
+
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SECURE = True
 
 CACHE_LOCATION_SECONDS = 1200
