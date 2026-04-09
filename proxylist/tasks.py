@@ -25,8 +25,12 @@ log = logging.getLogger("django")
 
 def _current_task_name() -> str:
     frame = inspect.currentframe()
-    caller = frame.f_back if frame else None
-    return caller.f_code.co_name if caller else "unknown"
+    outermost_name = "unknown"
+    while frame is not None:
+        if frame.f_globals.get("__name__") == __name__ and frame.f_code.co_name != "_current_task_name":
+            outermost_name = frame.f_code.co_name
+        frame = frame.f_back
+    return outermost_name
 
 
 @db_periodic_task(crontab(minute="15", hour="10"))

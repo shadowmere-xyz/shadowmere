@@ -5,11 +5,31 @@ from django.test import TestCase
 
 from proxylist.models import Proxy
 from proxylist.tasks import (
+    _current_task_name,
     decode_line,
     extract_sip002_url,
     poll_subscriptions,
     remove_low_quality_proxies,
+    save_proxies,
 )
+
+
+class CurrentTaskNameTest(TestCase):
+    @staticmethod
+    def test_unknown_when_called_outside_tasks_module():
+        assert _current_task_name() == "unknown"
+
+    def test_returns_direct_entry_point(self):
+        with self.assertLogs("django", level="INFO") as cm:
+            save_proxies([])
+        record = next(r for r in cm.records if "Saving proxies" in r.getMessage())
+        assert record.task == "save_proxies"
+
+    def test_outermost_frame_wins_when_nested(self):
+        with self.assertLogs("django", level="INFO") as cm:
+            poll_subscriptions()
+        record = next(r for r in cm.records if "Saving proxies" in r.getMessage())
+        assert record.task == "poll_subscriptions"
 
 
 class RemovalTest(TestCase):
@@ -93,12 +113,14 @@ class PollSubscriptionsDeduplicationTest(TestCase):
         return resp
 
     def _base64_response(self):
-        content = "\n".join([
-            self.SHARED_URL,
-            self.SHARED_URL,
-            self.UNIQUE_URL_2,
-            self.DB_URL,
-        ]).encode()
+        content = "\n".join(
+            [
+                self.SHARED_URL,
+                self.SHARED_URL,
+                self.UNIQUE_URL_2,
+                self.DB_URL,
+            ]
+        ).encode()
         resp = Mock()
         resp.status_code = 200
         resp.iter_lines.return_value = [base64.b64encode(content)]
@@ -123,8 +145,13 @@ class PollSubscriptionsDeduplicationTest(TestCase):
 
         with (
             patch("requests.get", side_effect=requests_side_effect),
-            patch("proxylist.tasks.get_proxy_location", return_value="Tokyo, Japan") as mock_loc,
-            patch("proxylist.models.update_proxy_status", side_effect=mock_update_proxy_status),
+            patch(
+                "proxylist.tasks.get_proxy_location", return_value="Tokyo, Japan"
+            ) as mock_loc,
+            patch(
+                "proxylist.models.update_proxy_status",
+                side_effect=mock_update_proxy_status,
+            ),
         ):
             poll_subscriptions()
 
