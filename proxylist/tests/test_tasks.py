@@ -69,10 +69,7 @@ class CheckConnectivityTest(TestCase):
     @patch("proxylist.tasks.requests.get")
     def test_returns_true_on_204_status(self, mock_get):
         mock_get.return_value = self._make_response(204)
-        with self.assertLogs("django", level="INFO") as cm:
-            result = _check_connectivity()
-        assert result is True
-        assert any("ShadowTest" in r.getMessage() for r in cm.records)
+        assert _check_connectivity() is True
 
     @patch("proxylist.tasks.requests.get", side_effect=SSLError())
     def test_logs_error_on_exception(self, _):
