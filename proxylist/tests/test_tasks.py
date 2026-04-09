@@ -1,9 +1,15 @@
 import base64
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
 
 from proxylist.models import Proxy
-from proxylist.tasks import decode_line, process_line, remove_low_quality_proxies
+from proxylist.tasks import (
+    decode_line,
+    extract_sip002_url,
+    poll_subscriptions,
+    remove_low_quality_proxies,
+)
 
 
 class RemovalTest(TestCase):
@@ -18,38 +24,119 @@ class RemovalTest(TestCase):
         assert proxies.count() == 0
 
 
-class ProcessLineTest(TestCase):
+class ExtractSip002UrlTest(TestCase):
     @staticmethod
     def test_rejects_vmess():
-        assert process_line("vmess://eyJhZGQiOiIxLjIuMy40In0=", set()) is None
+        assert extract_sip002_url("vmess://eyJhZGQiOiIxLjIuMy40In0=") is None
 
     @staticmethod
     def test_rejects_vless():
-        assert process_line("vless://uuid@host:443?type=tcp#name", set()) is None
+        assert extract_sip002_url("vless://uuid@host:443?type=tcp#name") is None
 
     @staticmethod
     def test_rejects_trojan():
-        assert process_line("trojan://password@host:443#name", set()) is None
+        assert extract_sip002_url("trojan://password@host:443#name") is None
 
     @staticmethod
     def test_rejects_hysteria():
-        assert process_line("hysteria://host:443", set()) is None
+        assert extract_sip002_url("hysteria://host:443") is None
 
     @staticmethod
     def test_rejects_hy2():
-        assert process_line("hy2://password@host:443", set()) is None
+        assert extract_sip002_url("hy2://password@host:443") is None
+
+    @staticmethod
+    def test_rejects_tuic():
+        assert extract_sip002_url("tuic://uuid:password@host:443") is None
 
     @staticmethod
     def test_rejects_http():
-        assert process_line("https://example.com", set()) is None
+        assert extract_sip002_url("http://example.com") is None
+
+    @staticmethod
+    def test_rejects_https():
+        assert extract_sip002_url("https://example.com") is None
 
     @staticmethod
     def test_rejects_empty():
-        assert process_line("", set()) is None
+        assert extract_sip002_url("") is None
 
     @staticmethod
     def test_rejects_none():
-        assert process_line(None, set()) is None
+        assert extract_sip002_url(None) is None
+
+    @staticmethod
+    def test_returns_url_for_valid_ss_address():
+        line = "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNz@1.2.3.4:8388"
+        result = extract_sip002_url(line)
+        assert result is not None
+        assert result.startswith("ss://")
+
+
+class PollSubscriptionsDeduplicationTest(TestCase):
+    fixtures = ["proxies.json", "subscriptions.json"]
+
+    DB_URL = "ss://YWVzLTI1Ni1nY206UENubkg2U1FTbmZvUzI3@172.105.42.160:8091"
+
+    SHARED_URL = "ss://aes-256-gcm:shared-password@10.0.0.1:8388"
+    UNIQUE_URL_1 = "ss://aes-256-gcm:unique-one@10.0.0.2:8388"
+    UNIQUE_URL_2 = "ss://aes-256-gcm:unique-two@10.0.0.3:8388"
+
+    def _plain_response(self):
+        resp = Mock()
+        resp.status_code = 200
+        resp.iter_lines.return_value = [
+            self.UNIQUE_URL_1.encode(),
+            self.SHARED_URL.encode(),
+            self.DB_URL.encode(),
+        ]
+        return resp
+
+    def _base64_response(self):
+        content = "\n".join([
+            self.SHARED_URL,
+            self.SHARED_URL,
+            self.UNIQUE_URL_2,
+            self.DB_URL,
+        ]).encode()
+        resp = Mock()
+        resp.status_code = 200
+        resp.iter_lines.return_value = [base64.b64encode(content)]
+        return resp
+
+    def test_deduplication_and_db_filtering(self):
+        plain_response = self._plain_response()
+        b64_response = self._base64_response()
+
+        def requests_side_effect(url, **kwargs):
+            if url == "https://a.proxy.xyz/sip002/sub":
+                return b64_response
+            if url == "https://raw.githubusercontent.com/a/sub.txt":
+                return plain_response
+            raise ValueError(f"Unexpected subscription URL in test: {url}")
+
+        def mock_update_proxy_status(proxy):
+            proxy.location = "Mocked Location"
+            proxy.is_active = True
+
+        initial_count = Proxy.objects.count()
+
+        with (
+            patch("requests.get", side_effect=requests_side_effect),
+            patch("proxylist.tasks.get_proxy_location", return_value="Tokyo, Japan") as mock_loc,
+            patch("proxylist.models.update_proxy_status", side_effect=mock_update_proxy_status),
+        ):
+            poll_subscriptions()
+
+        tested_urls = {c.args[0] for c in mock_loc.call_args_list}
+        assert tested_urls == {self.SHARED_URL, self.UNIQUE_URL_1, self.UNIQUE_URL_2}
+        assert self.DB_URL not in tested_urls
+
+        assert Proxy.objects.count() == initial_count + 3
+        assert Proxy.objects.filter(url=self.SHARED_URL).exists()
+        assert Proxy.objects.filter(url=self.UNIQUE_URL_1).exists()
+        assert Proxy.objects.filter(url=self.UNIQUE_URL_2).exists()
+        assert Proxy.objects.filter(url=self.DB_URL).count() == 1
 
 
 class DecodeLineTest(TestCase):
