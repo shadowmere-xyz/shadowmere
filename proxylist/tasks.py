@@ -167,7 +167,6 @@ def decode_line(line: str | bytes) -> list[str] | None:
 
 
 def _decode_subscription_lines(r, subscription) -> list[str]:
-    """Return decoded proxy lines from an HTTP response based on subscription kind."""
     if subscription.kind == Subscription.SubscriptionKind.PLAIN:
         return [line.decode("utf-8") for line in r.iter_lines()]
     if subscription.kind == Subscription.SubscriptionKind.BASE64:
@@ -176,12 +175,6 @@ def _decode_subscription_lines(r, subscription) -> list[str]:
 
 
 def _collect_candidate_urls(subscriptions) -> set[str]:
-    """Fetch every enabled subscription and return the union of valid SIP002 URLs.
-
-    Duplicate addresses across (and within) subscription lists are collapsed
-    by the set, so each address appears at most once.  Subscription alive/error
-    state is updated in place and persisted.
-    """
     candidate_urls: set[str] = set()
     for subscription in subscriptions:
         log.info(
@@ -248,7 +241,6 @@ def _collect_candidate_urls(subscriptions) -> set[str]:
 
 
 def _test_candidate_urls(candidate_urls: set[str]) -> list[Proxy | None]:
-    """Connectivity-test each URL in parallel and return Proxy objects for live ones."""
     log.info(
         "Testing unique new addresses",
         extra={"task": _current_task_name(), "count": len(candidate_urls)},
@@ -261,14 +253,8 @@ def poll_subscriptions() -> None:
     log.info("Started polling subscriptions", extra={"task": _current_task_name()})
     start_time = now()
     all_urls = set(Proxy.objects.values_list("url", flat=True))
-
-    # Phase 1: collect unique SIP002 addresses from all subscriptions.
     candidate_urls = _collect_candidate_urls(Subscription.objects.filter(enabled=True))
-
-    # Remove addresses already in the database — no need to re-test them.
     candidate_urls -= all_urls
-
-    # Phase 2: connectivity-test the deduplicated, new-only addresses.
     proxy_results = _test_candidate_urls(candidate_urls)
 
     saved_proxies, found_proxies = save_proxies(proxy_results)
@@ -321,11 +307,6 @@ NON_SS_SCHEMES = (
 
 
 def extract_sip002_url(line: str) -> str | None:
-    """Normalize and validate a SIP002 URL format without testing connectivity.
-
-    Returns the normalized URL string if the line is a valid ss:// address,
-    else None.  Does not check whether the address already exists in the DB.
-    """
     line = str(line).strip()
     if not line.startswith("ss://"):
         return None
@@ -339,7 +320,6 @@ def extract_sip002_url(line: str) -> str | None:
 
 
 def test_and_create_proxy(url: str) -> Proxy | None:
-    """Test connectivity for a SIP002 URL and return a Proxy object if reachable."""
     location = get_proxy_location(url)
     if location is None or location == "unknown":
         return None

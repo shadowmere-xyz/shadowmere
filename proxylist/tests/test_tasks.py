@@ -26,8 +26,6 @@ class RemovalTest(TestCase):
 
 
 class ExtractSip002UrlTest(TestCase):
-    """Tests for extract_sip002_url — format validation only, no DB filtering."""
-
     @staticmethod
     def test_rejects_vmess():
         assert extract_sip002_url("vmess://eyJhZGQiOiIxLjIuMy40In0=") is None
@@ -78,25 +76,8 @@ class ExtractSip002UrlTest(TestCase):
 
 
 class PollSubscriptionsDeduplicationTest(TestCase):
-    """
-    Integration test for poll_subscriptions' deduplication and DB-filtering logic.
-
-    Two subscriptions are fetched (one PLAIN, one BASE64).  Their combined
-    address lists contain:
-      - A URL that appears in both lists and twice in the BASE64 list
-        → should be connectivity-tested exactly once.
-      - A URL already present in the database (from proxies.json fixture)
-        → must be skipped entirely (no connectivity test, not re-saved).
-      - One URL unique to each list
-        → each tested and saved once.
-
-    Expected outcome: exactly 3 connectivity tests, 3 new proxies saved.
-    """
-
     fixtures = ["proxies.json", "subscriptions.json"]
 
-    # From proxies.json pk=6 — already in the database.
-    # get_sip002 leaves this URL unchanged (no =, ?, #, or trailing /).
     DB_URL = "ss://YWVzLTI1Ni1nY206UENubkg2U1FTbmZvUzI3@172.105.42.160:8091"
 
     SHARED_URL = "ss://aes-256-gcm:shared-password@10.0.0.1:8388"
@@ -104,23 +85,21 @@ class PollSubscriptionsDeduplicationTest(TestCase):
     UNIQUE_URL_2 = "ss://aes-256-gcm:unique-two@10.0.0.3:8388"
 
     def _plain_response(self):
-        """PLAIN subscription (pk=7 in subscriptions.json)."""
         resp = Mock()
         resp.status_code = 200
         resp.iter_lines.return_value = [
             self.UNIQUE_URL_1.encode(),
             self.SHARED_URL.encode(),
-            self.DB_URL.encode(),   # already in DB — must be skipped
+            self.DB_URL.encode(),
         ]
         return resp
 
     def _base64_response(self):
-        """BASE64 subscription (pk=6 in subscriptions.json)."""
         content = "\n".join([
-            self.SHARED_URL,        # duplicate of the entry in the PLAIN list
-            self.SHARED_URL,        # also duplicated within this list
+            self.SHARED_URL,
+            self.SHARED_URL,
             self.UNIQUE_URL_2,
-            self.DB_URL,            # already in DB — must be skipped
+            self.DB_URL,
         ]).encode()
         resp = Mock()
         resp.status_code = 200
@@ -131,9 +110,6 @@ class PollSubscriptionsDeduplicationTest(TestCase):
         plain_response = self._plain_response()
         b64_response = self._base64_response()
 
-        # Exact URLs from subscriptions.json:
-        #   pk=6  BASE64  https://a.proxy.xyz/sip002/sub
-        #   pk=7  PLAIN   https://raw.githubusercontent.com/a/sub.txt
         def requests_side_effect(url, **kwargs):
             if url == "https://a.proxy.xyz/sip002/sub":
                 return b64_response
@@ -141,8 +117,6 @@ class PollSubscriptionsDeduplicationTest(TestCase):
                 return plain_response
             raise ValueError(f"Unexpected subscription URL in test: {url}")
 
-        # The post-save signal calls update_proxy_status when location == "".
-        # Mock it so it sets a non-empty location, breaking the recursion.
         def mock_update_proxy_status(proxy):
             proxy.location = "Mocked Location"
             proxy.is_active = True
@@ -156,18 +130,14 @@ class PollSubscriptionsDeduplicationTest(TestCase):
         ):
             poll_subscriptions()
 
-        # --- connectivity tests ---
-        # DB_URL must never be tested; each new unique URL tested exactly once.
         tested_urls = {c.args[0] for c in mock_loc.call_args_list}
         assert tested_urls == {self.SHARED_URL, self.UNIQUE_URL_1, self.UNIQUE_URL_2}
         assert self.DB_URL not in tested_urls
 
-        # --- database state ---
         assert Proxy.objects.count() == initial_count + 3
         assert Proxy.objects.filter(url=self.SHARED_URL).exists()
         assert Proxy.objects.filter(url=self.UNIQUE_URL_1).exists()
         assert Proxy.objects.filter(url=self.UNIQUE_URL_2).exists()
-        # existing proxy must not have been duplicated
         assert Proxy.objects.filter(url=self.DB_URL).count() == 1
 
 
