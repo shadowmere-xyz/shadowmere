@@ -158,13 +158,13 @@ class PollSubscriptionsDeduplicationTest(TestCase):
         plain_response = self._plain_response()
         b64_response = self._base64_response()
 
-        # subscriptions.json:
+        # Exact URLs from subscriptions.json:
         #   pk=6  BASE64  https://a.proxy.xyz/sip002/sub
         #   pk=7  PLAIN   https://raw.githubusercontent.com/a/sub.txt
         def requests_side_effect(url, **kwargs):
-            if "a.proxy.xyz" in url:
+            if url == "https://a.proxy.xyz/sip002/sub":
                 return b64_response
-            if "githubusercontent.com" in url:
+            if url == "https://raw.githubusercontent.com/a/sub.txt":
                 return plain_response
             raise ValueError(f"Unexpected subscription URL in test: {url}")
 
