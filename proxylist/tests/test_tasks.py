@@ -24,7 +24,6 @@ class RemovalTest(TestCase):
         assert proxies.count() == 0
 
 
-
 class ExtractSip002UrlTest(TestCase):
     @staticmethod
     def test_rejects_vmess():
@@ -72,7 +71,6 @@ class ExtractSip002UrlTest(TestCase):
         result = extract_sip002_url(line)
         assert result is not None
         assert result.startswith("ss://")
-
 
 
 class PollSubscriptionsDeduplicationTest(TestCase):
