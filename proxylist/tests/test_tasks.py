@@ -41,7 +41,23 @@ class ExtractSip002UrlTest(TestCase):
         assert extract_sip002_url("trojan://password@host:443#name") is None
 
     @staticmethod
+    def test_rejects_hysteria():
+        assert extract_sip002_url("hysteria://host:443") is None
+
+    @staticmethod
+    def test_rejects_hy2():
+        assert extract_sip002_url("hy2://password@host:443") is None
+
+    @staticmethod
+    def test_rejects_tuic():
+        assert extract_sip002_url("tuic://uuid:password@host:443") is None
+
+    @staticmethod
     def test_rejects_http():
+        assert extract_sip002_url("http://example.com") is None
+
+    @staticmethod
+    def test_rejects_https():
         assert extract_sip002_url("https://example.com") is None
 
     @staticmethod
