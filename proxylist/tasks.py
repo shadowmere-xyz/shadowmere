@@ -176,7 +176,8 @@ def poll_subscriptions() -> None:
     all_urls = set(Proxy.objects.values_list("url", flat=True))
 
     # Phase 1: Fetch all subscriptions and aggregate unique candidate URLs.
-    # Deduplication happens here so each address is only connectivity-tested once.
+    # Using a set means duplicate addresses across subscriptions are collapsed
+    # automatically — each address will be connectivity-tested at most once.
     candidate_urls: set[str] = set()
     subscriptions = Subscription.objects.filter(enabled=True)
     for subscription in subscriptions:
@@ -212,7 +213,7 @@ def poll_subscriptions() -> None:
             else:
                 lines = []
             for line in lines:
-                url = extract_sip002_url(line, all_urls)
+                url = extract_sip002_url(line)
                 if url:
                     candidate_urls.add(url)
             subscription.alive_timestamp = now()
@@ -249,9 +250,12 @@ def poll_subscriptions() -> None:
 
         subscription.save()
 
-    # Phase 2: Test connectivity for deduplicated candidate URLs in parallel.
+    # Remove addresses already in the database — no need to re-test them.
+    candidate_urls -= all_urls
+
+    # Phase 2: Test connectivity for deduplicated, new-only URLs in parallel.
     log.info(
-        "Testing unique addresses",
+        "Testing unique new addresses",
         extra={"task": _current_task_name(), "count": len(candidate_urls)},
     )
     with ThreadPoolExecutor(max_workers=CONCURRENT_CHECKS) as executor:
@@ -313,10 +317,11 @@ NON_SS_SCHEMES = (
 )
 
 
-def extract_sip002_url(line: str, all_urls: set) -> str | None:
-    """Normalize and validate a SIP002 URL without testing connectivity.
+def extract_sip002_url(line: str) -> str | None:
+    """Normalize and validate a SIP002 URL format without testing connectivity.
 
-    Returns the normalized URL string if valid and not already known, else None.
+    Returns the normalized URL string if the line is a valid ss:// address,
+    else None.  Does not check whether the address already exists in the DB.
     """
     line = str(line).strip()
     if not line.startswith("ss://"):
@@ -327,9 +332,7 @@ def extract_sip002_url(line: str, all_urls: set) -> str | None:
         url = get_sip002(line)
     except UnicodeDecodeError:
         return None
-    if url and url not in all_urls:
-        return url
-    return None
+    return url or None
 
 
 def test_and_create_proxy(url: str) -> Proxy | None:
@@ -341,8 +344,8 @@ def test_and_create_proxy(url: str) -> Proxy | None:
 
 
 def process_line(line, all_urls):
-    url = extract_sip002_url(line, all_urls)
-    if url is None:
+    url = extract_sip002_url(line)
+    if url is None or url in all_urls:
         return None
     return test_and_create_proxy(url)
 

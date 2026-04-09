@@ -53,43 +53,48 @@ class ProcessLineTest(TestCase):
 
 
 class ExtractSip002UrlTest(TestCase):
+    """Tests for extract_sip002_url — format validation only, no DB filtering."""
+
     @staticmethod
     def test_rejects_vmess():
-        assert extract_sip002_url("vmess://eyJhZGQiOiIxLjIuMy40In0=", set()) is None
+        assert extract_sip002_url("vmess://eyJhZGQiOiIxLjIuMy40In0=") is None
 
     @staticmethod
     def test_rejects_vless():
-        assert extract_sip002_url("vless://uuid@host:443?type=tcp#name", set()) is None
+        assert extract_sip002_url("vless://uuid@host:443?type=tcp#name") is None
 
     @staticmethod
     def test_rejects_trojan():
-        assert extract_sip002_url("trojan://password@host:443#name", set()) is None
+        assert extract_sip002_url("trojan://password@host:443#name") is None
 
     @staticmethod
     def test_rejects_http():
-        assert extract_sip002_url("https://example.com", set()) is None
+        assert extract_sip002_url("https://example.com") is None
 
     @staticmethod
     def test_rejects_empty():
-        assert extract_sip002_url("", set()) is None
+        assert extract_sip002_url("") is None
 
     @staticmethod
     def test_rejects_none():
-        assert extract_sip002_url(None, set()) is None
+        assert extract_sip002_url(None) is None
+
+    @staticmethod
+    def test_returns_url_for_valid_ss_address():
+        line = "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNz@1.2.3.4:8388"
+        result = extract_sip002_url(line)
+        assert result is not None
+        assert result.startswith("ss://")
+
+
+class ProcessLineRejectsKnownUrlTest(TestCase):
+    """process_line must reject addresses already present in all_urls."""
 
     @staticmethod
     def test_rejects_already_known_url():
         url = "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNz@1.2.3.4:8388"
-        assert extract_sip002_url(url, {url}) is None
-
-    @staticmethod
-    def test_returns_url_for_unknown_ss_address():
-        # A minimal valid ss:// URL that get_sip002 can normalize
-        line = "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNz@1.2.3.4:8388"
-        result = extract_sip002_url(line, set())
-        # Should return a non-empty string (the normalized URL)
-        assert result is not None
-        assert result.startswith("ss://")
+        # Passing the normalized URL as a known address should suppress it.
+        assert process_line(url, {url}) is None
 
 
 class DecodeLineTest(TestCase):
