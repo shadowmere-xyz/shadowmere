@@ -8,7 +8,6 @@ from proxylist.tasks import (
     decode_line,
     extract_sip002_url,
     poll_subscriptions,
-    process_line,
     remove_low_quality_proxies,
 )
 
@@ -24,39 +23,6 @@ class RemovalTest(TestCase):
         proxies = Proxy.objects.filter(id=41)
         assert proxies.count() == 0
 
-
-class ProcessLineTest(TestCase):
-    @staticmethod
-    def test_rejects_vmess():
-        assert process_line("vmess://eyJhZGQiOiIxLjIuMy40In0=", set()) is None
-
-    @staticmethod
-    def test_rejects_vless():
-        assert process_line("vless://uuid@host:443?type=tcp#name", set()) is None
-
-    @staticmethod
-    def test_rejects_trojan():
-        assert process_line("trojan://password@host:443#name", set()) is None
-
-    @staticmethod
-    def test_rejects_hysteria():
-        assert process_line("hysteria://host:443", set()) is None
-
-    @staticmethod
-    def test_rejects_hy2():
-        assert process_line("hy2://password@host:443", set()) is None
-
-    @staticmethod
-    def test_rejects_http():
-        assert process_line("https://example.com", set()) is None
-
-    @staticmethod
-    def test_rejects_empty():
-        assert process_line("", set()) is None
-
-    @staticmethod
-    def test_rejects_none():
-        assert process_line(None, set()) is None
 
 
 class ExtractSip002UrlTest(TestCase):
@@ -93,15 +59,6 @@ class ExtractSip002UrlTest(TestCase):
         assert result is not None
         assert result.startswith("ss://")
 
-
-class ProcessLineRejectsKnownUrlTest(TestCase):
-    """process_line must reject addresses already present in all_urls."""
-
-    @staticmethod
-    def test_rejects_already_known_url():
-        url = "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNz@1.2.3.4:8388"
-        # Passing the normalized URL as a known address should suppress it.
-        assert process_line(url, {url}) is None
 
 
 class PollSubscriptionsDeduplicationTest(TestCase):

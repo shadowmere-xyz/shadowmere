@@ -1,7 +1,6 @@
 import inspect
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import Iterator
 
 import requests
 from django.conf import settings
@@ -272,7 +271,7 @@ def poll_subscriptions() -> None:
     # Phase 2: connectivity-test the deduplicated, new-only addresses.
     proxy_results = _test_candidate_urls(candidate_urls)
 
-    saved_proxies, found_proxies = save_proxies(proxies_lists=[proxy_results])
+    saved_proxies, found_proxies = save_proxies(proxy_results)
 
     log.info(
         "Finished polling subscriptions",
@@ -286,33 +285,26 @@ def poll_subscriptions() -> None:
     )
 
 
-def save_proxies(proxies_lists):
-    log.info(
-        "Saving proxies",
-        extra={"task": _current_task_name()},
-    )
+def save_proxies(proxies: list[Proxy | None]) -> tuple[int, int]:
+    log.info("Saving proxies", extra={"task": _current_task_name()})
     saved_proxies = 0
     found_proxies = 0
-    for proxy_list in proxies_lists:
-        for proxy in proxy_list:
-            if proxy is not None:
-                found_proxies += 1
-                log.info(
-                    f"saving {proxy}",
-                    extra={"task": _current_task_name()},
+    for proxy in proxies:
+        if proxy is not None:
+            found_proxies += 1
+            log.info(f"saving {proxy}", extra={"task": _current_task_name()})
+            try:
+                proxy.save()
+                saved_proxies += 1
+            except Exception as e:
+                log.warning(
+                    "Failed to save proxy",
+                    extra={
+                        "task": _current_task_name(),
+                        "proxy": proxy,
+                        "error": f"{e}",
+                    },
                 )
-                try:
-                    proxy.save()
-                    saved_proxies += 1
-                except Exception as e:
-                    log.warning(
-                        "Failed to save proxy",
-                        extra={
-                            "task": _current_task_name(),
-                            "proxy": proxy,
-                            "error": f"{e}",
-                        },
-                    )
     return saved_proxies, found_proxies
 
 
@@ -354,16 +346,3 @@ def test_and_create_proxy(url: str) -> Proxy | None:
     return Proxy(url=url)
 
 
-def process_line(line, all_urls):
-    url = extract_sip002_url(line)
-    if url is None or url in all_urls:
-        return None
-    return test_and_create_proxy(url)
-
-
-def flatten(something) -> Iterator[str]:
-    if isinstance(something, (list, tuple, set, range)):
-        for sub in something:
-            yield from flatten(something=sub)
-    else:
-        yield something
