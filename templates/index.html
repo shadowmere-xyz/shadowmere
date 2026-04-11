@@ -2,222 +2,781 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="onion-location" content="http://eb7x5hfb3vbb3zgrzi6qf6sqwks64fp63a7ckdl3sdw5nb6bgvskvpyd.onion">
-    <title>Shadowmere - Free shadowsocks/outline keys</title>
-    <meta name="keywords"
-          content="free vpn, vpn, proxy, shadowsocks, free server, free key, outline, outline key, outlinevpn, free shadowsocks, free shadowsocks key, shadowsocks proxy, free outline, free outline key, free outlinevpn"/>
+    <title>Shadowmere - Free Shadowsocks / Outline Keys</title>
+    <meta name="keywords" content="free vpn, vpn, proxy, shadowsocks, free server, free key, outline, outline key, outlinevpn, free shadowsocks, free shadowsocks key, shadowsocks proxy, free outline, free outline key, free outlinevpn"/>
     <meta name="description" content="A list of free Shadowsocks (or Outline) keys to fight censorship"/>
     <meta name="robots" content="index, follow"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root, [data-theme="dark"] {
+            --accent: #6c63ff;
+            --accent-glow: rgba(108, 99, 255, 0.35);
+            --accent2: #00d4aa;
+            --surface: #181825;
+            --surface2: #1e1e2e;
+            --surface3: #252535;
+            --border: rgba(255,255,255,0.07);
+            --text-muted: #888;
+            --text-main: #e0e0e0;
+            --header-bg: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            --brand-color: #fff;
+            --success-color: #00d4aa;
+            --warning-color: #f0a500;
+            --danger-color: #ff5572;
+        }
+
+        [data-theme="light"] {
+            --accent: #5b52e8;
+            --accent-glow: rgba(91, 82, 232, 0.25);
+            --accent2: #00a884;
+            --surface: #f0f2f5;
+            --surface2: #ffffff;
+            --surface3: #e8eaed;
+            --border: rgba(0,0,0,0.08);
+            --text-muted: #666;
+            --text-main: #1a1a2a;
+            --header-bg: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 50%, #1e3a5f 100%);
+            --brand-color: #fff;
+            --success-color: #00a884;
+            --warning-color: #d4880a;
+            --danger-color: #e03050;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background-color: #f8f9fa;
+            background: var(--surface);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            transition: background 0.2s, color 0.2s;
         }
 
-        .fork-me {
-            position: absolute;
+        /* ── Header ── */
+        .site-header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
             top: 0;
-            left: 0;
-            border: 0;
-            z-index: 1031;
+            z-index: 1030;
+            backdrop-filter: blur(10px);
         }
 
-        .flag-icon {
-            width: 2em;
-            height: 1.5em;
-            object-fit: cover;
+        .site-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
+
+        .site-header .brand img {
+            filter: drop-shadow(0 0 8px var(--accent-glow));
+        }
+
+        .site-header .brand span {
+            color: var(--brand-color);
+        }
+
+        .stat-pill {
+            background: rgba(108, 99, 255, 0.15);
+            border: 1px solid rgba(108, 99, 255, 0.3);
+            border-radius: 999px;
+            padding: 0.25rem 0.85rem;
+            font-size: 0.8rem;
+            color: #b0a8ff;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .stat-pill .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent2);
+            box-shadow: 0 0 6px var(--accent2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .github-link {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .github-link:hover { color: #fff; }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.18s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        /* ── Main layout ── */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 3rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1.5rem;
+            align-items: stretch;
+            min-height: calc(100vh - 80px);
+        }
+
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+
+        /* ── Sidebar ── */
+        .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+        .panel {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+        }
+
+        .panel-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+        .info-row .label { color: var(--text-muted); }
+        .info-row .value { color: #fff; font-weight: 600; }
+
+        .disclaimer {
+            background: rgba(255, 85, 114, 0.08);
+            border: 1px solid rgba(255, 85, 114, 0.2);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 0.78rem;
+            color: #ff8fa3;
+            line-height: 1.5;
+        }
+
+        .how-to {
+            font-size: 0.82rem;
+            color: #9fa0b8;
+            line-height: 1.6;
+        }
+
+        .how-to a {
+            color: #8b82ff;
+            text-decoration: none;
+        }
+
+        .how-to a:hover {
+            color: #a89dff;
+            text-decoration: underline;
+        }
+
+        /* ── Filter selects ── */
+        .filter-select {
+            width: 100%;
+            padding: 0.45rem 2rem 0.45rem 0.75rem;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--surface3);
+            color: #ccc;
+            font-size: 0.82rem;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.65rem center;
+            transition: border-color 0.18s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: rgba(108, 99, 255, 0.6);
+        }
+
+        .filter-select:hover {
+            border-color: rgba(108, 99, 255, 0.4);
+        }
+
+        .filter-select option {
+            background: var(--surface2);
+            color: #ccc;
+        }
+
+        /* ── Reset button ── */
+        .reset-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 9px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.08);
+            color: #f87171;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.18s;
+        }
+
+        .reset-btn:hover {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+
+        /* ── Proxy grid ── */
+        main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .proxy-grid {
+            flex: 1;
+            display: grid;
+            align-content: start;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .proxy-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.1rem 1.1rem 0.9rem;
+            transition: all 0.22s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .proxy-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0;
+            transition: opacity 0.22s;
+        }
+
+        .proxy-card:hover {
+            border-color: rgba(108, 99, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(108,99,255,0.15);
+        }
+
+        .proxy-card:hover::before { opacity: 1; }
+
+        .proxy-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .proxy-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .proxy-location .flag-icon {
+            width: 1.6em;
+            height: 1.2em;
+            object-fit: cover;
+            border-radius: 3px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+
+        .proxy-location .country-name {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .success-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            letter-spacing: 0.5px;
+        }
+
+        .success-high {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+        }
+
+        .success-mid {
+            background: rgba(234, 179, 8, 0.15);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.35);
+        }
+
+        .success-low {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .proxy-address {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .proxy-ip {
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .proxy-port-sep {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .proxy-port {
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: #8b82ff;
+            font-weight: 500;
+        }
+
+        .proxy-actions {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface3);
+            color: #aaa;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.18s;
+            user-select: none;
+        }
+
+        .action-btn:hover {
+            background: rgba(108, 99, 255, 0.15);
+            border-color: rgba(108, 99, 255, 0.4);
+            color: #b0a8ff;
+        }
+
+        .action-btn.copied {
+            background: rgba(0, 212, 170, 0.15);
+            border-color: rgba(0, 212, 170, 0.4);
+            color: var(--success-color);
+        }
+
+        /* ── Pagination ── */
+        .pagination-row {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.75rem;
+        }
+
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.18s;
+        }
+
+        .page-btn:hover {
+            background: rgba(108, 99, 255, 0.2);
+            border-color: rgba(108, 99, 255, 0.4);
+            color: #b0a8ff;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .page-info {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            padding: 0 0.5rem;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+            gap: 1rem;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            opacity: 0.4;
+        }
+
+        /* ── Modal ── */
+        .modal-content {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.25rem 0.75rem;
+        }
+
+        .modal-title { font-size: 0.95rem; font-weight: 600; }
+
+        .modal-body {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .modal-body img {
+            border-radius: 12px;
+            background: #fff;
+            padding: 12px;
+            max-width: 240px;
+        }
+
     </style>
 </head>
 <body>
-<a class="fork-me" href="https://github.com/jadolg/shadowmere"><img loading="lazy"
-                                                                    width="149" height="149"
-                                                                    src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149"
-                                                                    class="attachment-full size-full"
-                                                                    alt="Fork me on GitHub"
-                                                                    data-recalc-dims="1"></a>
 
-
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-3">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4"><img src="{% static "logo.svg" %}" alt="Shadowmere Logo"
-                                                                 width="50"
-                                                                 height="50"
-                                                                 class="d-inline-block align-text-center me-2">Shadowmere
-                    </h2>
-                    <h5 class="card-title">{% translate "About" %}</h5>
-                    <p class="card-text">{% translate "A list of free Shadowsocks/outline keys" %}</p>
-                    <p>
-                        <b>{% translate "Disclaimer:" %}</b> {% translate "This website is only a list of free Shadowsocks/outline keys collected all around internet. We do NOT provide or maintain any of these tunnels." %}
-                        <span class="text-danger">{% translate "Use them at your own risk." %}</span></p>
-                    <p><b>{% translate "How do I use this?:" %}</b> {% blocktranslate %}Go give
-                        <a href="https://shadowsocks.org/">shadowsocks.org</a> a quick look for information.
-                        <a href="https://shadowsocks5.github.io/en/download/clients.html">Here</a> is a list of clients
-                        for
-                        several platforms, but my favorite is <a href="https://getoutline.org/">Outline</a> for any
-                        platform and
-                        <a href="https://github.com/shadowsocks/shadowsocks-android">shadowsocks</a>
-                        for Android{% endblocktranslate %}</p>
-                    <p><b>{% translate "Online:" %}</b> {{ proxy_list|length }}</p>
-                    {% if proxy_list|length > 0 %}
-                        <p><b>{% translate "Last check:" %}</b> {{ latest_update }} UTC</p>
-                    {% endif %}
+<!-- ── Header ── -->
+<header class="site-header">
+    <div style="max-width:1400px; margin:0 auto; padding:0 1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <a href="/" class="brand">
+            <img src="{% static "logo.svg" %}" alt="Shadowmere Logo" width="32" height="32">
+            <span>Shadowmere</span>
+        </a>
+        <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+            {% if proxy_list|length > 0 %}
+                <div class="stat-pill">
+                    <span class="dot"></span>
+                    {{ proxy_list|length }}&nbsp;{% translate "online" %}
                 </div>
-            </div>
+            {% endif %}
+            <a href="https://github.com/jadolg/shadowmere" class="github-link" target="_blank" rel="noopener">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+            <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </button>
         </div>
-        <div class="col-lg-2">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{% translate "Filter by Country" %}</h5>
-                    <div class="d-flex flex-wrap gap-2 justify-content-center">
-                        <a href="/" class="btn btn-outline-secondary btn-sm">
-                            <img title="world" alt="Planet Earth flag"
-                                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/International_Flag_of_Planet_Earth.svg/1280px-International_Flag_of_Planet_Earth.svg.png"
-                                 class="flag-icon">
-                            All
-                        </a>
-                        {% for country_code in country_codes %}
-                            {% if country_code.location_country_code != "" %}
-                                <a href="/?location_country_code={{ country_code.location_country_code }}"
-                                   class="btn btn-outline-secondary btn-sm">
-                                    <img title="{{ country_code.location_country }}"
-                                         alt="Country flag for {{ country_code.location_country }}"
-                                         src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ country_code.location_country_code }}.svg"
-                                         class="flag-icon">
-                                    {{ country_code.location_country_code }}
-                                </a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+    </div>
+</header>
+
+<!-- ── Body ── -->
+<div class="main-content">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <!-- About -->
+        <div class="panel">
+            <div class="panel-title">About</div>
+            <p class="how-to mb-3">{% translate "A list of free Shadowsocks/outline keys" %}</p>
+
+            {% if proxy_list|length > 0 %}
+                <div class="info-row">
+                    <span class="label">{% translate "Online" %}</span>
+                    <span class="value">{{ proxy_list|length }}</span>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-lg-7">
-            {% if proxy_list %}
-                <div class="row row-cols-1 row-cols-md-2 g-4">
-                    {% for proxy in page_obj %}
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <img title="{{ proxy.location }}" alt="{{ proxy.location }}"
-                                                 src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ proxy.location_country_code }}.svg"
-                                                 class="flag-icon">
-                                            <span class="badge bg-success ms-2">{% widthratio proxy.times_check_succeeded proxy.times_checked 100 %}%</span>
-                                        </div>
-                                        <div class="btn-group">
-                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" title="Copy to clipboard"
-                                                    onclick=copyToClipboard("proxy{{ forloop.counter }}")>
-                                                <i class="fas fa-clipboard"></i>
-                                            </button>
-                                            <button class="btn btn-outline-secondary btn-sm ms-2" data-bs-toggle="modal"
-                                                    data-bs-target="#proxyqr{{ forloop.counter }}"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Show QR Code">
-                                                <i class="fas fa-qrcode"></i>
-                                            </button>
-                                            <a href="/{{ proxy.id }}/config"
-                                               class="btn btn-outline-secondary btn-sm ms-2" data-bs-toggle="tooltip"
-                                               data-bs-placement="top" title="Download config">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="d-none"
-                                         id="proxy{{ forloop.counter }}">{{ proxy.url }}#{{ proxy.location|urlencode }}</div>
-                                    <div class="mt-3"><b>{{ proxy.ip_address }}</b> <i
-                                            class="fas fa-anchor"></i> {{ proxy.port }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="proxyqr{{ forloop.counter }}" tabindex="-1"
-                             aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">{% translate "QR Code" %}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body text-center">
-                                        <img class="img-fluid" loading="lazy" src="/{{ proxy.id }}/qr" alt="qr"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link"
-                                   href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}">
-                                    &laquo;
-                                </a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
-                            </li>
-                        {% endif %}
-
-                        <li class="page-item disabled"><a class="page-link"
-                                                          href="#">{{ page_obj.number }} {% translate "of" %} {{ page_obj.paginator.num_pages }}</a>
-                        </li>
-
-                        {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link"
-                                   href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}">
-                                    &raquo;
-                                </a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% else %}
-                <div class="alert alert-warning text-center" role="alert">
-                    {% translate "No active proxies found" %}
+                <div class="info-row">
+                    <span class="label">{% translate "Last check" %}</span>
+                    <span class="value" style="font-size:0.78rem;">{{ latest_update }} UTC</span>
                 </div>
             {% endif %}
         </div>
-    </div>
+
+        <!-- How to use -->
+        <div class="panel">
+            <div class="panel-title">{% translate "How to use" %}</div>
+            <p class="how-to mb-2">
+                {% blocktranslate %}Visit <a href="https://shadowsocks.org/">shadowsocks.org</a> for background info.
+                Grab a client from <a href="https://shadowsocks5.github.io/en/download/clients.html">this list</a>, or use
+                <a href="https://getoutline.org/">Outline</a> (all platforms) or
+                <a href="https://github.com/shadowsocks/shadowsocks-android">shadowsocks-android</a>.{% endblocktranslate %}
+            </p>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <i class="fas fa-triangle-exclamation me-1"></i>
+            <strong>{% translate "Disclaimer:" %}</strong>
+            {% translate "This site only lists keys collected from the internet. We do NOT provide or maintain any tunnels." %}
+            <strong>{% translate "Use at your own risk." %}</strong>
+        </div>
+
+        <!-- Country filter -->
+        <div class="panel">
+            <div class="panel-title">{% translate "Filter by Country" %}</div>
+            <select class="filter-select" id="country-select" onchange="applyFilters()">
+                <option value="">{% translate "All countries" %}</option>
+                {% for country_code in country_codes %}
+                    {% if country_code.location_country_code != "" %}
+                        <option value="{{ country_code.location_country_code }}"
+                            {% if location_country_code == country_code.location_country_code %}selected{% endif %}>
+                            {{ country_code.location_country }}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Port filter -->
+        <div class="panel">
+            <div class="panel-title">{% translate "Filter by Port" %}</div>
+            <select class="filter-select" id="port-select" onchange="applyFilters()">
+                <option value="">{% translate "All ports" %}</option>
+                {% for p in ports %}
+                    <option value="{{ p }}" {% if port == p|stringformat:'s' %}selected{% endif %}>
+                        {{ p }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if location_country_code or port %}
+            <a href="/" class="reset-btn">
+                <i class="fas fa-xmark"></i> {% translate "Reset filters" %}
+            </a>
+        {% endif %}
+
+    </aside>
+
+    <!-- Proxy list -->
+    <main>
+        {% if proxy_list %}
+            <div class="proxy-grid">
+                {% for proxy in page_obj %}
+                    {% with pct=proxy.times_check_succeeded|stringformat:"s" %}
+                    {% widthratio proxy.times_check_succeeded proxy.times_checked 100 as success_pct %}
+                    <div class="proxy-card">
+                        <div class="proxy-card-top">
+                            <div class="proxy-location">
+                                <img title="{{ proxy.location }}" alt="{{ proxy.location }}"
+                                     src="https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/{{ proxy.location_country_code }}.svg"
+                                     class="flag-icon">
+                                <span class="country-name">{{ proxy.location }}</span>
+                            </div>
+                            <span class="success-badge {% if success_pct|add:0 >= 75 %}success-high{% elif success_pct|add:0 >= 40 %}success-mid{% else %}success-low{% endif %}">
+                                {{ success_pct }}%
+                            </span>
+                        </div>
+
+                        <div class="proxy-address">
+                            <span class="proxy-ip">{{ proxy.ip_address }}</span>
+                            <span class="proxy-port-sep">:</span>
+                            <span class="proxy-port">{{ proxy.port }}</span>
+                        </div>
+
+                        <!-- Hidden URL for clipboard -->
+                        <div class="d-none" id="proxy{{ forloop.counter }}">{{ proxy.url }}#{{ proxy.location|urlencode }}</div>
+
+                        <div class="proxy-actions">
+                            <button class="action-btn" id="copy-btn-{{ forloop.counter }}"
+                                    onclick="copyToClipboard('proxy{{ forloop.counter }}', 'copy-btn-{{ forloop.counter }}')"
+                                    title="{% translate 'Copy key to clipboard' %}">
+                                <i class="fas fa-copy"></i> {% translate "Copy" %}
+                            </button>
+                            <button class="action-btn" data-bs-toggle="modal"
+                                    data-bs-target="#proxyqr{{ forloop.counter }}"
+                                    title="{% translate 'Show QR code' %}">
+                                <i class="fas fa-qrcode"></i> QR
+                            </button>
+                            <a href="/{{ proxy.id }}/config" class="action-btn"
+                               title="{% translate 'Download config' %}">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endwith %}
+
+                    <!-- QR Modal -->
+                    <div class="modal fade" id="proxyqr{{ forloop.counter }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <span class="modal-title">
+                                        <i class="fas fa-qrcode me-2" style="color:var(--accent);"></i>
+                                        {% translate "Scan to connect" %}
+                                    </span>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <img loading="lazy" src="/{{ proxy.id }}/qr" alt="QR code for {{ proxy.ip_address }}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-row">
+                {% if page_obj.has_previous %}
+                    <a class="page-btn" href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}&port={{ port }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="page-btn disabled"><i class="fas fa-chevron-left"></i></span>
+                {% endif %}
+
+                <span class="page-info">{{ page_obj.number }} {% translate "of" %} {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a class="page-btn" href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}&port={{ port }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="page-btn disabled"><i class="fas fa-chevron-right"></i></span>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-satellite-dish"></i>
+                <span>{% translate "No active proxies found" %}</span>
+            </div>
+        {% endif %}
+    </main>
 </div>
 
-<footer class="container mt-4 text-center">
-    <a href="#" id="open_preferences_center">Update cookies preferences</a>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function copyToClipboard(elementId) {
-        var copyText = document.getElementById(elementId);
-        navigator.clipboard.writeText(copyText.innerText);
+    function codeToFlagEmoji(code) {
+        return [...code.toUpperCase()].map(c =>
+            String.fromCodePoint(c.charCodeAt(0) + 127397)
+        ).join('');
     }
 
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+    document.querySelectorAll('#country-select option[value]').forEach(opt => {
+        const code = opt.value;
+        if (code) opt.textContent = codeToFlagEmoji(code) + ' ' + opt.textContent;
+    });
+
+    (function () {
+        const saved = localStorage.getItem('theme') || 'dark';
+        applyTheme(saved);
+    })();
+
+    function applyTheme(theme) {
+        const html = document.documentElement;
+        html.setAttribute('data-theme', theme);
+        html.setAttribute('data-bs-theme', theme);
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+    });
+
+    function applyFilters() {
+        const country = document.getElementById('country-select').value;
+        const port = document.getElementById('port-select').value;
+        const params = new URLSearchParams();
+        if (country) params.set('location_country_code', country);
+        if (port) params.set('port', port);
+        window.location.href = '/?' + params.toString();
+    }
+
+    function copyToClipboard(elementId, btnId) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(function () {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.classList.add('copied');
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+            setTimeout(function () {
+                btn.classList.remove('copied');
+                btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            }, 2000);
+        });
+    }
 </script>
 </body>
 </html>
