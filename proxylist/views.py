@@ -25,23 +25,36 @@ from proxylist.permissions import GeneralPermission, CanAddSubscriptionsPermissi
 from proxylist.serializers import ProxySerializer, SubscriptionSerializer
 
 
-@cache_page(None)
 def list_proxies(request):
     location_country_code = request.GET.get("location_country_code", "")
+    port = request.GET.get("port", "")
+
     country_codes = (
-        Proxy.objects.filter(is_active=True)
+        Proxy.objects.filter(is_active=True, **({} if not port else {"port": port}))
         .order_by("location_country_code")
         .values("location_country_code", "location_country")
         .distinct()
     )
-    if location_country_code != "":
-        proxy_list = Proxy.objects.filter(
-            location_country_code=location_country_code, is_active=True
-        ).order_by("-id")
-    else:
-        proxy_list = Proxy.objects.filter(is_active=True).order_by("-id")
+    ports = (
+        Proxy.objects.filter(
+            is_active=True,
+            port__gt=0,
+            **({} if not location_country_code else {"location_country_code": location_country_code}),
+        )
+        .values_list("port", flat=True)
+        .distinct()
+        .order_by("port")
+    )
 
-    paginator = Paginator(proxy_list, 10)
+    proxy_filters: dict = {"is_active": True}
+    if location_country_code:
+        proxy_filters["location_country_code"] = location_country_code
+    if port:
+        proxy_filters["port"] = port
+
+    proxy_list = Proxy.objects.filter(**proxy_filters).order_by("-id")
+
+    paginator = Paginator(proxy_list, 15)
 
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -56,7 +69,9 @@ def list_proxies(request):
             "page_obj": page_obj,
             "proxy_list": proxy_list,
             "country_codes": country_codes,
+            "ports": ports,
             "location_country_code": location_country_code,
+            "port": port,
             "latest_update": latest_update if latest_update else None,
         },
     )
@@ -225,9 +240,9 @@ class SubViewSet(viewsets.ViewSet):
     def list(self, request, format=None):
         servers = [
             get_proxy_config(proxy=server)
-            for server in Proxy.objects.filter(is_active=True).order_by(
-                "location_country_code"
-            ).only("url", "location_country_code", "location")
+            for server in Proxy.objects.filter(is_active=True)
+            .order_by("location_country_code")
+            .only("url", "location_country_code", "location")
         ]
         return Response(servers)
 
@@ -246,9 +261,11 @@ class Base64SubViewSet(viewsets.ViewSet):
     )
     @method_decorator(cache_page(20 * 60))
     def list(self, request, format=None):
-        proxies = Proxy.objects.filter(is_active=True).order_by(
-            "location_country_code"
-        ).only("url", "location_country_code", "location")
+        proxies = (
+            Proxy.objects.filter(is_active=True)
+            .order_by("location_country_code")
+            .only("url", "location_country_code", "location")
+        )
         server_list = "\n".join(
             f"{proxy.url}#{get_flag_or_empty(country_code=proxy.location_country_code)} {proxy.location}"
             for proxy in proxies
