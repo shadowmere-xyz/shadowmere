@@ -762,7 +762,7 @@
             <!-- Pagination -->
             <div class="pagination-row">
                 {% if page_obj.has_previous %}
-                    <a class="page-btn" href="?page={{ page_obj.previous_page_number }}&location_country_code={{ location_country_code }}&port={{ port }}">
+                    <a class="page-btn" href="?page={{ page_obj.previous_page_number }}{% if location_country_code %}&location_country_code={{ location_country_code }}{% endif %}{% if port %}&port={{ port }}{% endif %}">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 {% else %}
@@ -772,7 +772,7 @@
                 <span class="page-info">{{ page_obj.number }} {% translate "of" %} {{ page_obj.paginator.num_pages }}</span>
 
                 {% if page_obj.has_next %}
-                    <a class="page-btn" href="?page={{ page_obj.next_page_number }}&location_country_code={{ location_country_code }}&port={{ port }}">
+                    <a class="page-btn" href="?page={{ page_obj.next_page_number }}{% if location_country_code %}&location_country_code={{ location_country_code }}{% endif %}{% if port %}&port={{ port }}{% endif %}">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 {% else %}
