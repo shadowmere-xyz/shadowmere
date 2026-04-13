@@ -31,11 +31,15 @@
             --border: rgba(255,255,255,0.07);
             --text-muted: #888;
             --text-main: #e0e0e0;
-            --header-bg: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            --header-bg: #1a1a2e;
             --brand-color: #fff;
             --success-color: #00d4aa;
             --warning-color: #f0a500;
             --danger-color: #ff5572;
+            --toggle-border: rgba(255,255,255,0.15);
+            --toggle-bg: rgba(255,255,255,0.08);
+            --toggle-color: rgba(255,255,255,0.7);
+            --toggle-bg-hover: rgba(255,255,255,0.15);
         }
 
         [data-theme="light"] {
@@ -48,11 +52,15 @@
             --border: rgba(0,0,0,0.08);
             --text-muted: #666;
             --text-main: #1a1a2a;
-            --header-bg: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 50%, #1e3a5f 100%);
-            --brand-color: #fff;
+            --header-bg: #ffffff;
+            --brand-color: #1a1a2a;
             --success-color: #00a884;
             --warning-color: #d4880a;
             --danger-color: #e03050;
+            --toggle-border: rgba(0,0,0,0.12);
+            --toggle-bg: rgba(0,0,0,0.05);
+            --toggle-color: #555;
+            --toggle-bg-hover: rgba(0,0,0,0.1);
         }
 
         * { box-sizing: border-box; }
@@ -81,15 +89,13 @@
             align-items: center;
             gap: 0.6rem;
             text-decoration: none;
-            color: #fff;
+            color: var(--brand-color);
             font-size: 1.3rem;
             font-weight: 700;
             letter-spacing: -0.5px;
         }
 
-        .site-header .brand img {
-            filter: drop-shadow(0 0 8px var(--accent-glow));
-        }
+        .site-header .brand img {}
 
         .site-header .brand span {
             color: var(--brand-color);
@@ -131,7 +137,7 @@
             transition: color 0.2s;
         }
 
-        .github-link:hover { color: #fff; }
+        .github-link:hover { color: var(--brand-color); }
 
         .theme-toggle {
             display: flex;
@@ -140,17 +146,17 @@
             width: 32px;
             height: 32px;
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.7);
+            border: 1px solid var(--toggle-border, rgba(255,255,255,0.15));
+            background: var(--toggle-bg, rgba(255,255,255,0.08));
+            color: var(--toggle-color, rgba(255,255,255,0.7));
             cursor: pointer;
             font-size: 0.85rem;
             transition: all 0.18s;
         }
 
         .theme-toggle:hover {
-            background: rgba(255,255,255,0.15);
-            color: #fff;
+            background: var(--toggle-bg-hover, rgba(255,255,255,0.15));
+            color: var(--brand-color);
         }
 
         /* ── Main layout ── */
@@ -199,7 +205,7 @@
 
         .info-row:last-child { border-bottom: none; }
         .info-row .label { color: var(--text-muted); }
-        .info-row .value { color: #fff; font-weight: 600; }
+        .info-row .value { color: var(--text-main); font-weight: 600; }
 
         .disclaimer {
             background: rgba(255, 85, 114, 0.08);
@@ -213,7 +219,7 @@
 
         .how-to {
             font-size: 0.82rem;
-            color: #9fa0b8;
+            color: var(--text-muted);
             line-height: 1.6;
         }
 
@@ -234,7 +240,7 @@
             border-radius: 9px;
             border: 1px solid var(--border);
             background: var(--surface3);
-            color: #ccc;
+            color: var(--text-main);
             font-size: 0.82rem;
             cursor: pointer;
             appearance: none;
@@ -256,7 +262,7 @@
 
         .filter-select option {
             background: var(--surface2);
-            color: #ccc;
+            color: var(--text-main);
         }
 
         /* ── Reset button ── */
@@ -312,7 +318,7 @@
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 2px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            background: var(--accent);
             opacity: 0;
             transition: opacity 0.22s;
         }
@@ -417,7 +423,7 @@
             border-radius: 8px;
             border: 1px solid var(--border);
             background: var(--surface3);
-            color: #aaa;
+            color: var(--text-muted);
             font-size: 0.75rem;
             cursor: pointer;
             text-decoration: none;
@@ -457,7 +463,7 @@
             border-radius: 9px;
             border: 1px solid var(--border);
             background: var(--surface2);
-            color: #aaa;
+            color: var(--text-muted);
             text-decoration: none;
             font-size: 0.85rem;
             transition: all 0.18s;
@@ -521,6 +527,61 @@
             background: #fff;
             padding: 12px;
             max-width: 240px;
+        }
+
+        /* ── Light theme overrides for hardcoded colors ── */
+        [data-theme="light"] .success-high {
+            color: #15803d;
+            background: rgba(21, 128, 61, 0.1);
+            border-color: rgba(21, 128, 61, 0.35);
+        }
+
+        [data-theme="light"] .success-mid {
+            color: #92400e;
+            background: rgba(146, 64, 14, 0.1);
+            border-color: rgba(146, 64, 14, 0.35);
+        }
+
+        [data-theme="light"] .success-low {
+            color: #b91c1c;
+            background: rgba(185, 28, 28, 0.1);
+            border-color: rgba(185, 28, 28, 0.35);
+        }
+
+        [data-theme="light"] .disclaimer {
+            color: #9f1239;
+            background: rgba(159, 18, 57, 0.07);
+            border-color: rgba(159, 18, 57, 0.2);
+        }
+
+        [data-theme="light"] .proxy-port { color: #4338ca; }
+
+        [data-theme="light"] .how-to a { color: #4338ca; }
+        [data-theme="light"] .how-to a:hover { color: #3730a3; }
+
+        [data-theme="light"] .action-btn:hover {
+            background: rgba(67, 56, 202, 0.1);
+            border-color: rgba(67, 56, 202, 0.35);
+            color: #4338ca;
+        }
+
+        [data-theme="light"] .page-btn:hover {
+            background: rgba(67, 56, 202, 0.1);
+            border-color: rgba(67, 56, 202, 0.35);
+            color: #4338ca;
+        }
+
+        [data-theme="light"] .btn-close-white { filter: none; }
+
+        [data-theme="light"] .site-header {
+            border-bottom-color: rgba(0,0,0,0.1);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+        }
+
+        [data-theme="light"] .stat-pill {
+            background: rgba(91, 82, 232, 0.1);
+            border-color: rgba(91, 82, 232, 0.25);
+            color: var(--accent);
         }
 
     </style>
