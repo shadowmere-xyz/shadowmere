@@ -3,6 +3,7 @@ import json
 import os
 import re
 
+from django.db import models
 import flag
 import qrcode
 from django.core.paginator import Paginator
@@ -59,8 +60,9 @@ def list_proxies(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    first_proxy = Proxy.objects.first()
-    latest_update = first_proxy.last_active if first_proxy else None
+    latest_update = Proxy.objects.filter(is_alive=True).aggregate(
+        last=models.Max("last_active")
+    )["last"]
 
     return render(
         request,
@@ -72,7 +74,7 @@ def list_proxies(request):
             "ports": ports,
             "location_country_code": location_country_code,
             "port": port,
-            "latest_update": latest_update if latest_update else None,
+            "latest_update": latest_update,
         },
     )
 
