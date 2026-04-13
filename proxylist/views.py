@@ -3,10 +3,10 @@ import json
 import os
 import re
 
-from django.db import models
 import flag
 import qrcode
 from django.core.paginator import Paginator
+from django.db import models
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import urlencode
@@ -40,7 +40,11 @@ def list_proxies(request):
         Proxy.objects.filter(
             is_active=True,
             port__gt=0,
-            **({} if not location_country_code else {"location_country_code": location_country_code}),
+            **(
+                {}
+                if not location_country_code
+                else {"location_country_code": location_country_code}
+            ),
         )
         .values_list("port", flat=True)
         .distinct()
@@ -60,7 +64,7 @@ def list_proxies(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    latest_update = Proxy.objects.filter(is_alive=True).aggregate(
+    latest_update = Proxy.objects.filter(is_active=True).aggregate(
         last=models.Max("last_active")
     )["last"]
 
