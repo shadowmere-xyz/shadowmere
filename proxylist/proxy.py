@@ -69,7 +69,7 @@ def get_proxy_location(proxy_url):
             return None
         try:
             output = r.json()
-            if "YourFuckingLocation" not in output:
+            if "Location" not in output:
                 return None
         except InvalidJSONError:
             return None
@@ -87,16 +87,16 @@ def update_proxy_status(proxy) -> None:
 
     if ip_information:
         proxy.is_active = True
-        proxy.ip_address = ip_information.get("YourFuckingIPAddress")
+        proxy.ip_address = ip_information.get("IPAddress")
         proxy.last_active = now()
         proxy.times_check_succeeded = proxy.times_check_succeeded + 1
         if (
-            proxy.location != ip_information.get("YourFuckingLocation")
+            proxy.location != ip_information.get("Location")
             or proxy.location_country == ""
         ):
-            proxy.location = ip_information.get("YourFuckingLocation")
-            proxy.location_country_code = ip_information.get("YourFuckingCountryCode")
-            proxy.location_country = ip_information.get("YourFuckingCountry")
+            proxy.location = ip_information.get("Location")
+            proxy.location_country_code = ip_information.get("CountryCode")
+            proxy.location_country = ip_information.get("Country")
     else:
         proxy.is_active = False
         proxy.location = "unknown"

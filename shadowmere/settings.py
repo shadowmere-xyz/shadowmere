@@ -32,7 +32,7 @@ DEBUG = os.getenv("DEBUG", False)
 SHADOWTEST_SERVERS = [
     url.strip()
     for url in os.getenv(
-        "SHADOWTEST_URL", "https://shadowtest.akiel.dev/v2/test"
+        "SHADOWTEST_URL", "https://shadowtest.akiel.dev/v3/test"
     ).split(",")
 ]
 
