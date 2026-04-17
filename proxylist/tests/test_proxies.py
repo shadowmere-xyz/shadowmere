@@ -12,7 +12,6 @@ APPLICATION_JSON_CONTENT_TYPE = "application/json"
 fake_proxy_data = {
     "IPAddress": "178.163.164.199",
     "Location": "Amsterdam, NH, Netherlands",
-    "Hostname": "178.163.164.199",
     "ISP": "Random ISP",
     "TorExit": False,
     "City": "Amsterdam",
