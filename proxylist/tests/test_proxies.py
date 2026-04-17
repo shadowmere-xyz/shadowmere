@@ -10,14 +10,13 @@ from proxylist.models import BlackListHost
 APPLICATION_JSON_CONTENT_TYPE = "application/json"
 
 fake_proxy_data = {
-    "YourFuckingIPAddress": "178.163.164.199",
-    "YourFuckingLocation": "Amsterdam, NH, Netherlands",
-    "YourFuckingHostname": "178.163.164.199",
-    "YourFuckingISP": "Random ISP",
-    "YourFuckingTorExit": False,
-    "YourFuckingCity": "Amsterdam",
-    "YourFuckingCountry": "Netherlands",
-    "YourFuckingCountryCode": "NL",
+    "IPAddress": "178.163.164.199",
+    "Location": "Amsterdam, NH, Netherlands",
+    "ISP": "Random ISP",
+    "TorExit": False,
+    "City": "Amsterdam",
+    "Country": "Netherlands",
+    "CountryCode": "NL",
 }
 
 
