@@ -308,28 +308,9 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.1rem 1.1rem 0.9rem;
-            transition: all 0.22s;
             position: relative;
             overflow: hidden;
         }
-
-        .proxy-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: var(--accent);
-            opacity: 0;
-            transition: opacity 0.22s;
-        }
-
-        .proxy-card:hover {
-            border-color: rgba(108, 99, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(108,99,255,0.15);
-        }
-
-        .proxy-card:hover::before { opacity: 1; }
 
         .proxy-card-top {
             display: flex;
@@ -432,8 +413,6 @@
         }
 
         .action-btn:hover {
-            background: rgba(108, 99, 255, 0.15);
-            border-color: rgba(108, 99, 255, 0.4);
             color: #b0a8ff;
         }
 
@@ -560,8 +539,6 @@
         [data-theme="light"] .how-to a:hover { color: #3730a3; }
 
         [data-theme="light"] .action-btn:hover {
-            background: rgba(67, 56, 202, 0.1);
-            border-color: rgba(67, 56, 202, 0.35);
             color: #4338ca;
         }
 
