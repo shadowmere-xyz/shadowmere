@@ -21,7 +21,7 @@ python-json-logger==4.1.0
 qrcode==8.2
 redis==8.0.0
 requests==2.34.2
-sentry-sdk==2.61.1
+sentry-sdk==2.62.0
 tzdata==2026.2
 sqlparse>=0.5.5 # not directly required, pinned by Snyk to avoid a vulnerability
 zipp>=4.1.0 # not directly required, pinned by Snyk to avoid a vulnerability
