@@ -22,7 +22,7 @@ qrcode==8.2
 redis==8.0.1
 requests==2.34.2
 sentry-sdk==2.64.0
-tzdata==2026.2
+tzdata==2026.3
 sqlparse>=0.5.5 # not directly required, pinned by Snyk to avoid a vulnerability
 zipp>=4.1.0 # not directly required, pinned by Snyk to avoid a vulnerability
 urllib3>=2.7.0 # not directly required, pinned by Snyk to avoid a vulnerability
