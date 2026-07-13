@@ -67,7 +67,8 @@ INSTALLED_APPS = [
     "huey.contrib.djhuey",
     "rest_framework",
     "django_filters",
-]
+    "huey.contrib.djhuey.stats",
+    ]
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
