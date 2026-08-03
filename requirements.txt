@@ -13,7 +13,7 @@ gevent==26.7.0
 gunicorn==26.0.0
 huey==3.3.0
 humanfriendly==10.0
-prometheus-client==0.25.0
+prometheus-client==0.26.0
 prompt-toolkit==3.0.53
 psycopg2-binary==2.9.12
 Pillow==12.3.0
