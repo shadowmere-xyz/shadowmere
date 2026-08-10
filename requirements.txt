@@ -1,6 +1,6 @@
 botocore==1.43.61
 Django==6.0.7
-django-admin-rangefilter==0.13.5
+django-admin-rangefilter==0.14.0
 django-filter==26.1
 django-import-export==4.4.1
 django-minio-storage==0.5.9
