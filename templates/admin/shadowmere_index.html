@@ -1,0 +1,102 @@
+{% extends "admin/index.html" %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  /* Django caps the dashboard at width:600px; let it use the screen. */
+  .dashboard #content { width: auto; }
+
+  .sm-overview { margin-bottom: 24px; }
+  .sm-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+    padding: 16px;
+  }
+  @media (max-width: 1024px) { .sm-body { grid-template-columns: 1fr; } }
+
+  .sm-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .sm-card {
+    padding: 16px;
+    border: 1px solid var(--hairline-color, #e5e5e5);
+    border-radius: 10px;
+    background: var(--body-bg, #fff);
+    border-left: 4px solid var(--sm-accent, var(--primary, #79aec8));
+  }
+  .sm-card .sm-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--body-quiet-color, #666); font-weight: 600;
+  }
+  .sm-card .sm-value {
+    font-size: 30px; font-weight: 700; line-height: 1.15;
+    color: var(--sm-accent, var(--body-fg, #333)); margin-top: 2px;
+  }
+  .sm-card .sm-sub { font-size: 12px; color: var(--body-quiet-color, #666); margin-top: 2px; }
+  .sm-bar { height: 6px; border-radius: 3px; background: var(--hairline-color, #eee); margin-top: 10px; overflow: hidden; }
+  .sm-bar > span { display: block; height: 100%; border-radius: 3px; background: var(--sm-accent, #4caf50); }
+
+  .sm-countries {
+    padding: 16px;
+    border: 1px solid var(--hairline-color, #e5e5e5);
+    border-radius: 10px;
+    background: var(--body-bg, #fff);
+  }
+  .sm-countries h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--body-quiet-color, #666); margin: 0 0 12px; }
+  .sm-country { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; }
+  .sm-country .sm-name { width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sm-country .sm-track { flex: 1; height: 14px; border-radius: 7px; background: var(--hairline-color, #eee); overflow: hidden; }
+  .sm-country .sm-track > span { display: block; height: 100%; background: var(--primary, #79aec8); border-radius: 7px; }
+  .sm-country .sm-count { width: 44px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+</style>
+{% endblock %}
+
+{% block content_subtitle %}
+{{ block.super }}
+{% if metrics %}
+<div class="module sm-overview">
+  <h2>Overview</h2>
+  <div class="sm-body">
+    <div class="sm-cards">
+      <div class="sm-card" style="--sm-accent: #2fa84f;">
+        <div class="sm-label">Active proxies</div>
+        <div class="sm-value">{{ metrics.proxies_active }}</div>
+        <div class="sm-sub">{{ metrics.proxies_active_pct }}% of {{ metrics.proxies_total }}</div>
+        <div class="sm-bar"><span style="width: {{ metrics.proxies_active_pct }}%;"></span></div>
+      </div>
+      <div class="sm-card" style="--sm-accent: {% if metrics.proxies_recently_active %}#2fa84f{% else %}#e0a800{% endif %};">
+        <div class="sm-label">Active last 24h</div>
+        <div class="sm-value">{{ metrics.proxies_recently_active }}</div>
+        <div class="sm-sub">checked &amp; alive recently</div>
+      </div>
+      <div class="sm-card" style="--sm-accent: {% if metrics.subs_broken %}#d9534f{% else %}#2fa84f{% endif %};">
+        <div class="sm-label">Subscriptions</div>
+        <div class="sm-value">{{ metrics.subs_enabled }}/{{ metrics.subs_total }}</div>
+        <div class="sm-sub">enabled{% if metrics.subs_broken %} &middot; {{ metrics.subs_broken }} broken{% endif %}</div>
+      </div>
+      <div class="sm-card" style="--sm-accent: #6c757d;">
+        <div class="sm-label">Blacklisted hosts</div>
+        <div class="sm-value">{{ metrics.blacklisted_hosts }}</div>
+        <div class="sm-sub">blocked from import</div>
+      </div>
+    </div>
+
+    {% if metrics.top_countries %}
+    <div class="sm-countries">
+      <h3>Top active countries</h3>
+      {% for country in metrics.top_countries %}
+      <div class="sm-country">
+        <div class="sm-name">{{ country.flag }} {{ country.location_country|default:"Unknown" }}</div>
+        <div class="sm-track"><span style="width: {{ country.pct }}%;"></span></div>
+        <div class="sm-count">{{ country.count }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
