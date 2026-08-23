@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -309,3 +310,39 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 CACHE_LOCATION_SECONDS = 1200
+
+# Two isolated caches so invalidating page/API responses (default) never wipes
+# the expensive proxy-location results that avoid re-testing proxies.
+#
+# In production both are Redis-backed so invalidation is shared across the
+# gunicorn workers and the Huey worker. They use separate Redis databases (Huey
+# owns db 0) because Django's RedisCache.clear() issues a FLUSHDB, which would
+# otherwise wipe the sibling cache and the task queue. Tests and simple DEBUG
+# runs fall back to per-process in-memory caches so Redis is not required.
+TESTING = "test" in sys.argv
+
+if DEBUG or TESTING:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "shadowmere-default",
+        },
+        "proxy_location": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "shadowmere-proxy-location",
+            "TIMEOUT": CACHE_LOCATION_SECONDS,
+        },
+    }
+else:
+    REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": f"redis://{REDIS_HOST}:6379/1",
+        },
+        "proxy_location": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": f"redis://{REDIS_HOST}:6379/2",
+            "TIMEOUT": CACHE_LOCATION_SECONDS,
+        },
+    }

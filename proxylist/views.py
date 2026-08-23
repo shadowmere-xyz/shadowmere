@@ -73,7 +73,7 @@ def list_proxies(request):
         "index.html",
         {
             "page_obj": page_obj,
-            "proxy_list": proxy_list,
+            "proxy_count": paginator.count,
             "country_codes": country_codes,
             "ports": ports,
             "location_country_code": location_country_code,
@@ -94,15 +94,16 @@ def get_flag_or_empty(country_code):
 
 
 def get_proxy_config(proxy):
+    prefix, server_and_port = proxy.url.split("@", 1)
     method_password = decode_base64(
-        proxy.url.split("@")[0].replace("ss://", "").encode("ascii")
-    )
-    server_and_port = proxy.url.split("@")[1]
+        prefix.replace("ss://", "").encode("ascii")
+    ).decode("ascii")
+    method, password = method_password.split(":", 1)
     config = {
         "server": re.findall(r"^(.*?):\d+", server_and_port)[0],
         "server_port": int(re.findall(r":(\d+)", server_and_port)[0]),
-        "password": method_password.decode("ascii").split(":")[1],
-        "method": method_password.decode("ascii").split(":")[0],
+        "password": password,
+        "method": method,
         "plugin": "",
         "plugin_opts": None,
         "remarks": f"{get_flag_or_empty(country_code=proxy.location_country_code)} {proxy.location}",

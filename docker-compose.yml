@@ -12,6 +12,7 @@ services:
       - .env
     depends_on:
       - db
+      - redis
     ports:
       - "8001:8001"
       - "8002-8007:8002-8007"

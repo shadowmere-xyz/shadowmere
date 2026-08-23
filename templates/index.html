@@ -596,10 +596,10 @@
             <span>Shadowmere</span>
         </a>
         <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-            {% if proxy_list|length > 0 %}
+            {% if proxy_count > 0 %}
                 <div class="stat-pill">
                     <span class="dot"></span>
-                    {{ proxy_list|length }}&nbsp;{% translate "online" %}
+                    {{ proxy_count }}&nbsp;{% translate "online" %}
                 </div>
             {% endif %}
             <a href="https://github.com/jadolg/shadowmere" class="github-link" target="_blank" rel="noopener">
@@ -623,10 +623,10 @@
             <div class="panel-title">About</div>
             <p class="how-to mb-3">{% translate "A list of free Shadowsocks/outline keys" %}</p>
 
-            {% if proxy_list|length > 0 %}
+            {% if proxy_count > 0 %}
                 <div class="info-row">
                     <span class="label">{% translate "Online" %}</span>
-                    <span class="value">{{ proxy_list|length }}</span>
+                    <span class="value">{{ proxy_count }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">{% translate "Last check" %}</span>
@@ -693,7 +693,7 @@
 
     <!-- Proxy list -->
     <main>
-        {% if proxy_list %}
+        {% if proxy_count %}
             <div class="proxy-grid">
                 {% for proxy in page_obj %}
                     {% with pct=proxy.times_check_succeeded|stringformat:"s" %}

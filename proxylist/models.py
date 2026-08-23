@@ -4,8 +4,8 @@ import re
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.db import models, IntegrityError
-from django.db.models.signals import post_save
+from django.db import models
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils.timezone import now
 from django_prometheus.models import ExportModelOperationsMixin
@@ -79,6 +79,13 @@ class Proxy(ExportModelOperationsMixin("proxy"), models.Model):
     times_checked = models.IntegerField(default=0)
     times_check_succeeded = models.IntegerField(default=0)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["is_active", "location_country_code"]),
+            models.Index(fields=["is_active", "port"]),
+            models.Index(fields=["is_active", "last_active"]),
+        ]
+
     def __str__(self):
         return f"{self.location} ({self.url})"
 
@@ -119,27 +126,23 @@ def get_sip002(instance_url):
     return url
 
 
-@receiver(post_save, sender=Proxy)
-def update_url_and_location_after_save(sender, instance, created, **kwargs):
+@receiver(pre_save, sender=Proxy)
+def normalize_proxy_before_save(sender, instance, **kwargs):
+    # Normalize URL, derive the port and fetch the location before the row is
+    # written, so a single save persists everything instead of triggering a
+    # chain of recursive re-saves.
     url = get_sip002(instance_url=instance.url)
-    if url != instance.url:
+    if url and url != instance.url:
         instance.url = url
-        instance.save()
-        return
 
-    if instance.port == 0:
+    if instance.port == 0 and "@" in instance.url:
         server_and_port = instance.url.split("@")[1]
-        instance.port = int(re.findall(r":(\d+)", server_and_port)[-1])
-        instance.save()
-        return
+        ports = re.findall(r":(\d+)", server_and_port)
+        if ports:
+            instance.port = int(ports[-1])
 
     if instance.location == "":
         update_proxy_status(instance)
-        try:
-            instance.save()
-        except IntegrityError:
-            # This means the proxy is either a duplicate or no longer valid
-            instance.delete()
 
 
 @receiver(post_save, sender=Proxy)
