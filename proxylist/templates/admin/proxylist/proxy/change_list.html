@@ -1,0 +1,20 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+  {{ block.super }}
+  {% if proxy_summary %}
+    <div style="margin: 12px 0; padding: 12px 16px; background: var(--darkened-bg, #f8f8f8);
+                border: 1px solid var(--hairline-color, #eaeaea); border-radius: 4px;">
+      <strong>{{ proxy_summary.total }}</strong> proxies &middot;
+      <strong style="color: green">{{ proxy_summary.active }}</strong> active &middot;
+      <strong style="color: #999">{{ proxy_summary.inactive }}</strong> inactive
+      {% if proxy_summary.top_countries %}
+        <span style="margin-left: 8px;">| Top active countries:
+          {% for country in proxy_summary.top_countries %}
+            {{ country.location_country|default:"Unknown" }} ({{ country.count }}){% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </span>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}
