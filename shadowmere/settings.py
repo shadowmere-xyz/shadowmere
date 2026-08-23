@@ -309,3 +309,17 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 CACHE_LOCATION_SECONDS = 1200
+
+# Two isolated caches so invalidating page/API responses (default) never wipes
+# the expensive proxy-location results that avoid re-testing proxies.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "shadowmere-default",
+    },
+    "proxy_location": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "shadowmere-proxy-location",
+        "TIMEOUT": CACHE_LOCATION_SECONDS,
+    },
+}

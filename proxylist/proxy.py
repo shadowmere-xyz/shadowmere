@@ -4,7 +4,7 @@ import time
 from itertools import cycle
 
 import requests
-from django.core.cache import cache
+from django.core.cache import caches
 from django.utils.timezone import now
 from requests import ReadTimeout
 from requests.exceptions import InvalidJSONError, SSLError
@@ -16,6 +16,12 @@ log = logging.getLogger("django")
 
 shadowtest_iterator = cycle(SHADOWTEST_SERVERS)
 
+location_cache = caches["proxy_location"]
+
+# Sentinel cached for addresses that resolve to no location, so dead proxies are
+# not re-tested on every cycle within the cache window.
+NO_LOCATION = "__no_location__"
+
 
 class ShadowtestError(Exception):
     pass
@@ -25,13 +31,13 @@ def get_proxy_location(proxy_url):
     # Return the cached result if it exists
     # This should make t easier for the testing mechanism by avoiding double testing
     cache_key = f"proxy_location:{hashlib.sha256(proxy_url.encode('utf-8', errors='ignore')).hexdigest()}"
-    cached_result = cache.get(cache_key)
+    cached_result = location_cache.get(cache_key)
     if cached_result is not None:
         log.info(
             "Using cached location",
             extra={"source": "get_proxy_location", "address": proxy_url},
         )
-        return cached_result
+        return None if cached_result == NO_LOCATION else cached_result
 
     retries = 5
     delay = 1
@@ -66,15 +72,18 @@ def get_proxy_location(proxy_url):
                 raise ShadowtestError()
 
         if r.status_code != 200:
+            location_cache.set(cache_key, NO_LOCATION, CACHE_LOCATION_SECONDS)
             return None
         try:
             output = r.json()
             if "Location" not in output:
+                location_cache.set(cache_key, NO_LOCATION, CACHE_LOCATION_SECONDS)
                 return None
         except InvalidJSONError:
+            location_cache.set(cache_key, NO_LOCATION, CACHE_LOCATION_SECONDS)
             return None
 
-        cache.set(cache_key, output, CACHE_LOCATION_SECONDS)
+        location_cache.set(cache_key, output, CACHE_LOCATION_SECONDS)
         return output
 
 
