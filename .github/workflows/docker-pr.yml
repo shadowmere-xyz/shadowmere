@@ -20,5 +20,10 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           push: false
+          load: true
           platforms: linux/arm64
           tags: shadowmere:${{ github.sha }}
+      - name: Smoke test gunicorn worker
+        run: |
+          docker run --rm --entrypoint python shadowmere:${{ github.sha }} \
+            -c "from gunicorn.util import load_class; load_class('gevent'); print('gevent worker loads ok')"
