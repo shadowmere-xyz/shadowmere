@@ -309,7 +309,11 @@ if not DEBUG:
     SESSION_COOKIE_HTTPONLY = True
     CSRF_COOKIE_SECURE = True
 
-CACHE_LOCATION_SECONDS = 1200
+# Kept well under the */20 update_status interval so each scheduled check
+# re-tests proxies instead of replaying a full cycle of stale locations. This
+# only needs to bridge the brief top-of-hour overlap between poll_subscriptions
+# and update_status.
+CACHE_LOCATION_SECONDS = 120
 
 # Two isolated caches so invalidating page/API responses (default) never wipes
 # the expensive proxy-location results that avoid re-testing proxies.
