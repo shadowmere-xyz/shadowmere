@@ -16,7 +16,7 @@ humanfriendly==10.0
 packaging==26.3
 prometheus-client==0.26.0
 prompt-toolkit==3.0.53
-psycopg2-binary==2.9.12
+psycopg2-binary==2.9.13
 Pillow==12.3.0
 python-json-logger==4.2.0
 qrcode==8.2
