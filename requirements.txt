@@ -9,7 +9,7 @@ django-ratelimit==4.1.0
 django-storages==1.14.6
 djangorestframework==3.18.1
 emoji-country-flag==2.1.0
-gevent==26.8.0
+gevent==26.9.0
 gunicorn==26.2.0
 huey==3.4.0
 humanfriendly==10.0
