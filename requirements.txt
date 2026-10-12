@@ -1,4 +1,4 @@
-botocore==1.43.107
+botocore==1.43.111
 Django==6.0.9
 django-admin-rangefilter==0.15.0
 django-filter==26.2
