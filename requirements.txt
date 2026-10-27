@@ -25,5 +25,5 @@ requests==2.34.2
 sentry-sdk==2.73.0
 tzdata==2026.5
 sqlparse>=0.6.0 # not directly required, pinned by Snyk to avoid a vulnerability
-zipp>=4.1.1 # not directly required, pinned by Snyk to avoid a vulnerability
+zipp>=4.1.2 # not directly required, pinned by Snyk to avoid a vulnerability
 urllib3>=2.8.0 # not directly required, pinned by Snyk to avoid a vulnerability
